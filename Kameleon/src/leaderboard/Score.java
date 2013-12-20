@@ -3,7 +3,7 @@ package leaderboard;
 import java.util.Calendar;
 
 public class Score implements Comparable<Score>, Cloneable {
-	private Calendar date;
+	private Calendar date; // Calendar
 	private String team;
 	private String player;
 	private int score;
