@@ -4,7 +4,7 @@ import java.util.Calendar;
 
 public class Score implements Comparable<Score>, Cloneable {
 	private Calendar date; // Calendar
-	private String team;
+	private String team; // Team
 	private String player;
 	private int score;
 	
