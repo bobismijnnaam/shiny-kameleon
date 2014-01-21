@@ -1,9 +1,15 @@
 package board;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
+import javax.swing.JPanel;
+
 public class BoardView {
 
 	public BoardView() {
-		// TODO Auto-generated constructor stub
+		JPanel panel = new JPanel(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
 	}
 
 }

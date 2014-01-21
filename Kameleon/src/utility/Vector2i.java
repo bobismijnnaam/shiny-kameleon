@@ -41,7 +41,7 @@ public class Vector2i implements Comparable<Vector2i> {
 	}
 
 	/**
-	 * Compares
+	 * Compares.
 	 * @return -1 if this is smaller, 0 if equal, 1 if this is bigger.
 	 */
 	@Override

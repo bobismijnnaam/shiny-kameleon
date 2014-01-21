@@ -1,28 +1,45 @@
 package board;
 
-import utility.Move;
-import utility.Player;
+import utility.*;
 
 public class BoardModel {
-
-	// private Player[][] fields;
-	private int[][] fields;
+	
+	private Player[][] fields;
+	
+	public static final int BOARD_W = 8;
+	public static final int BOARD_H = 8;
 	
 	public BoardModel() {
-		// TODO Auto-generated constructor stub
+		fields = new Player[BOARD_W][BOARD_H];
+		for (int x = 0; x < BOARD_W; x++) {
+			for (int y = 0; y < BOARD_H; y++) {
+				fields[x][y] = null;
+			}
+		}
 	}
 	
 	public void applyMove(Move move) {
+		Vector2i p = move.getPosition();
+		fields[p.x][p.y] = move.getPlayer();
 		
+		// Evaluate move
 	}
 	 
 	public int getScore(Player player) {
+		int score = 0;
 		
-		return 0;
+		for (int x = 0; x < BOARD_W; x++) {
+			for (int y = 0; y < BOARD_H; y++) {
+				if (fields[x][y] == player) {
+					score++;
+				}
+			}
+		}
+		
+		return score;
 	}
 	
 	public Player getPlayerAt(int x, int y) {
-		
-		return null;
+		return fields[x][y];
 	}
 }
