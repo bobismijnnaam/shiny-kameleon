@@ -1,5 +1,5 @@
 package leaderboard;
-// hoi bob
+
 import java.util.Calendar;
 
 public class Score implements Comparable<Score>, Cloneable {
@@ -27,6 +27,9 @@ public class Score implements Comparable<Score>, Cloneable {
 		}
 	}
 	
+	/**
+	 * @return Returns the score.
+	 */
 	public int getScore() {
 		return score;
 	}
