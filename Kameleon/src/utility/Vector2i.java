@@ -40,6 +40,9 @@ public class Vector2i implements Comparable<Vector2i> {
 		return new Vector2i(x * other.x, y * other.y);
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public int compareTo(Vector2i other) {
 		int thisLength = x * x + y * y;
