@@ -105,7 +105,7 @@ public class Leaderboard {
 		lb.addScore("Dennis", 75, null, date);
 		
 		List<Score> result;
-		result = lb.getScoresBelow(90);
+		result = lb.getScoresBelow(11);
 		for (Score s : result) {
 			System.out.println(s.getScore());
 		}
