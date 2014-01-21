@@ -1,8 +1,8 @@
-package logic;
+package utility;
 
 public class Player {
 	
-	enum Colour {
+	public enum Colour {
 		Blue,
 		Green,
 		Red,

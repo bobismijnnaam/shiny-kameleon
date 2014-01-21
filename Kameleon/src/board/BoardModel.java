@@ -1,7 +1,7 @@
 package board;
 
-import logic.Move;
-import logic.Player;
+import utility.Move;
+import utility.Player;
 
 public class BoardModel {
 

@@ -2,16 +2,18 @@ package leaderboard;
 
 import java.util.Calendar;
 
+import utility.Player;
+
 public class Score implements Comparable<Score>, Cloneable {
 	private Calendar date; // Calendar
 	private String team; // Team
-	private String player;
+	private Player player;
 	private int score;
 	
 	public Score(String inputPlayer, int inputScore, String inputTeam, Calendar inputDate) {
 		date = (Calendar) inputDate.clone();
 		team = inputTeam == null ? null : new String(inputTeam);
-		player = new String(inputPlayer);
+		player = new Player(Player.Colour.Blue , inputPlayer);
 		score = inputScore;
 	}
 	
@@ -21,9 +23,9 @@ public class Score implements Comparable<Score>, Cloneable {
 	
 	public String getTag() {
 		if (team != null) {
-			return "[" + team + "]" + player;
+			return "[" + team + "]" + player.getName();
 		} else {
-			return player;
+			return player.getName();
 		}
 	}
 	
@@ -48,7 +50,7 @@ public class Score implements Comparable<Score>, Cloneable {
 	
 	@Override
 	public Score clone() {
-		return new Score(player, score, team, date);
+		return new Score(player.getName(), score, team, date);
 	}
 	
 }
