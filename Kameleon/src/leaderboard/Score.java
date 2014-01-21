@@ -8,11 +8,11 @@ public class Score implements Comparable<Score>, Cloneable {
 	private String player;
 	private int score;
 	
-	public Score(String player, int score, String team, Calendar date) {
-		this.date = (Calendar) date.clone();
-		this.team = team == null ? null : new String(team);
-		this.player = new String(player);
-		this.score = score;
+	public Score(String inputPlayer, int inputScore, String inputTeam, Calendar inputDate) {
+		date = (Calendar) inputDate.clone();
+		team = inputTeam == null ? null : new String(inputTeam);
+		player = new String(inputPlayer);
+		score = inputScore;
 	}
 	
 	public Calendar getDate() {
