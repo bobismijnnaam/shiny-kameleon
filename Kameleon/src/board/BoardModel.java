@@ -1,6 +1,8 @@
 package board;
 
+import java.util.LinkedList;
 import java.util.Observable;
+
 import utility.*;
 
 // TODO
@@ -61,6 +63,19 @@ public class BoardModel extends Observable {
         setChanged();
         notifyObservers();
 	}
+	
+	public Vector2i getNextPlayerPosition(Vector2i p, Player player, Vector2i.Direction dir) {
+		Vector2i nextPos = p.getNeighbour(dir);
+		while (containsPosition(nextPos) && getPlayerAt(nextPos) != move.getPlayer()) {
+			nextPos = nextPos.getNeighbour(dir);
+		}
+			
+		if (!containsPosition(nextPos)) {
+			return null;
+		} else {
+			return nextPos;
+		}
+	}
 	 
 	public int getScore(Player player) {
 		int score = 0;
@@ -103,19 +118,44 @@ public class BoardModel extends Observable {
 	}
 	
 	public boolean isNeighbourOfBall(Vector2i p) {
-		boolean res = false;
-		
 		for (int i = Vector2i.Direction.MIN_INT; i < Vector2i.Direction.MAX_INT; i++) {
 			if (getNeighbour(p, i) != null) {
-				res = true;
+				return true;
 			}
 		}
 		
-		return res;
+		return false;
+	}
+	
+	public LinkedList<Vector2i> getPossibleMoves() {
+		LinkedList<Vector2i> positions = new LinkedList<Vector2i>();
+		Vector2i tempVec;
+		
+		for (int x = 0; x < BOARD_W; x++) {
+			for (int y = 0; y < BOARD_H; y++) {
+				tempVec = new Vector2i(x, y);
+				if (isNeighbourOfBall(tempVec)) {
+					positions.add(tempVec);
+				}
+			}
+		}
+		
+		return positions;
+	}
+	
+	public LinkedList<Vector2i> filterBlockingMoves(LinkedList<Vector2i> moves, Player player) {
+		LinkedList<Vector2i> blockingMoves = new LinkedList<Vectori2i>();
+		
+		for (Vector2i move : moves) {
+			// Test all for blocking
+		}
+		
+		return null;
 	}
 	
 	// TODO
-	public boolean isBlockingOrCapturing(Move move) {
+	public boolean isCapturing(Move move) {
+		
 		return false;
 	}
 	
