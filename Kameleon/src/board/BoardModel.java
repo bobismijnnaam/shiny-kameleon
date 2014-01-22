@@ -166,9 +166,9 @@ public class BoardModel extends Observable {
 	
 	public String toString() {
 		String res = new String();
-		for (int x = 0; x < BOARD_W; x++) {
+		for (int y = 0; y < BOARD_H; y++) {
 			res += "|";
-			for (int y = 0; y < BOARD_H; y++) {
+			for (int x = 0; x < BOARD_H; x++) {
 				if (fields[x][y] == null) {
 					res +=  "      |";
 				} else {
@@ -182,7 +182,6 @@ public class BoardModel extends Observable {
 		return res;
 	}
 	
-	/*
 	public static void main(String[] args) {
 		BoardModel board = new BoardModel();
 		Player plr = new Player(Player.Colour.Blue, "Ruben XII");
@@ -196,5 +195,5 @@ public class BoardModel extends Observable {
 		board.applyMove(m3);
 		
 		System.out.println(board.toString());
-	} */
+	}
 }
