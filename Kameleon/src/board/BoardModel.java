@@ -38,7 +38,7 @@ public class BoardModel extends Observable {
 		Vector2i nextPos;
 		
 		// Iterate over directions
-		for (int i = Vector2i.Direction.MIN_INT; i < Vector2i.Direction.MAX_INT; i++) {
+		for (int i = Vector2i.Direction.MIN_INT; i <= Vector2i.Direction.MAX_INT; i++) {
 			nextPos = p.getNeighbour(i);
 			while (containsPosition(nextPos) && getPlayerAt(nextPos) != move.getPlayer()) {
 				nextPos = nextPos.getNeighbour(i);

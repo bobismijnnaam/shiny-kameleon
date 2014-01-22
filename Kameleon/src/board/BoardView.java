@@ -86,24 +86,45 @@ public class BoardView extends JFrame implements Observer {
 		fieldButtons[4][4].setEnabled(false);
 		
 		// Add Board controller
-		BoardController controller = new BoardController(board, fieldButtons, fields);
+		//BoardController controller = new BoardController(board, fieldButtons, fields);
 		
-		// set action listeners
+		/*// set action listeners
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				fieldButtons[i][j].addActionListener(controller);
 			}
-		}
+		} */
 		
 		// Add board observer
 		board.addObserver(this);
 	}
 	
+	public void addListeners(BoardController inputController) {
+		// set action listeners
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				fieldButtons[i][j].addActionListener(inputController);
+			}
+		}
+	}
+	
+	public BackgroundPanel[][] getFields() {
+		return fields;
+	}
+	
+	/*
 	public static void main(String[] args) throws IOException {
 		BoardModel board = new BoardModel();
+		Player plr1 = new Player(Player.Colour.Red, "Ruben XII");
+		Player plr2 = new Player(Player.Colour.Green, "Ruben XII");
+		Player plr3 = new Player(Player.Colour.Blue, "Ruben XII");
+		Player plr4 = new Player(Player.Colour.Yellow, "Ruben XII");
+		board.setStartPosition(plr1, plr2, plr3, plr4);
 		BoardView mainView = new BoardView(board);
 		mainView.setVisible(true);
 	}
+	
+	*/
 	
 	public JButton[][] getFieldButtons() {
 		return fieldButtons;
