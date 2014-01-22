@@ -28,7 +28,6 @@ public class BoardView extends JFrame implements Observer {
 	}
 	
 	public void makeGUI(BoardModel inputBoard) throws IOException {
-		
 		// initialize arrays
 		fields = new BackgroundPanel[8][8];
 		fieldButtons = new JButton[8][8];
