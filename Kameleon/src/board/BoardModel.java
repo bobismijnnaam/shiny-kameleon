@@ -26,8 +26,8 @@ public class BoardModel extends Observable {
 	public void setStartPosition(Player p1, Player p2, Player p3, Player p4) {
 		fields[3][3] = p1;
 		fields[4][3] = p2;
-		fields[3][4] = p3;
-		fields[4][4] = p4;
+		fields[3][4] = p4;
+		fields[4][4] = p3;
 		
         setChanged();
         notifyObservers();

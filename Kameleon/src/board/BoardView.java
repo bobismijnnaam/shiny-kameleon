@@ -1,13 +1,10 @@
 package board;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import utility.BackgroundPanel;
@@ -34,10 +31,17 @@ public class BoardView extends JFrame implements Observer {
 		board = inputBoard;
 		
 		// a layered pane to wrap all things up and display flashy annoying things! :D
-		JLayeredPane layers = new JLayeredPane();
+		/*JLayeredPane layers = new JLayeredPane();
 		LayoutManager overlay = new OverlayLayout(layers);
 		layers.setLayout(overlay);
-		add(layers);
+		add(layers); */
+		
+		// board wrapper
+		JPanel boardWrapperY = new JPanel();
+		boardWrapperY.setLayout(new BoxLayout(boardWrapperY, BoxLayout.Y_AXIS));
+		JPanel boardWrapperX = new JPanel();
+		boardWrapperX.setLayout(new BoxLayout(boardWrapperX, BoxLayout.X_AXIS));
+		add(boardWrapperX);
 		
 		// the board container 
 		JPanel container = new JPanel();
@@ -73,25 +77,48 @@ public class BoardView extends JFrame implements Observer {
 		}
 		
 		// play game text
-		BackgroundPanel playGame = new BackgroundPanel("media/play.png");
+		/*BackgroundPanel playGame = new BackgroundPanel("media/play.png");
 		playGame.setPreferredSize(new Dimension(640, 640));
 		playGame.setOpaque(false);
-		playGame.setVisible(false);
+		playGame.setVisible(false); */
+		
+		// create the upper edge of board
+		BackgroundPanel upperEdge = new BackgroundPanel("media/upperEdge.png");
+		upperEdge.setPreferredSize(new Dimension(480, 50));
+		
+		// create the lower edge of board
+		BackgroundPanel lowerEdge = new BackgroundPanel("media/lowerEdge.png");
+		lowerEdge.setPreferredSize(new Dimension(480, 50));
 		
 		// set the complete preferred board size
-		container.setPreferredSize(new Dimension(640, 640));
-		layers.add(container, new Integer(1));
-		layers.add(playGame, new Integer(2));
-		layers.setPreferredSize(new Dimension(640, 640));
+		container.setPreferredSize(new Dimension(480, 480));
+		boardWrapperY.add(upperEdge);
+		boardWrapperY.add(container);
+		boardWrapperY.add(lowerEdge);
+		boardWrapperY.setPreferredSize(new Dimension(480, 580));
+		
+		// left side of the board
+		BackgroundPanel leftEdge = new BackgroundPanel("media/leftEdge.png");
+		leftEdge.setPreferredSize(new Dimension(50, 580));
+		
+		// left side of the board
+		BackgroundPanel rightEdge = new BackgroundPanel("media/rightEdge.png");
+		rightEdge.setPreferredSize(new Dimension(50, 580));
+		
+		// set the board x
+		boardWrapperX.add(leftEdge);
+		boardWrapperX.add(boardWrapperY);
+		boardWrapperX.add(rightEdge);
+		boardWrapperX.setPreferredSize(new Dimension(580, 580));
 		setTitle("ROLLIT RUB");
 		pack();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// set the initial fields
 		fields[3][3].changeTexture("media/red.png");
-		fields[4][3].changeTexture("media/green.png");
+		fields[4][3].changeTexture("media/yellow.png");
 		fields[3][4].changeTexture("media/blue.png");
-		fields[4][4].changeTexture("media/yellow.png");
+		fields[4][4].changeTexture("media/green.png");
 		// disable the buttons
 		fieldButtons[3][3].setEnabled(false);
 		fieldButtons[4][3].setEnabled(false);
@@ -147,7 +174,7 @@ public class BoardView extends JFrame implements Observer {
 	public void update(Observable arg0, Object arg1) {
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
-				Player player = board.getPlayerAt(x, y);
+				Player player = board.getPlayerAt(new Vector2i(x, y));
 				if (player == null) {
 					// Nothing to see here
 				} else {
