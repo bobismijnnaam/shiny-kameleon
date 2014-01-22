@@ -70,6 +70,7 @@ public class BoardModel extends Observable {
 	
 	public Vector2i getNextPosition(Vector2i p, Player player, int dir) {
 		Vector2i nextPos = p.getNeighbour(dir);
+
 		while (containsPosition(nextPos) 
 				&& getPlayerAt(nextPos) != null && getPlayerAt(nextPos) != player) {
 			nextPos = nextPos.getNeighbour(dir);
@@ -152,13 +153,12 @@ public class BoardModel extends Observable {
 		return filterBlockingMoves(getPossibleMoves(), player);
 	}
 	
-	// TODO
 	public LinkedList<Vector2i> filterBlockingMoves(LinkedList<Vector2i> moves, Player player) {
-		LinkedList<Vector2i> blockingMoves = new LinkedList<Vectori2i>();
+		LinkedList<Vector2i> blockingMoves = new LinkedList<Vector2i>();
 		
 		Vector2i nextPos;
 		for (Vector2i move : moves) {
-			for(int i = Vector2i.Direction.MIN_INT; i < Vector2i.Direction.MAX_INT; i++) {
+			for (int i = Vector2i.Direction.MIN_INT; i < Vector2i.Direction.MAX_INT; i++) {
 				nextPos = getNextPosition(move, player, i);
 				if (nextPos != null) {
 					blockingMoves.add(move);

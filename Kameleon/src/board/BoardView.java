@@ -33,10 +33,15 @@ public class BoardView extends JFrame implements Observer {
 		fieldButtons = new JButton[8][8];
 		board = inputBoard;
 		
-		// the board container
+		// a layered pane to wrap all things up and display flashy annoying things! :D
+		JLayeredPane layers = new JLayeredPane();
+		LayoutManager overlay = new OverlayLayout(layers);
+		layers.setLayout(overlay);
+		add(layers);
+		
+		// the board container 
 		JPanel container = new JPanel();
 		container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
-		add(container);
 		
 		// adds the x row 8 times
 		for (int y = 0; y < 8; y++) {
@@ -67,8 +72,17 @@ public class BoardView extends JFrame implements Observer {
 			container.add(xRow);
 		}
 		
+		// play game text
+		BackgroundPanel playGame = new BackgroundPanel("media/play.png");
+		playGame.setPreferredSize(new Dimension(640, 640));
+		playGame.setOpaque(false);
+		playGame.setVisible(false);
+		
 		// set the complete preferred board size
 		container.setPreferredSize(new Dimension(640, 640));
+		layers.add(container, new Integer(1));
+		layers.add(playGame, new Integer(2));
+		layers.setPreferredSize(new Dimension(640, 640));
 		setTitle("ROLLIT RUB");
 		pack();
 		
@@ -85,24 +99,45 @@ public class BoardView extends JFrame implements Observer {
 		fieldButtons[4][4].setEnabled(false);
 		
 		// Add Board controller
-		BoardController controller = new BoardController(board, fieldButtons, fields);
+		//BoardController controller = new BoardController(board, fieldButtons, fields);
 		
-		// set action listeners
+		/*// set action listeners
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				fieldButtons[i][j].addActionListener(controller);
 			}
-		}
+		} */
 		
 		// Add board observer
 		board.addObserver(this);
 	}
 	
+	public void addListeners(BoardController inputController) {
+		// set action listeners
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				fieldButtons[i][j].addActionListener(inputController);
+			}
+		}
+	}
+	
+	public BackgroundPanel[][] getFields() {
+		return fields;
+	}
+	
+	/*
 	public static void main(String[] args) throws IOException {
 		BoardModel board = new BoardModel();
+		Player plr1 = new Player(Player.Colour.Red, "Ruben XII");
+		Player plr2 = new Player(Player.Colour.Green, "Ruben XII");
+		Player plr3 = new Player(Player.Colour.Blue, "Ruben XII");
+		Player plr4 = new Player(Player.Colour.Yellow, "Ruben XII");
+		board.setStartPosition(plr1, plr2, plr3, plr4);
 		BoardView mainView = new BoardView(board);
 		mainView.setVisible(true);
 	}
+	
+	*/
 	
 	public JButton[][] getFieldButtons() {
 		return fieldButtons;

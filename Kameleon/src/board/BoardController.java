@@ -15,13 +15,15 @@ public class BoardController implements ActionListener {
 	private BoardModel board;
 	private JButton[][] fieldButtons;
 	private BackgroundPanel[][] fields;
+	private Player[] players;
 	
 	public BoardController(BoardModel inputBoard, JButton[][] inputFieldButtons, 
-			BackgroundPanel[][] inputFields) {
+			BackgroundPanel[][] inputFields, Player[] inputPlayers) {
 		
 		board = inputBoard;
 		fieldButtons = inputFieldButtons;
 		fields = inputFields;
+		players = inputPlayers;
 	}
 
 	@Override
@@ -30,12 +32,7 @@ public class BoardController implements ActionListener {
 		String name = change.getName();
 		String[] split = name.split("-");
 		Vector2i position = new Vector2i(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
-		Player plr1 = new Player(Player.Colour.Red, "Ruben XII");
-		Player plr2 = new Player(Player.Colour.Green, "Ruben XII");
-		Player plr3 = new Player(Player.Colour.Blue, "Ruben XII");
-		Player plr4 = new Player(Player.Colour.Yellow, "Ruben XII");
-		board.setStartPosition(plr1, plr2, plr3, plr4);
-		Move m1 = new Move(position, plr2);
+		Move m1 = new Move(position, players[3]);
 		board.applyMove(m1);
 		System.out.println(board.toString());
 	}
