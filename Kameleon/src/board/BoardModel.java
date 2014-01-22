@@ -9,7 +9,7 @@ import utility.*;
 
 public class BoardModel extends Observable {
 	private Player[][] fields;
-	
+
 	public static final int BOARD_W = 8;
 	public static final int BOARD_H = 8;
 	
@@ -23,10 +23,10 @@ public class BoardModel extends Observable {
 	}
 	
 	public void setStartPosition(Player p1, Player p2, Player p3, Player p4) {
-		fields[4][4] = p1;
-		fields[5][4] = p2;
-		fields[5][5] = p3;
-		fields[4][5] = p4;
+		fields[3][3] = p1;
+		fields[4][3] = p2;
+		fields[3][4] = p3;
+		fields[4][4] = p4;
 		
         setChanged();
         notifyObservers();
@@ -96,7 +96,7 @@ public class BoardModel extends Observable {
 	}
 	
 	public Player getPlayerAt(Vector2i p) {
-		System.out.println("getPlayer: " + p.toString());
+		//System.out.println("getPlayer: " + p.toString());
 		return fields[p.x][p.y];
 	}
 	
@@ -182,6 +182,7 @@ public class BoardModel extends Observable {
 		return res;
 	}
 	
+	/*
 	public static void main(String[] args) {
 		BoardModel board = new BoardModel();
 		Player plr = new Player(Player.Colour.Blue, "Ruben XII");
@@ -195,5 +196,5 @@ public class BoardModel extends Observable {
 		board.applyMove(m3);
 		
 		System.out.println(board.toString());
-	}
+	} */
 }

@@ -11,6 +11,9 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import utility.BackgroundPanel;
+import utility.Player;
+import utility.Player.Colour;
+import utility.Vector2i;
 
 public class BoardView extends JFrame implements Observer {
 	
@@ -18,16 +21,18 @@ public class BoardView extends JFrame implements Observer {
 	private BackgroundPanel[][] fields;
 	private JButton[][] fieldButtons;
 	private JButton button;
+	private BoardModel board;
 	
-	public BoardView() throws IOException {
-		makeGUI();
+	public BoardView(BoardModel inputBoard) throws IOException {
+		makeGUI(inputBoard);
 	}
 	
-	public void makeGUI() throws IOException {
+	public void makeGUI(BoardModel inputBoard) throws IOException {
 		
 		// initialize arrays
 		fields = new BackgroundPanel[8][8];
 		fieldButtons = new JButton[8][8];
+		board = inputBoard;
 		
 		// the board container
 		JPanel container = new JPanel();
@@ -43,10 +48,11 @@ public class BoardView extends JFrame implements Observer {
 			// create the y row
 			for (int x = 0; x < 8; x++) {
 				// make the button transparent
-				button = new JButton("");
+				button = new JButton();
+				button.setName("" + x + "-" + y);
 				button.setOpaque(false);
 				button.setContentAreaFilled(false);
-				button.setBorderPainted(true);
+				button.setBorderPainted(false);
 				BackgroundPanel empty = new BackgroundPanel("media/empty.png"); //set up panel
 				empty.setLayout(new BorderLayout());
 				empty.add(button, BorderLayout.CENTER);
@@ -78,17 +84,56 @@ public class BoardView extends JFrame implements Observer {
 		fieldButtons[4][3].setEnabled(false);
 		fieldButtons[3][4].setEnabled(false);
 		fieldButtons[4][4].setEnabled(false);
+		
+		// Add Board controller
+		BoardController controller = new BoardController(board, fieldButtons, fields);
+		
+		// set action listeners
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				fieldButtons[i][j].addActionListener(controller);
+			}
+		}
+		
+		// Add board observer
+		board.addObserver(this);
 	}
 	
 	public static void main(String[] args) throws IOException {
-		BoardView mainView = new BoardView();
+		BoardModel board = new BoardModel();
+		BoardView mainView = new BoardView(board);
 		mainView.setVisible(true);
+	}
+	
+	public JButton[][] getFieldButtons() {
+		return fieldButtons;
 	}
 
 	@Override
 	public void update(Observable arg0, Object arg1) {
-		// TODO Auto-generated method stub
-		
+		for (int x = 0; x < 8; x++) {
+			for (int y = 0; y < 8; y++) {
+				Player player = board.getPlayerAt(x, y);
+				if (player == null) {
+					
+				} else {
+					Colour colour = player.getColour();
+					if (colour == Player.Colour.Blue) {
+						fields[x][y].changeTexture("media/blue.png");
+						fieldButtons[x][y].setEnabled(false);
+					} else if (colour == Player.Colour.Green) {
+						fields[x][y].changeTexture("media/green.png");
+						fieldButtons[x][y].setEnabled(false);
+					} else if (colour == Player.Colour.Yellow) {
+						fields[x][y].changeTexture("media/yellow.png");
+						fieldButtons[x][y].setEnabled(false);
+					} else if (colour == Player.Colour.Red) {
+						fields[x][y].changeTexture("media/red.png");
+						fieldButtons[x][y].setEnabled(false);
+					}
+				}
+			}
+		}
 	}
 
 }
