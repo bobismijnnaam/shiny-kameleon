@@ -16,6 +16,7 @@ public class Player {
 		
 		private String clr;
 		private String clrNormalised;
+		private Colour next;
 		
 		static {
 			Blue.clrNormalised = "Blue  ";
@@ -27,6 +28,11 @@ public class Player {
 			Green.clr = "Green";
 			Red.clr = "Red";
 			Yellow.clr = "Yellow";
+			
+			Red.next = Yellow;
+			Yellow.next = Green;
+			Green.next = Blue;
+			Blue.next = Red;
 		}
 		
 		public String toString() {
@@ -35,6 +41,10 @@ public class Player {
 		
 		public String toNormalisedString() {
 			return new String(clrNormalised);
+		}
+		
+		public Colour getNext() {
+			return next;
 		}
 		
 	}

@@ -6,7 +6,6 @@ import java.util.Observable;
 import utility.*;
 
 // TODO
-// getField methode
 // PlayerColour.next (voor beurten en shit)
 
 public class BoardModel extends Observable {
@@ -42,7 +41,7 @@ public class BoardModel extends Observable {
 		Vector2i nextPos;
 		
 		// Iterate over directions
-		for (int i = Vector2i.Direction.MIN_INT; i < Vector2i.Direction.MAX_INT; i++) {
+		for (int i = Vector2i.Direction.MIN_INT; i <= Vector2i.Direction.MAX_INT; i++) {
 			nextPos = getNextPosition(move.getPosition(), move.getPlayer(), i);
 			System.out.println(nextPos);
 			
@@ -100,7 +99,6 @@ public class BoardModel extends Observable {
 	}
 	
 	public Player getPlayerAt(Vector2i p) {
-		//System.out.println("getPlayer: " + p.toString());
 		return fields[p.x][p.y];
 	}
 	
@@ -124,7 +122,7 @@ public class BoardModel extends Observable {
 	}
 	
 	public boolean isNeighbourOfBall(Vector2i p) {
-		for (int i = Vector2i.Direction.MIN_INT; i < Vector2i.Direction.MAX_INT; i++) {
+		for (int i = Vector2i.Direction.MIN_INT; i <= Vector2i.Direction.MAX_INT; i++) {
 			if (getNeighbour(p, i) != null) {
 				return true;
 			}
@@ -158,10 +156,11 @@ public class BoardModel extends Observable {
 		
 		Vector2i nextPos;
 		for (Vector2i move : moves) {
-			for (int i = Vector2i.Direction.MIN_INT; i < Vector2i.Direction.MAX_INT; i++) {
+			for (int i = Vector2i.Direction.MIN_INT; i <= Vector2i.Direction.MAX_INT; i++) {
 				nextPos = getNextPosition(move, player, i);
 				if (nextPos != null) {
 					blockingMoves.add(move);
+					break;
 				}
 			}
 		}
@@ -169,22 +168,29 @@ public class BoardModel extends Observable {
 		return blockingMoves;
 	}
 	
-	public LinkedList<Vector2i> getMoveSuggestions() {
-		// getpossiblemoves
-		// filterblockingmoves
-		// filterpossiblemoves.size() == 0 ? return filterpossiblemoves : getpossiblemoves;
-		return null;
+	public LinkedList<Vector2i> getMoveSuggestions(Player player) {
+		LinkedList<Vector2i> possibleMoves = getPossibleMoves();
+		LinkedList<Vector2i> blockingMoves = filterBlockingMoves(possibleMoves, player);
+		
+		if (blockingMoves.size() == 0) {
+			return possibleMoves;
+		} else {
+			return blockingMoves;
+		}
 	}
 	
-	// TODO
 	public boolean isCapturing(Move move) {
+		for (int i = Vector2i.Direction.MIN_INT; i <= Vector2i.Direction.MAX_INT; i++) {
+			if (getNextPosition(move.getPosition(), move.getPlayer(), i) != null) {
+				return true;
+			}
+		}
 		
 		return false;
 	}
 	
-	// TODO
 	public boolean isMoveAllowed(Move move) {
-		return false;
+		return getMoveSuggestions(move.getPlayer()).contains(move.getPosition());
 	}
 	
 	public String toString() {
