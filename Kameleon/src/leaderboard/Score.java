@@ -2,7 +2,7 @@ package leaderboard;
 
 import java.util.Calendar;
 
-import utility.Player;
+import players.Player;
 
 public class Score implements Comparable<Score>, Cloneable {
 	private Calendar date; // Calendar

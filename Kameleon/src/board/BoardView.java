@@ -1,15 +1,18 @@
 package board;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import players.Player;
+import players.Player.Colour;
 import utility.BackgroundPanel;
-import utility.Player;
-import utility.Player.Colour;
 import utility.RatioPanel;
 import utility.Vector2i;
 
@@ -198,9 +201,9 @@ public class BoardView extends JFrame implements Observer {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// set the initial fields
 		fields[3][3].changeTexture("media/red.png");
-		fields[4][3].changeTexture("media/yellow.png");
+		fields[4][3].changeTexture("media/green.png");
 		fields[3][4].changeTexture("media/blue.png");
-		fields[4][4].changeTexture("media/green.png");
+		fields[4][4].changeTexture("media/yellow.png");
 		// disable the buttons
 		fieldButtons[3][3].setEnabled(false);
 		fieldButtons[4][3].setEnabled(false);

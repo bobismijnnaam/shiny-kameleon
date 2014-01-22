@@ -1,5 +1,7 @@
 package utility;
 
+import players.Player;
+
 public class Move {
 	Vector2i position;
 	Player player;
