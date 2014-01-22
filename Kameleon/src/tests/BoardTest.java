@@ -20,7 +20,7 @@ public class BoardTest {
 		BoardView mainView = new BoardView(board);
 
 		BoardController controller = new BoardController(board, mainView.getFieldButtons(),
-				mainView.getFields(), players);
+		mainView.getFields(), players);
 		mainView.addListeners(controller);
 		mainView.setVisible(true);
 	}
