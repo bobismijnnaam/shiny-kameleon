@@ -2,11 +2,41 @@ package utility;
 
 public class Player {
 	
+	/**
+	 * 
+	 * @author Got the pattern from Pshemo
+	 * http://stackoverflow.com/questions/18883646/java-enum-methods
+	 *
+	 */
 	public enum Colour {
 		Blue,
 		Green,
 		Red,
-		Yellow
+		Yellow;
+		
+		private String clr;
+		private String clrNormalised;
+		
+		static {
+			Blue.clrNormalised = "Blue  ";
+			Green.clrNormalised = "Green ";
+			Red.clrNormalised = "Red   ";
+			Yellow.clrNormalised = "Yellow";
+			
+			Blue.clr = "Blue";
+			Green.clr = "Green";
+			Red.clr = "Red";
+			Yellow.clr = "Yellow";
+		}
+		
+		public String toString() {
+			return new String(clr);
+		}
+		
+		public String toNormalisedString() {
+			return new String(clrNormalised);
+		}
+		
 	}
 	
 	private Colour colour;
@@ -33,6 +63,11 @@ public class Player {
 	 */
 	public Colour getColour() {
 		return colour;
+	}
+	
+	public static void main(String[] args) {
+		Colour c1 = Colour.Green;
+		System.out.println(c1.toString());
 	}
 	
 }
