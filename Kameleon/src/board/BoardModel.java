@@ -42,7 +42,8 @@ public class BoardModel extends Observable {
 		// Iterate over directions
 		for (int i = Vector2i.Direction.MIN_INT; i <= Vector2i.Direction.MAX_INT; i++) {
 			nextPos = p.getNeighbour(i);
-			while (containsPosition(nextPos) && getPlayerAt(nextPos) != move.getPlayer()) {
+			while (containsPosition(nextPos) 
+					&& getPlayerAt(nextPos) != move.getPlayer()) {
 				nextPos = nextPos.getNeighbour(i);
 			}
 			
@@ -66,9 +67,9 @@ public class BoardModel extends Observable {
 	
 	public Vector2i getNextPlayerPosition(Vector2i p, Player player, Vector2i.Direction dir) {
 		Vector2i nextPos = p.getNeighbour(dir);
-		while (containsPosition(nextPos) && getPlayerAt(nextPos) != move.getPlayer()) {
+		/*while (containsPosition(nextPos) && getPlayerAt(nextPos) != move.getPlayer()) {
 			nextPos = nextPos.getNeighbour(dir);
-		}
+		}*/
 			
 		if (!containsPosition(nextPos)) {
 			return null;
@@ -144,7 +145,7 @@ public class BoardModel extends Observable {
 	}
 	
 	public LinkedList<Vector2i> filterBlockingMoves(LinkedList<Vector2i> moves, Player player) {
-		LinkedList<Vector2i> blockingMoves = new LinkedList<Vectori2i>();
+		//LinkedList<Vector2i> blockingMoves = new LinkedList<Vectori2i>();
 		
 		for (Vector2i move : moves) {
 			// Test all for blocking
