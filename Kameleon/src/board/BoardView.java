@@ -114,7 +114,7 @@ public class BoardView extends JFrame implements Observer {
 			for (int y = 0; y < 8; y++) {
 				Player player = board.getPlayerAt(x, y);
 				if (player == null) {
-					
+					// Nothing to see here
 				} else {
 					Colour colour = player.getColour();
 					if (colour == Player.Colour.Blue) {
