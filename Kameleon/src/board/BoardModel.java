@@ -6,6 +6,8 @@ import java.util.Observable;
 import utility.*;
 
 // TODO
+// getField methode
+// PlayerColour.next (voor beurten en shit)
 
 public class BoardModel extends Observable {
 	private Player[][] fields;
@@ -40,14 +42,11 @@ public class BoardModel extends Observable {
 		Vector2i nextPos;
 		
 		// Iterate over directions
-		for (int i = Vector2i.Direction.MIN_INT; i <= Vector2i.Direction.MAX_INT; i++) {
-			nextPos = p.getNeighbour(i);
-			while (containsPosition(nextPos) 
-					&& getPlayerAt(nextPos) != move.getPlayer()) {
-				nextPos = nextPos.getNeighbour(i);
-			}
+		for (int i = Vector2i.Direction.MIN_INT; i < Vector2i.Direction.MAX_INT; i++) {
+			nextPos = getNextPosition(move.getPosition(), move.getPlayer(), i);
+			System.out.println(nextPos);
 			
-			if (containsPosition(nextPos)) {
+			if (nextPos != null && containsPosition(nextPos)) {
 				// An endpoint was found! Iterate over all points inbetween p & nextPos
 				inbetweenPos = new Vector2i(p);
 				inbetweenPos = inbetweenPos.getNeighbour(i);
@@ -65,13 +64,21 @@ public class BoardModel extends Observable {
         notifyObservers();
 	}
 	
-	public Vector2i getNextPlayerPosition(Vector2i p, Player player, Vector2i.Direction dir) {
+	public Vector2i getNextPosition(Vector2i p, Player player, Vector2i.Direction dir) {
+		return getNextPosition(p, player, dir.toInt());
+	}
+	
+	public Vector2i getNextPosition(Vector2i p, Player player, int dir) {
 		Vector2i nextPos = p.getNeighbour(dir);
-		/*while (containsPosition(nextPos) && getPlayerAt(nextPos) != move.getPlayer()) {
+
+		while (containsPosition(nextPos) 
+				&& getPlayerAt(nextPos) != null && getPlayerAt(nextPos) != player) {
 			nextPos = nextPos.getNeighbour(dir);
-		}*/
+		}
 			
 		if (!containsPosition(nextPos)) {
+			return null;
+		} else if (getPlayerAt(nextPos) == null) {
 			return null;
 		} else {
 			return nextPos;
@@ -92,10 +99,6 @@ public class BoardModel extends Observable {
 		return score;
 	}
 	
-	public Player getPlayerAt(int x, int y) {
-		return fields[x][y];
-	}
-	
 	public Player getPlayerAt(Vector2i p) {
 		//System.out.println("getPlayer: " + p.toString());
 		return fields[p.x][p.y];
@@ -111,7 +114,9 @@ public class BoardModel extends Observable {
 	}
 	
 	public boolean containsPosition(Vector2i p) {
-		if (p.x < BOARD_W && p.y < BOARD_H && p.x >= 0 && p.y >= 0) {
+		if (p == null) {
+			return false;
+		} else if (p.x < BOARD_W && p.y < BOARD_H && p.x >= 0 && p.y >= 0) {
 			return true;
 		} else {
 			return false;
@@ -144,13 +149,30 @@ public class BoardModel extends Observable {
 		return positions;
 	}
 	
+	public LinkedList<Vector2i> getBlockingMoves(Player player) {
+		return filterBlockingMoves(getPossibleMoves(), player);
+	}
+	
 	public LinkedList<Vector2i> filterBlockingMoves(LinkedList<Vector2i> moves, Player player) {
-		//LinkedList<Vector2i> blockingMoves = new LinkedList<Vectori2i>();
+		LinkedList<Vector2i> blockingMoves = new LinkedList<Vector2i>();
 		
+		Vector2i nextPos;
 		for (Vector2i move : moves) {
-			// Test all for blocking
+			for (int i = Vector2i.Direction.MIN_INT; i < Vector2i.Direction.MAX_INT; i++) {
+				nextPos = getNextPosition(move, player, i);
+				if (nextPos != null) {
+					blockingMoves.add(move);
+				}
+			}
 		}
 		
+		return blockingMoves;
+	}
+	
+	public LinkedList<Vector2i> getMoveSuggestions() {
+		// getpossiblemoves
+		// filterblockingmoves
+		// filterpossiblemoves.size() == 0 ? return filterpossiblemoves : getpossiblemoves;
 		return null;
 	}
 	
