@@ -10,6 +10,7 @@ import javax.swing.*;
 import utility.BackgroundPanel;
 import utility.Player;
 import utility.Player.Colour;
+import utility.Vector2i;
 
 public class BoardView extends JFrame implements Observer {
 	
@@ -173,7 +174,7 @@ public class BoardView extends JFrame implements Observer {
 	public void update(Observable arg0, Object arg1) {
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
-				Player player = board.getPlayerAt(x, y);
+				Player player = board.getPlayerAt(new Vector2i(x, y));
 				if (player == null) {
 					// Nothing to see here
 				} else {
