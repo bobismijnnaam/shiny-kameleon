@@ -196,6 +196,7 @@ public class BoardView extends JFrame implements Observer {
 		}
 		
 		container.setPreferredSize(new Dimension(600, 600));
+		container.setBackground(Color.DARK_GRAY);
 		setTitle("ROLLIT RUB");
 		pack();
 		
