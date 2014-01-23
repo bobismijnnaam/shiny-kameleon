@@ -1,5 +1,6 @@
 package board;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Observable;
 
@@ -13,6 +14,21 @@ public class BoardModel extends Observable {
 	public static final int BOARD_H = 8;
 	
 	private Player currentPlayer;
+	
+	private LinkedList<AffectedPosition> affectedByMove;
+	private boolean newPositionsAffected = false;
+	public class AffectedPosition {
+		public Vector2i position;
+		public Player startPlayer;
+		public Player endPlayer;
+		
+		public AffectedPosition(Vector2i inputPosition,
+				Player inputStartPlayer, Player inputEndPlayer) {
+			position = inputPosition;
+			startPlayer = inputStartPlayer;
+			endPlayer = inputEndPlayer;
+		}
+	}
 	
 	/**
 	 * Constructs a boardmodel instance with every field set to null.
@@ -88,6 +104,11 @@ public class BoardModel extends Observable {
 	 */
 	public LinkedList<Vector2i> applyMove(Move move) {
 		Vector2i p = move.getPosition();
+		
+		affectedByMove = new LinkedList<AffectedPosition>();
+		affectedByMove.add(new AffectedPosition(new Vector2i(p), 
+				fields[p.x][p.y], move.getPlayer()));
+	
 		fields[p.x][p.y] = move.getPlayer();
 		
 		Vector2i inbetweenPos;
@@ -103,11 +124,16 @@ public class BoardModel extends Observable {
 				inbetweenPos = inbetweenPos.getNeighbour(i);
 				
 				while (!nextPos.equals(inbetweenPos)) {
+					affectedByMove.add(new AffectedPosition(new Vector2i(inbetweenPos), 
+							fields[inbetweenPos.x][inbetweenPos.y], move.getPlayer()));
 					fields[inbetweenPos.x][inbetweenPos.y] = move.getPlayer();
 					inbetweenPos = inbetweenPos.getNeighbour(i);
 				}
 				
+				affectedByMove.add(new AffectedPosition(new Vector2i(inbetweenPos), 
+						fields[inbetweenPos.x][inbetweenPos.y], move.getPlayer()));
 				fields[inbetweenPos.x][inbetweenPos.y] = move.getPlayer();
+				
 			}
 		}
 		
@@ -115,6 +141,26 @@ public class BoardModel extends Observable {
         notifyObservers();
         
         return null;
+	}
+	
+	/**
+	 * Returns a LinkedList<AffectedPositions> of positions which where affected by the last move.
+	 * This can only be queried directly after a move was made.
+	 * As soon as this function is executed, isNewAffectedList() will return false again.
+	 * This function can however still be queried.
+	 * @return
+	 */
+	public LinkedList<AffectedPosition> getAffectedPositions() {
+		newPositionsAffected = false;
+		return affectedByMove;
+	}
+	
+	/**
+	 * Returns whether there is a new list of affected positions that has not yet ben queried.
+	 * @return True if there is an unqueried list, false if not.
+	 */
+	public boolean isNewAffectedList() {
+		return newPositionsAffected;
 	}
 	
 	/**
@@ -137,14 +183,10 @@ public class BoardModel extends Observable {
 	public Vector2i getNextPosition(Vector2i p, Player player, int dir) {
 		Vector2i nextPos = p.getNeighbour(dir);
 		
-		System.out.println("[" + p.toString());
-		
 		while (containsPosition(nextPos) 
 				&& getPlayerAt(nextPos) != null && getPlayerAt(nextPos) != player) {
 			nextPos = nextPos.getNeighbour(dir);
 		}
-		
-		System.out.println(nextPos.toString() + "]");
 			
 		if (!containsPosition(nextPos)) {
 			return null;
@@ -280,7 +322,6 @@ public class BoardModel extends Observable {
 				nextPos = getNextPosition(move, player, i);
 				if (nextPos != null) {
 					blockingMoves.add(move);
-					System.out.println("Blocking move: " + move.toString());
 					break;
 				}
 			}
@@ -339,8 +380,8 @@ public class BoardModel extends Observable {
 	public void setCurrentPlayer(Player player) {
 		currentPlayer = player;
 		
-		 setChanged();
-	     notifyObservers();
+		setChanged();
+	    notifyObservers();
 	}
 	
 	/**
@@ -349,6 +390,110 @@ public class BoardModel extends Observable {
 	 */
 	public Player getCurrentPlayer() {
 		return currentPlayer;
+	}
+
+	/**
+	 * Returns a list length zero, one, or two, depending on how much winners there are.
+	 * @return A Player[] filled with the winners.
+	 */
+	public Player[] getWinners() {
+		if (isGameOver()) {
+			// Gather players in the game
+			ArrayList<Player> players = new ArrayList<Player>(4);
+			for (int y = 0; y < BOARD_H; y++) {
+				for (int x = 0; x < BOARD_W; x++) {
+					if (!players.contains(fields[x][y]) && fields[x][y] != null) {
+						players.add(fields[x][y]);
+					}
+					
+					if (players.size() == 4) {
+						break;
+					}
+				}
+				
+				if (players.size() == 4) {
+					break;
+				}
+			}
+			
+			// Gather score for each present player
+			int[] scores = new int[players.size()];
+			for (int i = 0; i < scores.length; i++) {
+				scores[i] = getScore(players.get(i));
+			}
+			
+			int highscore = 0;
+			Player highplayer = null;
+			for (int i = 0; i < scores.length; i++) {
+				if (scores[i] > highscore) {
+					highscore = scores[i];
+					highplayer = players.get(i);
+				}
+			}
+			
+			// Check for equal score
+			boolean sharedFirstPlace = false;
+			Player otherWinner = null;
+			for (int i = 0; i < scores.length; i++) {
+				if (scores[i] == highscore && players.get(i) != highplayer) {
+					sharedFirstPlace = true;
+					otherWinner = players.get(i);
+				}
+			}
+			
+			// Set the two winning players as winners in the array
+			Player[] winners;
+			if (sharedFirstPlace) {
+				winners = new Player[2];
+				winners[1] = otherWinner;
+			} else { // Or just one
+				winners = new Player[1];
+			}
+			winners[0] = highplayer;
+			
+			// Return the result;
+			return winners;
+		} else {
+			return new Player[0];
+		}
+	}
+	
+	/**
+	 * Returns whether there is a winner.
+	 * @param p - The player to check the winstate for
+	 * @return True or false
+	 */
+	public boolean isWinner(Player p) {
+		Player[] winners = getWinners();
+		for (int i = 0; i < winners.length; i++) {
+			if (winners[i] == p) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @return True if there is a winner.
+	 */
+	public boolean hasWinner() {
+		return getWinners().length > 0;
+	}
+	
+	/**
+	 * @return True if the game is over.
+	 */
+	public boolean isGameOver() {
+		for (int y = 0; y < BOARD_H; y++) {
+			for (int x = 0; x < BOARD_W; x++) {
+				if (fields[x][y] == null) {
+					return false;
+				}
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -387,7 +532,7 @@ public class BoardModel extends Observable {
 	}
 	
 	/**
-	 * Test main
+	 * Test main.
 	 * @param args - fok joe
 	 */
 	public static void main(String[] args) {

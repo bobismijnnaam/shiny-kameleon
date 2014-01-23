@@ -128,6 +128,11 @@ public class Vector2i implements Comparable<Vector2i> {
 		return add(deltaVector);
 	}
 	
+	/**
+	 * @param A vector of which you want to check if it's a neighbour if this vector
+	 * @return True if they are directly adjecent (horizontally/vertically/diagonally).
+	 * False if they are not.
+	 */
 	public boolean isNeighbour(Vector2i other) {
 		int dx = Math.abs(other.x - x);
 		int dy = Math.abs(other.y - y);
