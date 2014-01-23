@@ -127,6 +127,13 @@ public class Vector2i implements Comparable<Vector2i> {
 							   (int) Math.round(Math.sin(rad)));
 		return add(deltaVector);
 	}
+	
+	public boolean isNeighbour(Vector2i other) {
+		int dx = Math.abs(other.x - x);
+		int dy = Math.abs(other.y - y);
+				// diagonal || horizontal || vertical
+		return (dx == 1 && dy == 1) || (dx == 1 && dy == 0) || (dx == 0 && dy == 1);
+	}
 
 	/**
 	 * Compares by length of the vector.

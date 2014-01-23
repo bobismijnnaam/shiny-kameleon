@@ -137,14 +137,20 @@ public class BoardModel extends Observable {
 	public Vector2i getNextPosition(Vector2i p, Player player, int dir) {
 		Vector2i nextPos = p.getNeighbour(dir);
 		
+		System.out.println("[" + p.toString());
+		
 		while (containsPosition(nextPos) 
 				&& getPlayerAt(nextPos) != null && getPlayerAt(nextPos) != player) {
 			nextPos = nextPos.getNeighbour(dir);
 		}
+		
+		System.out.println(nextPos.toString() + "]");
 			
 		if (!containsPosition(nextPos)) {
 			return null;
 		} else if (getPlayerAt(nextPos) == null) {
+			return null;
+		} else if (nextPos.isNeighbour(p)) {
 			return null;
 		} else {
 			return nextPos;
@@ -239,7 +245,6 @@ public class BoardModel extends Observable {
 		for (int x = 0; x < BOARD_W; x++) {
 			for (int y = 0; y < BOARD_H; y++) {
 				tempVec = new Vector2i(x, y);
-				System.out.println(tempVec.toString());
 				if (isNeighbourOfBall(tempVec) && getPlayerAt(tempVec) == null) {
 					positions.add(tempVec);
 				}
@@ -275,12 +280,11 @@ public class BoardModel extends Observable {
 				nextPos = getNextPosition(move, player, i);
 				if (nextPos != null) {
 					blockingMoves.add(move);
-					System.out.println("Blocking move: " + nextPos.toString());
+					System.out.println("Blocking move: " + move.toString());
 					break;
 				}
 			}
 		}
-		System.out.println("End of filtering blocking moves");
 		return blockingMoves;
 	}
 	
@@ -296,14 +300,9 @@ public class BoardModel extends Observable {
 		LinkedList<Vector2i> possibleMoves = getPossibleMoves();
 		LinkedList<Vector2i> blockingMoves = filterBlockingMoves(possibleMoves, player);
 		
-		System.out.println("blockingmoves size: " + blockingMoves.size());
-		System.out.println(Boolean.toString(blockingMoves.size() == 0));
-		
 		if (blockingMoves.size() == 0) {
-			System.out.println("No blockingmoves");
 			return possibleMoves;
 		} else {
-			System.out.println("Blockingmoves!");
 			return blockingMoves;
 		}
 	}
