@@ -23,6 +23,8 @@ public class BoardTest {
 		mainView.getFields(), players);
 		mainView.addListeners(controller);
 		mainView.setVisible(true);
+		
+		controller.startPlayerTurn(players[0]);
 	}
 
 }
