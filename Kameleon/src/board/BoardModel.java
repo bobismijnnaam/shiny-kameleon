@@ -84,8 +84,9 @@ public class BoardModel extends Observable {
 	 * connects the position to any other positions of the playercolor
 	 * as described in the games rule document.
 	 * @param move - The move to apply.
+	 * @return A LinkedList<Vector2i> containing all the affected fields
 	 */
-	public void applyMove(Move move) {
+	public LinkedList<Vector2i> applyMove(Move move) {
 		Vector2i p = move.getPosition();
 		fields[p.x][p.y] = move.getPlayer();
 		
@@ -112,6 +113,8 @@ public class BoardModel extends Observable {
 		
         setChanged();
         notifyObservers();
+        
+        return null;
 	}
 	
 	/**
@@ -132,27 +135,18 @@ public class BoardModel extends Observable {
 	 * @see Vector2i.Direction
 	 */
 	public Vector2i getNextPosition(Vector2i p, Player player, int dir) {
-		String output = "Hunt start: " + p.toString() + "|";
-		
 		Vector2i nextPos = p.getNeighbour(dir);
-		
-		output += "Try: " + nextPos.toString() + " | ";
 		
 		while (containsPosition(nextPos) 
 				&& getPlayerAt(nextPos) != null && getPlayerAt(nextPos) != player) {
 			nextPos = nextPos.getNeighbour(dir);
-			
-			output += "Try: " + nextPos.toString() + " | ";
 		}
-		
-		output += "Found? " + nextPos.toString() + " | ";
 			
 		if (!containsPosition(nextPos)) {
 			return null;
 		} else if (getPlayerAt(nextPos) == null) {
 			return null;
 		} else {
-			System.out.println(output + "Found!");
 			return nextPos;
 		}
 	}
