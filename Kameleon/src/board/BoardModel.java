@@ -12,6 +12,8 @@ public class BoardModel extends Observable {
 	public static final int BOARD_W = 8;
 	public static final int BOARD_H = 8;
 	
+	private Player currentPlayer;
+	
 	/**
 	 * Constructs a boardmodel instance with every field set to null.
 	 */
@@ -22,6 +24,8 @@ public class BoardModel extends Observable {
 				fields[x][y] = null;
 			}
 		}
+		
+		currentPlayer = null;
 	}
 	
 	/**
@@ -321,6 +325,22 @@ public class BoardModel extends Observable {
 	 */
 	public boolean isMoveAllowed(Move move) {
 		return getMoveSuggestions(move.getPlayer()).contains(move.getPosition());
+	}
+	
+	/**
+	 * Sets the current player.
+	 * @param player - The current player
+	 */
+	public void setCurrentPlayer(Player player) {
+		currentPlayer = player;
+	}
+	
+	/**
+	 * Returns the current player.
+	 * @return The current player.
+	 */
+	public Player getCurrentPlayer() {
+		return currentPlayer;
 	}
 	
 	/**

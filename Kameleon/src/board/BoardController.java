@@ -29,15 +29,6 @@ public class BoardController implements ActionListener {
 		disableButtons();
 	}
 	
-	// DEPRECATED
-//	public void setButtonEnabledness(boolean p) {
-//		for (int x = 0; x < BoardModel.BOARD_W; x++) {
-//			for (int y = 0; y < BoardModel.BOARD_H; y++) {
-//				fieldButtons[x][y].setEnabled(p);
-//			}
-//		}
-//	}
-	
 	public void enableButtons(Player player) {
 		LinkedList<Vector2i> validMoves = board.getMoveSuggestions(player);
 		for (Vector2i move : validMoves) {
@@ -54,7 +45,7 @@ public class BoardController implements ActionListener {
 	}
 	
 	public void startPlayerTurn(Player player) {
-		currentPlayer = player;
+		currentPlayer = player; // Humanplayer/networkplayer/computerplayer
 		enableButtons(currentPlayer);
 	}
 
