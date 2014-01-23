@@ -17,6 +17,9 @@ public class BoardTest {
 		players[2] = new Player(Player.Colour.Green, "Ruben XII");
 		players[3] = new Player(Player.Colour.Blue, "Ruben XII");
 		board.setStartPosition(players[0], players[1], players[2], players[3]);
+		
+		board.setCurrentPlayer(players[0]); // Does this fix??
+		
 		BoardView mainView = new BoardView(board);
 
 		BoardController controller = new BoardController(board, mainView.getFieldButtons(),
