@@ -19,6 +19,9 @@ public class BoardController implements ActionListener {
 	private Player[] players;
 	private Player currentPlayer;
 	
+	// temp
+	private int p = 0;
+	
 	public BoardController(BoardModel inputBoard, JButton[][] inputFieldButtons, 
 			BackgroundPanel[][] inputFields, Player[] inputPlayers) {
 		
@@ -67,7 +70,11 @@ public class BoardController implements ActionListener {
 		} else {
 			// Give feedback to user? Status screen update?
 		}
-		startPlayerTurn(players[0]);
+		p++;
+		if (p == 4) {
+			p = 0;
+		}
+		startPlayerTurn(players[p]);
 	}
 
 }

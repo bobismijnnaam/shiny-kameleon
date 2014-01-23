@@ -345,6 +345,9 @@ public class BoardModel extends Observable {
 	 */
 	public void setCurrentPlayer(Player player) {
 		currentPlayer = player;
+		
+		 setChanged();
+	     notifyObservers();
 	}
 	
 	/**
