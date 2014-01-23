@@ -47,6 +47,7 @@ public class BoardController implements ActionListener {
 	public void startPlayerTurn(Player player) {
 		currentPlayer = player; // Humanplayer/networkplayer/computerplayer
 		enableButtons(currentPlayer);
+		board.setCurrentPlayer(currentPlayer);
 	}
 
 	@Override
