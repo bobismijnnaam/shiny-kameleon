@@ -93,7 +93,6 @@ public class BoardModel extends Observable {
 		// Iterate over directions
 		for (int i = Vector2i.Direction.MIN_INT; i <= Vector2i.Direction.MAX_INT; i++) {
 			nextPos = getNextPosition(move.getPosition(), move.getPlayer(), i);
-			System.out.println(nextPos);
 			
 			if (nextPos != null && containsPosition(nextPos)) {
 				// An endpoint was found! Iterate over all points inbetween p & nextPos
@@ -131,18 +130,27 @@ public class BoardModel extends Observable {
 	 * @see Vector2i.Direction
 	 */
 	public Vector2i getNextPosition(Vector2i p, Player player, int dir) {
+		String output = "Hunt start: " + p.toString() + "|";
+		
 		Vector2i nextPos = p.getNeighbour(dir);
-
+		
+		output += "Try: " + nextPos.toString() + " | ";
+		
 		while (containsPosition(nextPos) 
 				&& getPlayerAt(nextPos) != null && getPlayerAt(nextPos) != player) {
 			nextPos = nextPos.getNeighbour(dir);
+			
+			output += "Try: " + nextPos.toString() + " | ";
 		}
+		
+		output += "Found? " + nextPos.toString() + " | ";
 			
 		if (!containsPosition(nextPos)) {
 			return null;
 		} else if (getPlayerAt(nextPos) == null) {
 			return null;
 		} else {
+			System.out.println(output + "Found!");
 			return nextPos;
 		}
 	}
@@ -172,9 +180,6 @@ public class BoardModel extends Observable {
 	 * @return The player of the field. Returns null if field is empty.
 	 */
 	public Player getPlayerAt(Vector2i p) {
-		System.out.println(p.toString());
-		System.out.println("Fields size: " + fields.length);
-		System.out.println("Inner fields size: " + fields[p.x].length);
 		return fields[p.x][p.y];
 	}
 	
@@ -217,7 +222,6 @@ public class BoardModel extends Observable {
 	 * @return True if it has a ballneighbour, otherwise false
 	 */
 	public boolean isNeighbourOfBall(Vector2i p) {
-		System.out.println("Lookout position: " + p.toString());
 		for (int i = Vector2i.Direction.MIN_INT; i <= Vector2i.Direction.MAX_INT; i++) {
 			if (containsPosition(p.getNeighbour(i)) && getNeighbour(p, i) != null) { // Has a guard for out of bounds protection
 				return true;
@@ -274,19 +278,20 @@ public class BoardModel extends Observable {
 				nextPos = getNextPosition(move, player, i);
 				if (nextPos != null) {
 					blockingMoves.add(move);
+					System.out.println("Blocking move: " + nextPos.toString());
 					break;
 				}
 			}
 		}
-		
+		System.out.println("End of filtering blocking moves");
 		return blockingMoves;
 	}
 	
 	/**
 	 * Gives a list of moves said player can make. The list automatically checks if there are
 	 * moves where he blocks and captures other players. If there are moves that do this it
-	 * only returns this move. If there are no moves like that, it just gives a list of moves neighbouring
-	 * an occupied (and thus valid) move.
+	 * only returns this move. If there are no moves like that, it just gives a list of moves 
+	 * neighbouring an occupied (and thus valid) move.
 	 * @param player - The player that wants to make a move
 	 * @return A list of possible moves.
 	 */
@@ -294,9 +299,14 @@ public class BoardModel extends Observable {
 		LinkedList<Vector2i> possibleMoves = getPossibleMoves();
 		LinkedList<Vector2i> blockingMoves = filterBlockingMoves(possibleMoves, player);
 		
+		System.out.println("blockingmoves size: " + blockingMoves.size());
+		System.out.println(Boolean.toString(blockingMoves.size() == 0));
+		
 		if (blockingMoves.size() == 0) {
+			System.out.println("No blockingmoves");
 			return possibleMoves;
 		} else {
+			System.out.println("Blockingmoves!");
 			return blockingMoves;
 		}
 	}
