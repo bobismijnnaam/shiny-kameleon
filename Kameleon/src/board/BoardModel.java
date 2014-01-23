@@ -244,7 +244,7 @@ public class BoardModel extends Observable {
 			for (int y = 0; y < BOARD_H; y++) {
 				tempVec = new Vector2i(x, y);
 				System.out.println(tempVec.toString());
-				if (isNeighbourOfBall(tempVec)) {
+				if (isNeighbourOfBall(tempVec) && getPlayerAt(tempVec) == null) {
 					positions.add(tempVec);
 				}
 			}

@@ -211,12 +211,6 @@ public class BoardView extends JFrame implements Observer {
 		fieldButtons[3][4].setEnabled(false);
 		fieldButtons[4][4].setEnabled(false);
 		
-		Player currentPlayer = board.getCurrentPlayer();
-		LinkedList<Vector2i> moves = board.getMoveSuggestions(currentPlayer);
-		for (Vector2i m : moves) {
-			fields[m.x][m.y].changeTexture("media/enabled.png");
-		}
-		
 		// Add Board controller
 		//BoardController controller = new BoardController(board, fieldButtons, fields);
 		
@@ -228,6 +222,13 @@ public class BoardView extends JFrame implements Observer {
 		} */
 		// Add board observer
 		board.addObserver(this);
+		
+		Player currentPlayer = board.getCurrentPlayer();
+		LinkedList<Vector2i> moves = board.getMoveSuggestions(currentPlayer);
+		for (Vector2i m : moves) {
+			fields[m.x][m.y].changeTexture("media/enabled.png");
+		}
+		
 	}
 	
 	public void addListeners(BoardController inputController) {
