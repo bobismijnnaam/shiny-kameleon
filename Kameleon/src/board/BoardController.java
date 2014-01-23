@@ -67,6 +67,7 @@ public class BoardController implements ActionListener {
 		} else {
 			// Give feedback to user? Status screen update?
 		}
+		startPlayerTurn(players[0]);
 	}
 
 }
