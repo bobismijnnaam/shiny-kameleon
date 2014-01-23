@@ -72,6 +72,8 @@ public class BoardModel extends Observable {
 		fields[3][4] = p4;
 		fields[4][4] = p3;
 		
+		currentPlayer = p1;
+		
         setChanged();
         notifyObservers();
 	}
