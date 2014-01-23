@@ -230,6 +230,7 @@ public class BoardView extends JFrame implements Observer {
 		} */
 		// Add board observer
 		board.addObserver(this);
+		
 	}
 	
 	public void addListeners(BoardController inputController) {
