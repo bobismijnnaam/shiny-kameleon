@@ -10,6 +10,8 @@ import java.util.Observer;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
+import javax.swing.plaf.basic.BasicInternalFrameUI;
 
 import players.Player;
 import players.Player.Colour;
@@ -17,7 +19,7 @@ import utility.BackgroundPanel;
 import utility.RatioPanel;
 import utility.Vector2i;
 
-public class BoardView extends JFrame implements Observer {
+public class BoardView extends JInternalFrame implements Observer {
 	
 	// create array for the field images and buttons
 	private BackgroundPanel[][] fields;
@@ -196,12 +198,26 @@ public class BoardView extends JFrame implements Observer {
 		}
 		
 		container.setPreferredSize(new Dimension(600, 600));
-		container.setBackground(Color.DARK_GRAY);
-		setTitle("ROLLIT RUB");
-		pack();
+		//setTitle("ROLLIT RUB");
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		// set the initial fields
+		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		// Add Board controller
+		//BoardController controller = new BoardController(board, fieldButtons, fields);
+		
+		/*// set action listeners
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				fieldButtons[i][j].addActionListener(controller);
+			}
+		} */
+		// Add board observer
+		board.addObserver(this);
+		
+	}
+	
+	public void setStartPosition() {
+// set the initial fields
 		fields[3][3].changeTexture("media/red.png");
 		fields[4][3].changeTexture("media/yellow.png");
 		fields[3][4].changeTexture("media/blue.png");
@@ -217,19 +233,6 @@ public class BoardView extends JFrame implements Observer {
 		for (Vector2i m : moves) {
 			fields[m.x][m.y].changeTexture("media/enabled.png");
 		}
-		
-		// Add Board controller
-		//BoardController controller = new BoardController(board, fieldButtons, fields);
-		
-		/*// set action listeners
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				fieldButtons[i][j].addActionListener(controller);
-			}
-		} */
-		// Add board observer
-		board.addObserver(this);
-		
 	}
 	
 	public void addListeners(BoardController inputController) {

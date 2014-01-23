@@ -71,7 +71,7 @@ public class BoardController implements ActionListener {
 			// Give feedback to user? Status screen update?
 		}
 		p++;
-		if (p == 4) {
+		if (p == 2) {
 			p = 0;
 		}
 		startPlayerTurn(players[p]);
