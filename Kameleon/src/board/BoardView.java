@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -210,6 +211,12 @@ public class BoardView extends JFrame implements Observer {
 		fieldButtons[3][4].setEnabled(false);
 		fieldButtons[4][4].setEnabled(false);
 		
+		Player currentPlayer = board.getCurrentPlayer();
+		LinkedList<Vector2i> moves = board.getMoveSuggestions(currentPlayer);
+		for (Vector2i m : moves) {
+			fields[m.x][m.y].changeTexture("media/enabled.png");
+		}
+		
 		// Add Board controller
 		//BoardController controller = new BoardController(board, fieldButtons, fields);
 		
@@ -265,6 +272,12 @@ public class BoardView extends JFrame implements Observer {
 					}
 				}
 			}
+		}
+		
+		Player currentPlayer = board.getCurrentPlayer();
+		LinkedList<Vector2i> moves = board.getMoveSuggestions(currentPlayer);
+		for (Vector2i m : moves) {
+			fields[m.x][m.y].changeTexture("media/enabled.png");
 		}
 	}
 
