@@ -256,7 +256,7 @@ public class BoardView extends JFrame implements Observer {
 			for (int y = 0; y < 8; y++) {
 				Player player = board.getPlayerAt(new Vector2i(x, y));
 				if (player == null) {
-					// Nothing to see here
+					fields[x][y].changeTexture("media/empty.png");
 				} else {
 					Colour colour = player.getColour();
 					if (colour == Player.Colour.Blue) {
