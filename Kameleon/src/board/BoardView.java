@@ -201,9 +201,9 @@ public class BoardView extends JFrame implements Observer {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// set the initial fields
 		fields[3][3].changeTexture("media/red.png");
-		fields[4][3].changeTexture("media/green.png");
+		fields[4][3].changeTexture("media/yellow.png");
 		fields[3][4].changeTexture("media/blue.png");
-		fields[4][4].changeTexture("media/yellow.png");
+		fields[4][4].changeTexture("media/green.png");
 		// disable the buttons
 		fieldButtons[3][3].setEnabled(false);
 		fieldButtons[4][3].setEnabled(false);
