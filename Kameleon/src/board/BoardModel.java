@@ -168,6 +168,9 @@ public class BoardModel extends Observable {
 	 * @return The player of the field. Returns null if field is empty.
 	 */
 	public Player getPlayerAt(Vector2i p) {
+		System.out.println(p.toString());
+		System.out.println("Fields size: " + fields.length);
+		System.out.println("Inner fields size: " + fields[p.x].length);
 		return fields[p.x][p.y];
 	}
 	
@@ -210,8 +213,9 @@ public class BoardModel extends Observable {
 	 * @return True if it has a ballneighbour, otherwise false
 	 */
 	public boolean isNeighbourOfBall(Vector2i p) {
+		System.out.println("Lookout position: " + p.toString());
 		for (int i = Vector2i.Direction.MIN_INT; i <= Vector2i.Direction.MAX_INT; i++) {
-			if (getNeighbour(p, i) != null) {
+			if (containsPosition(p.getNeighbour(i)) && getNeighbour(p, i) != null) { // Has a guard for out of bounds protection
 				return true;
 			}
 		}
@@ -231,6 +235,7 @@ public class BoardModel extends Observable {
 		for (int x = 0; x < BOARD_W; x++) {
 			for (int y = 0; y < BOARD_H; y++) {
 				tempVec = new Vector2i(x, y);
+				System.out.println(tempVec.toString());
 				if (isNeighbourOfBall(tempVec)) {
 					positions.add(tempVec);
 				}
