@@ -19,9 +19,6 @@ public class BoardController implements ActionListener {
 	private Player[] players;
 	private Player currentPlayer;
 	
-	// temp
-	private int p = 0;
-	
 	public BoardController(BoardModel inputBoard, JButton[][] inputFieldButtons, 
 			BackgroundPanel[][] inputFields, Player[] inputPlayers) {
 		
@@ -49,19 +46,22 @@ public class BoardController implements ActionListener {
 	
 	public void startPlayerTurn(Player player) {
 		currentPlayer = player; // Humanplayer/networkplayer/computerplayer
+		System.out.println("Started player turn");
 		enableButtons(currentPlayer);
 		board.setCurrentPlayer(currentPlayer);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		
+		System.out.println("Board changed");
 		// If this gets triggered buttons are enabled and thus it is a human players' turn!
 		JButton change = (JButton) e.getSource();
 		String name = change.getName();
 		String[] split = name.split("-");
 		
 		Vector2i position = new Vector2i(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
-		Move theMove = new Move(position, currentPlayer);
+		Move theMove = new Move(position, board.getCurrentPlayer());
 		if (board.isMoveAllowed(theMove)) {
 			board.applyMove(theMove);
 			System.out.println(board.toString());
@@ -70,11 +70,7 @@ public class BoardController implements ActionListener {
 		} else {
 			// Give feedback to user? Status screen update?
 		}
-		p++;
-		if (p == 2) {
-			p = 0;
-		}
-		startPlayerTurn(players[p]);
+		//startPlayerTurn(players[0]);
 	}
 
 }

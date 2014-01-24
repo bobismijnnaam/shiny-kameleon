@@ -1,28 +1,191 @@
 package gamepanels;
 
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.LayoutManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
+
+import net.miginfocom.swing.MigLayout;
 
 public class MainMenu extends JPanel {
 
-	public MainMenu() {
-		// TODO Auto-generated constructor stub
+	private JButton[] buttons;
+	private String[] settings;
+	
+	public MainMenu(Game inputGame) {
+		createMenu(inputGame);
 	}
+	
+	public void createMenu(Game inputGame) {
+		buttons = new JButton[20];
+		settings = new String[4];
+		setLayout(new MigLayout());
+		JButton playOffline = new JButton("PLAY OFFLINE");
+		JButton playOnline = new JButton("PLAY ONLINE");
+		playOffline.setName("offline");
+		MainMenuController mController = new MainMenuController(inputGame, buttons);
+		add(playOffline, "span, growx, width 100%, height 25%");
+		
+		// create the disable player buttons
+		for (int x = 0; x < 4; x++) {
+			JButton disable = new JButton("Disable Player " + (x + 1));
+			buttons[x] = disable;
+			disable.setName("disable -" + x);
+			disable.addActionListener(mController);
+			if (x == 0) {
+				add(disable, "span, split 4, width 25%, height 10%");
+			} else {
+				add(disable, "width 25%, height 10%");
+			}
+		}
+		
+		// create the human player buttons
+		for (int x = 0; x < 4; x++) {
+			JButton human = new JButton("Human Player " + (x + 1));
+			buttons[x + 4] = human;
+			human.setName("human -" + x);
+			human.setEnabled(false);
+			human.addActionListener(mController);
+			if (x == 0) {
+				add(human, "span, split 4, width 25%, height 10%");
+			} else {
+				add(human, "width 25% , height 10%");
+			}
+		}
+		
+		// create the easy computer buttons
+		for (int x = 0; x < 4; x++) {
+			JButton easy = new JButton("Computer Easy " + (x + 1));
+			buttons[x + 8] = easy;
+			easy.setName("easy -" + x);
+			easy.addActionListener(mController);
+			if (x == 0) {
+				add(easy, "span, split 4,  width 25%, height 10%");
+			} else {
+				add(easy, " width 25%, height 10%");
+			}
+		}
+		
+		// create the medium computer buttons
+		for (int x = 0; x < 4; x++) {
+			JButton medium = new JButton("Computer Medium " + (x + 1));
+			buttons[x + 12] = medium;
+			medium.setName("medium -" + x);
+			medium.addActionListener(mController);
+			if (x == 0) {
+				add(medium, "span, split 4,  width 25%, height 10%");
+			} else {
+				add(medium, " width 25%, height 10%");
+			}
+		}
+		
+		// create the medium computer buttons
+		for (int x = 0; x < 4; x++) {
+			JButton hard = new JButton("Computer hard " + (x + 1));
+			buttons[x + 16] = hard;
+			hard.setName("hard -" + x);
+			hard.addActionListener(mController);
+			if (x == 0) {
+				add(hard, "span, split 4,  width 25%, height 10%");
+			} else {
+				add(hard, " width 25%, height 10%");
+			}
+		}
 
-	public MainMenu(LayoutManager arg0) {
-		super(arg0);
-		// TODO Auto-generated constructor stub
+		add(playOnline, "span, growx, width 100%, height 25%");
+		playOffline.addActionListener(mController);
 	}
+	
+	// controller
+	public class MainMenuController implements ActionListener {
 
-	public MainMenu(boolean arg0) {
-		super(arg0);
-		// TODO Auto-generated constructor stub
+		private Game currentGame;
+		private JButton[] buttons;
+		
+		public MainMenuController(Game inputGame, JButton[] inputButtons) {
+			currentGame = inputGame;
+			buttons = inputButtons;
+			
+			for (int x = 0; x < 4; x++) {
+				settings[x] = "human";
+			}
+		}
+		
+		public void enableRow(int i) {
+			if (i == 0) {
+				buttons[i].setEnabled(true);
+				buttons[i + 4].setEnabled(true);
+				buttons[i + 8].setEnabled(true);
+				buttons[i + 12].setEnabled(true);
+				buttons[i + 16].setEnabled(true);
+			} else if (i == 1) {
+				buttons[i].setEnabled(true);
+				buttons[i + 4].setEnabled(true);
+				buttons[i + 8].setEnabled(true);
+				buttons[i + 12].setEnabled(true);
+				buttons[i + 16].setEnabled(true);
+			} else if (i == 2) {
+				buttons[i].setEnabled(true);
+				buttons[i + 4].setEnabled(true);
+				buttons[i + 8].setEnabled(true);
+				buttons[i + 12].setEnabled(true);
+				buttons[i + 16].setEnabled(true);
+			} else if (i == 3) {
+				buttons[i].setEnabled(true);
+				buttons[i + 4].setEnabled(true);
+				buttons[i + 8].setEnabled(true);
+				buttons[i + 12].setEnabled(true);
+				buttons[i + 16].setEnabled(true);
+			}
+			
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JButton check = (JButton) e.getSource();
+			String id = " ";
+			int i = 0;
+			if (check.getName() == "offline") {
+				try {
+					currentGame.setNextState(Game.STATE_OFFLINE, settings);
+				} catch (IOException ie) {
+					System.out.println("Game State couldn't be changed");
+				}
+			} else {
+				id = check.getName();
+				System.out.println(id);
+				if (id.equals("disable -2")) {
+					if (!buttons[3].isEnabled()) {
+						String[] parts = id.split("-");
+						i = Integer.parseInt(parts[1]);
+						
+						enableRow(i);
+						check.setEnabled(false);
+					}
+				} else if (id.equals("disable -1") || id.equals("disable -0")) { } else {
+					String[] parts = id.split("-");
+					i = Integer.parseInt(parts[1]);
+					
+					if (i == 3) {
+						if (!check.getName().equals("disable -3") && !buttons[2].isEnabled()) {
+							buttons[2].setEnabled(true);
+							buttons[6].setEnabled(false);
+						}
+					}
+					
+					settings[i] = parts[0];
+					
+					enableRow(i);
+					check.setEnabled(false);
+				}
+			}
+		}
+
 	}
-
-	public MainMenu(LayoutManager arg0, boolean arg1) {
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
-	}
-
 }

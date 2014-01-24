@@ -1,5 +1,7 @@
 package board;
 
+import gamepanels.OfflineGame;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -240,6 +242,15 @@ public class BoardView extends JInternalFrame implements Observer {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				fieldButtons[i][j].addActionListener(inputController);
+			}
+		}
+	}
+	
+	public void addListeners(OfflineGame inputGame) {
+		// set action listeners
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				fieldButtons[i][j].addActionListener(inputGame);
 			}
 		}
 	}
