@@ -1,7 +1,5 @@
 package network;
 
-import java.util.Scanner;
-
 public class Server {
 	public static final int SERVER_PORT = 8494;
 
