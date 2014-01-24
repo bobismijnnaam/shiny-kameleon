@@ -1,19 +1,16 @@
 package board;
 
-import gamepanels.OfflineGame;
-
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
-import javax.swing.plaf.basic.BasicInternalFrameUI;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JInternalFrame;
+import javax.swing.JPanel;
 
 import players.Player;
 import players.Player.Colour;
@@ -23,6 +20,7 @@ import utility.Vector2i;
 
 public class BoardView extends JInternalFrame implements Observer {
 	
+	private static final long serialVersionUID = 1L;
 	// create array for the field images and buttons
 	private BackgroundPanel[][] fields;
 	private JButton[][] fieldButtons;
@@ -242,15 +240,6 @@ public class BoardView extends JInternalFrame implements Observer {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				fieldButtons[i][j].addActionListener(inputController);
-			}
-		}
-	}
-	
-	public void addListeners(OfflineGame inputGame) {
-		// set action listeners
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				fieldButtons[i][j].addActionListener(inputGame);
 			}
 		}
 	}

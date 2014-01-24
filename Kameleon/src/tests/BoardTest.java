@@ -16,7 +16,7 @@ import board.BoardModel;
 import board.BoardView;
 
 public class BoardTest extends JFrame {
-
+	/*
 	public static void main(String[] args) throws IOException {
 		BoardModel board = new BoardModel();
 		Player[] players = new Player[4];
@@ -43,6 +43,6 @@ public class BoardTest extends JFrame {
 		mainView.setVisible(true);
 		
 		controller.startPlayerTurn(players[0]);
-	}
+	}*/
 
 }
