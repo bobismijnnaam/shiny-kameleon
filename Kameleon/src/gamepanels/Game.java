@@ -1,29 +1,24 @@
 package gamepanels;
 
 import java.awt.Color;
-import java.awt.LayoutManager;
 import java.io.IOException;
-import java.util.Scanner;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import players.Player;
-import board.BoardController;
-import board.BoardModel;
-import board.BoardView;
-
 public class Game extends JFrame {
 	
+	private static final long serialVersionUID = 1L;
 	public final static int STATE_MAIN = 0;
 	public final static int STATE_OFFLINE = 1;
 	public final static int STATE_ONLINE = 2;
 	
 	private JPanel currentState;
-	private Player[] players;
 	private String[] settings;
 
+	/**
+	 * Initializes a new game, sets the size and title of the screen and visible.
+	 */
 	public Game() {
 		setSize(600, 600);
 		setVisible(true);
@@ -31,6 +26,11 @@ public class Game extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
+	/**
+	 * @param nextState - the next state to go to (constant).
+	 * @param inputSettings - inputSettings received out of mainFrame to set the players.
+	 * @throws IOException
+	 */
 	public void setNextState(int nextState, String[] inputSettings) throws IOException {
 		switch (nextState) {
 			case STATE_MAIN:
@@ -59,6 +59,7 @@ public class Game extends JFrame {
 				setSize(600, 620);
 				view.setStartPosition();
 				view.addListeners();
+				view.setPlayerTurn();
 				break;
 			case STATE_ONLINE:
 				currentState = null;
@@ -70,9 +71,16 @@ public class Game extends JFrame {
 		}
 	}
 
+	/**
+	 * The main function that starts the game by loading the main menu.
+	 * @param args
+	 * @throws IOException
+	 */
 	public static void main(String[] args) throws IOException {
-		Game gm = new Game();
+		final Game gm = new Game();
 		String[] settings = new String[4];
 		gm.setNextState(STATE_MAIN, settings);
+	
 	}
+	
 }

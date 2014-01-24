@@ -1,9 +1,5 @@
 package gamepanels;
 
-import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -36,7 +32,7 @@ public class MainMenu extends JPanel {
 		for (int x = 0; x < 4; x++) {
 			JButton disable = new JButton("Disable Player " + (x + 1));
 			buttons[x] = disable;
-			disable.setName("disable -" + x);
+			disable.setName("disable-" + x);
 			disable.addActionListener(mController);
 			if (x == 0) {
 				add(disable, "span, split 4, width 25%, height 10%");
@@ -49,7 +45,7 @@ public class MainMenu extends JPanel {
 		for (int x = 0; x < 4; x++) {
 			JButton human = new JButton("Human Player " + (x + 1));
 			buttons[x + 4] = human;
-			human.setName("human -" + x);
+			human.setName("human-" + x);
 			human.setEnabled(false);
 			human.addActionListener(mController);
 			if (x == 0) {
@@ -63,7 +59,7 @@ public class MainMenu extends JPanel {
 		for (int x = 0; x < 4; x++) {
 			JButton easy = new JButton("Computer Easy " + (x + 1));
 			buttons[x + 8] = easy;
-			easy.setName("easy -" + x);
+			easy.setName("easy-" + x);
 			easy.addActionListener(mController);
 			if (x == 0) {
 				add(easy, "span, split 4,  width 25%, height 10%");
@@ -76,7 +72,7 @@ public class MainMenu extends JPanel {
 		for (int x = 0; x < 4; x++) {
 			JButton medium = new JButton("Computer Medium " + (x + 1));
 			buttons[x + 12] = medium;
-			medium.setName("medium -" + x);
+			medium.setName("medium-" + x);
 			medium.addActionListener(mController);
 			if (x == 0) {
 				add(medium, "span, split 4,  width 25%, height 10%");
@@ -89,7 +85,7 @@ public class MainMenu extends JPanel {
 		for (int x = 0; x < 4; x++) {
 			JButton hard = new JButton("Computer hard " + (x + 1));
 			buttons[x + 16] = hard;
-			hard.setName("hard -" + x);
+			hard.setName("hard-" + x);
 			hard.addActionListener(mController);
 			if (x == 0) {
 				add(hard, "span, split 4,  width 25%, height 10%");
@@ -160,20 +156,23 @@ public class MainMenu extends JPanel {
 			} else {
 				id = check.getName();
 				System.out.println(id);
-				if (id.equals("disable -2")) {
+				if (id.equals("disable-2")) {
 					if (!buttons[3].isEnabled()) {
 						String[] parts = id.split("-");
 						i = Integer.parseInt(parts[1]);
 						
+						settings[i] = parts[0];
 						enableRow(i);
 						check.setEnabled(false);
 					}
-				} else if (id.equals("disable -1") || id.equals("disable -0")) { } else {
+				} else if (id.equals("disable-1") || id.equals("disable-0")) { 
+					// nothing 
+				} else {
 					String[] parts = id.split("-");
 					i = Integer.parseInt(parts[1]);
 					
 					if (i == 3) {
-						if (!check.getName().equals("disable -3") && !buttons[2].isEnabled()) {
+						if (!check.getName().equals("disable-3") && !buttons[2].isEnabled()) {
 							buttons[2].setEnabled(true);
 							buttons[6].setEnabled(false);
 						}

@@ -1,35 +1,33 @@
 package gamepanels;
 
-import java.awt.LayoutManager;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 
-import javax.swing.JButton;
 import javax.swing.JInternalFrame;
-import javax.swing.JPanel;
 
+import players.NaiveAI;
 import players.Player;
-import utility.Move;
-import utility.Vector2i;
+import players.Player.Colour;
 import board.BoardController;
 import board.BoardModel;
 import board.BoardView;
 
-public class OfflineGame extends JInternalFrame implements ActionListener {
+public class OfflineGame extends JInternalFrame {
 
+	private static final long serialVersionUID = 1L;
 	String[] settings;
 	Player[] players;
 	BoardModel board;
 	BoardView mainView;
 	BoardController boardController;
-	int z = 0;
-	int y = 0;
-	public OfflineGame(String[] inputSettings) throws IOException {
-		init(inputSettings);
-	}
 	
-	public void init(String[] inputSettings) throws IOException {
+	int currentPlayer = -1;
+	int maxPlayer = 0;
+	
+	/**
+	 * @param inputSettings - a String containing the players (human , disabled, ai)
+	 * @throws IOException
+	 */
+	public OfflineGame(String[] inputSettings) throws IOException {
 		settings = inputSettings;
 		
 		System.out.println("Created a new board");
@@ -38,49 +36,57 @@ public class OfflineGame extends JInternalFrame implements ActionListener {
 		mainView = new BoardView(board);
 		add(mainView.getRootPane());
 	}
-	
+ 
+	/**
+	 * Initializes the players according to the settings and sets start positions.
+	 */
 	public void setStartPosition() {
 		players = new Player[4];
-		players[0] = new Player(Player.Colour.Red, "Red");
-		players[1] = new Player(Player.Colour.Yellow, "Yellow");
-		players[2] = new Player(Player.Colour.Green, "Green");
-		players[3] = new Player(Player.Colour.Blue, "Blue");
+		Colour currentColor = Player.Colour.Red;
 		
-		y = 0;
+		maxPlayer = 0;
 		for (int i = 0; i < 4; i++) {
+			System.out.println("Settings is:" + settings[i] + "|");
 			if (settings[i].equals("human")) {
-				y++;
+				players[i] = new Player(currentColor, "Human");
+				System.out.println("Set a human player");
+				currentColor = currentColor.getNext();
+				maxPlayer++;
+			}  else if (settings[i].equals("easy")) {
+				players[i] = new NaiveAI(currentColor);
+				System.out.println("Set a easy computer");
+				currentColor = currentColor.getNext();
+				maxPlayer++;
 			}
 		}
 		
-		if (y == 2) {
+		if (maxPlayer == 2) {
 			board.setStartPosition(players[0], players[1]);
-		} else if (y == 3) {
+		} else if (maxPlayer == 3) {
 			board.setStartPosition(players[0], players[1], players[2]);
-		} else if (y == 4) {
+		} else if (maxPlayer == 4) {
 			board.setStartPosition(players[0], players[1], players[2], players[3]);
 		}
 	}
 	
+	/**
+	 * Adds listeners to the board controller.
+	 */
 	public void addListeners() {
 		boardController = new BoardController(board, mainView.getFieldButtons(),
-				mainView.getFields(), players);
+				mainView.getFields(), players, this);
 		mainView.addListeners(boardController);
-		mainView.addListeners(this);
-		boardController.startPlayerTurn(players[0]);
 	}
 	
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-	
-		System.out.println("Received click on offlineGame");
-		
-		z++;
-		if (z == y) {
-			z = 0;
+	/**
+	 * Sets the player turn to the next player and starts the turn.
+	 */
+	public void setPlayerTurn() {
+		currentPlayer++;
+		if (currentPlayer == maxPlayer) {
+			currentPlayer = 0;
 		}
-		boardController.startPlayerTurn(players[z]);
-		System.out.println("It's player" + z + "turn");
+		boardController.startPlayerTurn(players[currentPlayer]);
 	}
+	
 }
