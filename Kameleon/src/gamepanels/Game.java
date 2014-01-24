@@ -76,3 +76,10 @@ public class Game extends JFrame {
 		gm.setNextState(STATE_MAIN, settings);
 	}
 }
+
+//Scanner scr = new Scanner("HI LO\n");
+//System.out.println(scr.next());
+//System.out.println(scr.next());
+//System.out.println(scr.hasNextLine());
+//System.out.println(scr.nextLine());
+//System.out.println(scr.hasNextLine());

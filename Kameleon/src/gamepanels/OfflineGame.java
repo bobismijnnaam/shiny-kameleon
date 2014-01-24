@@ -39,6 +39,10 @@ public class OfflineGame extends JInternalFrame implements ActionListener {
 		add(mainView.getRootPane());
 	}
 	
+	public void turnOver() {
+		
+	}
+	
 	public void setStartPosition() {
 		players = new Player[4];
 		players[0] = new Player(Player.Colour.Red, "Red");
@@ -73,7 +77,7 @@ public class OfflineGame extends JInternalFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-	
+		
 		System.out.println("Received click on offlineGame");
 		
 		z++;
