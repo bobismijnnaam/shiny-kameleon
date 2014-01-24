@@ -6,13 +6,20 @@ import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
 public class MainMenu extends JPanel {
 
+	private static final long serialVersionUID = 1L;
 	private JButton[] buttons;
 	private String[] settings;
+	JTextField username;
+	JPasswordField password;
+	JTextField server;
+	JTextField port;
 	
 	public MainMenu(Game inputGame) {
 		createMenu(inputGame);
@@ -25,6 +32,7 @@ public class MainMenu extends JPanel {
 		JButton playOffline = new JButton("PLAY OFFLINE");
 		JButton playOnline = new JButton("PLAY ONLINE");
 		playOffline.setName("offline");
+		playOnline.setName("online");
 		MainMenuController mController = new MainMenuController(inputGame, buttons);
 		add(playOffline, "span, growx, width 100%, height 25%");
 		
@@ -35,9 +43,9 @@ public class MainMenu extends JPanel {
 			disable.setName("disable-" + x);
 			disable.addActionListener(mController);
 			if (x == 0) {
-				add(disable, "span, split 4, width 25%, height 10%");
+				add(disable, "span, split 4, width 25%, height 8%");
 			} else {
-				add(disable, "width 25%, height 10%");
+				add(disable, "width 25%, height 8%");
 			}
 		}
 		
@@ -49,9 +57,9 @@ public class MainMenu extends JPanel {
 			human.setEnabled(false);
 			human.addActionListener(mController);
 			if (x == 0) {
-				add(human, "span, split 4, width 25%, height 10%");
+				add(human, "span, split 4, width 25%, height 8%");
 			} else {
-				add(human, "width 25% , height 10%");
+				add(human, "width 25% , height 8%");
 			}
 		}
 		
@@ -62,9 +70,9 @@ public class MainMenu extends JPanel {
 			easy.setName("easy-" + x);
 			easy.addActionListener(mController);
 			if (x == 0) {
-				add(easy, "span, split 4,  width 25%, height 10%");
+				add(easy, "span, split 4,  width 25%, height 8%");
 			} else {
-				add(easy, " width 25%, height 10%");
+				add(easy, " width 25%, height 8%");
 			}
 		}
 		
@@ -75,9 +83,9 @@ public class MainMenu extends JPanel {
 			medium.setName("medium-" + x);
 			medium.addActionListener(mController);
 			if (x == 0) {
-				add(medium, "span, split 4,  width 25%, height 10%");
+				add(medium, "span, split 4,  width 25%, height 8%");
 			} else {
-				add(medium, " width 25%, height 10%");
+				add(medium, " width 25%, height 8%");
 			}
 		}
 		
@@ -88,14 +96,26 @@ public class MainMenu extends JPanel {
 			hard.setName("hard-" + x);
 			hard.addActionListener(mController);
 			if (x == 0) {
-				add(hard, "span, split 4,  width 25%, height 10%");
+				add(hard, "span, split 4,  width 25%, height 8%");
 			} else {
-				add(hard, " width 25%, height 10%");
+				add(hard, " width 25%, height 8%");
 			}
 		}
-
+		
 		add(playOnline, "span, growx, width 100%, height 25%");
+		
+		// textfield
+		username = new JTextField("username");
+		password = new JPasswordField("password");
+		server = new JTextField("server");
+		port = new JTextField("port");
+		add(username, "span, split 4, height 5%, width 25%");
+		add(password, "height 5%, width 25%");
+		add(server, "height 5%, width 25%");
+		add(port, "height 5%, width 25%");
+
 		playOffline.addActionListener(mController);
+		playOnline.addActionListener(mController);
 	}
 	
 	// controller
@@ -147,7 +167,17 @@ public class MainMenu extends JPanel {
 			JButton check = (JButton) e.getSource();
 			String id = " ";
 			int i = 0;
-			if (check.getName() == "offline") {
+			if (check.getName() == "online") {
+				settings[0] = username.getText();
+				settings[1] = new String(password.getPassword());
+				settings[2] = server.getText();
+				settings[3] = port.getText();
+				try {
+					currentGame.setNextState(Game.STATE_ONLINE, settings);
+				} catch (IOException ie) {
+					System.out.println("Game State couldn't be changed");
+				}
+			} else if (check.getName() == "offline") {
 				try {
 					currentGame.setNextState(Game.STATE_OFFLINE, settings);
 				} catch (IOException ie) {
