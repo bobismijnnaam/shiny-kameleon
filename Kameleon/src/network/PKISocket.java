@@ -1,17 +1,19 @@
 package network;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
+import java.security.SecureRandom;
 
 public class PKISocket extends Thread {
-	public final String PKI_SERVER_ADDR = "ss-security.student.utwente.nl";
-	public final int PKI_SERVER_PORT = 2013;
+	public static final String PKI_SERVER_ADDR = "ss-security.student.utwente.nl";
+	public static final int PKI_SERVER_PORT = 2013;
+	
+	 private static SecureRandom random = new SecureRandom();
 
 	String user;
 	String pass;
@@ -63,6 +65,7 @@ public class PKISocket extends Thread {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				System.out.println("Wait was interrupted");
+				return;
 			}
 			
 			System.out.print("|");
@@ -81,6 +84,7 @@ public class PKISocket extends Thread {
 			sock.close();
 		} catch (IOException e) {
 			System.out.println("Couldn't close socket");
+			return;
 		}
 		
 		System.out.println("Socket closed! Processing key...");
@@ -94,6 +98,33 @@ public class PKISocket extends Thread {
 	public String getKey() {
 		return new String(key);
 	}
+	
+	public static String getRandomString() {
+		return PKISocket.getRandomString(15);
+	}
+	
+	public static String getRandomString(int l) {
+		ArrayList<Character> chr = new ArrayList<Character>(60);
+		
+		for (int i = 97; i <= 122; i++) {
+			chr.add(new Character((char) i));
+		}
+		for (int i = 65; i <= 90; i++) {
+			chr.add(new Character((char) i));
+		}
+		for (int i = 48; i <= 57; i++) {
+			chr.add(new Character((char) i));
+		}
+		
+		String randomString = new String();
+		for (int i = 0; i < l; i++) {
+			randomString += chr.get((int) Math.floor(random.nextFloat() * chr.size()));
+		}
+		
+		return randomString;
+	}
+	
+	
 	
 	public static void main(String[] args) {
 		PKISocket pki = new PKISocket("player_rub", "hond");

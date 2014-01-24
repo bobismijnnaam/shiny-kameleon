@@ -19,6 +19,8 @@ public class Server {
 		server.start();
 		client.start();
 		
+		System.out.println(PKISocket.getRandomString());
+		
 		System.out.println("Initialized variables. Waiting for them to connect...");
 		
 		while (!server.isRunning() || !client.isRunning()) {
