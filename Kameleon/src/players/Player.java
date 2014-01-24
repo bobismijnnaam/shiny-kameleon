@@ -4,7 +4,7 @@ public class Player {
 	
 	/**
 	 * 
-	 * @author Got the pattern from Pshemo
+	 * @author Got the static{} pattern from Pshemo
 	 * http://stackoverflow.com/questions/18883646/java-enum-methods
 	 *
 	 */

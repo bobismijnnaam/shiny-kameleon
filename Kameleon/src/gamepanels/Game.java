@@ -1,6 +1,7 @@
 package gamepanels;
 
 import java.awt.LayoutManager;
+import java.util.Scanner;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -21,7 +22,7 @@ public class Game extends JFrame {
 		switch (nextState) {
 		case STATE_MAIN:
 			currentState = null;
-			currentState = new MainMenu(this);
+//			currentState = new MainMenu(this);
 			break;
 		case STATE_OFFLINE:
 			break;
@@ -32,8 +33,15 @@ public class Game extends JFrame {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Game gm = new Game();
-		gm.setNextState(STATE_MAIN);
+//		Game gm = new Game();
+//		gm.setNextState(STATE_MAIN);
+		
+		// String msg = "Hi my name is Bob?!";
+		String msg = "TOKEN      lol lol \n";
+		Scanner theScanner = new Scanner(msg);
+		System.out.println(theScanner.next());
+		System.out.println(Boolean.toString(theScanner.hasNextLine()));
+		System.out.print(theScanner.nextLine().split(" ")[3] + "The end?");
 	}
 
 }
