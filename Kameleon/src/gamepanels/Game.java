@@ -3,6 +3,7 @@ package gamepanels;
 import java.awt.Color;
 import java.awt.LayoutManager;
 import java.io.IOException;
+import java.util.Scanner;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -65,6 +66,7 @@ public class Game extends JFrame {
 				currentState.setBackground(Color.GREEN);
 				add(currentState);
 				break;
+
 		}
 	}
 
@@ -72,7 +74,5 @@ public class Game extends JFrame {
 		Game gm = new Game();
 		String[] settings = new String[4];
 		gm.setNextState(STATE_MAIN, settings);
-		
 	}
-
 }
