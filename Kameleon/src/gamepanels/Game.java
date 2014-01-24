@@ -11,11 +11,13 @@ public class Game extends JFrame {
 	private static final long serialVersionUID = 1L;
 	public final static int STATE_MAIN = 0;
 	public final static int STATE_OFFLINE = 1;
-	public final static int STATE_ONLINE = 2;
+	public final static int STATE_LOBBY = 2;
+	public final static int STATE_ONLINE = 3;
 	
 	private JPanel currentState;
 	private String[] settings;
 	private MainMenu mainMenu;
+	private Lobby lobby;
 
 	/**
 	 * Initializes a new game, sets the size and title of the screen and visible.
@@ -61,19 +63,21 @@ public class Game extends JFrame {
 				view.addListeners();
 				view.setPlayerTurn();
 				break;
-			case STATE_ONLINE:
+			case STATE_LOBBY:
 				settings = inputSettings;
 				remove(mainMenu);
 				setSize(0, 0);
-				currentState = null;
-				currentState = new JPanel();
-				currentState.setBackground(Color.GREEN);
+				lobby = new Lobby(this);
+				lobby.setBackground(Color.GREEN);
 				System.out.println("Got the settings:");
 				for (int x = 0; x < 4; x++) {
 					System.out.println(settings[x]);
 				}
-				add(currentState);
+				add(lobby);
 				setSize(620, 620);
+				break;
+			case STATE_ONLINE:
+				System.out.println("online game is ready");
 				break;
 
 		}
