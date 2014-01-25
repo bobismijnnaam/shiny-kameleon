@@ -11,15 +11,8 @@ public class Server {
 		RolitSocket server = new RolitSocket(SERVER_PORT);
 		RolitSocket client = new RolitSocket("localhost", SERVER_PORT);
 		
-//		Scanner scr = new Scanner("TOKEN TEKON\n");
-//		System.out.println(scr.next());
-//		System.out.println(scr.next());
-//		System.out.println(scr.nextLine().length() + "");
-		
 		server.start();
 		client.start();
-		
-		System.out.println(PKISocket.getRandomString());
 		
 		System.out.println("Initialized variables. Waiting for them to connect...");
 		
@@ -37,7 +30,7 @@ public class Server {
 		
 		server.askPROTO();
 		
-		while (server.getQueuedMsgType() == RolitSocket.MessageType.FB_PROTO) {
+		while (server.getQueuedMsgType() != RolitSocket.MessageType.FB_PROTO) {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
@@ -48,29 +41,32 @@ public class Server {
 		
 		System.out.println("A message seems to have arrived!");
 		
+		System.out.println("Message: \"" + server.getQueuedMsg() + "\"");
 		
-		System.out.println(server.getQueuedMsg());
+		System.out.println("\n");
 		
-		System.out.print("Closing client. ");
+		System.out.print("Closing client, server. ");
 		client.close();
-		System.out.println("Client status: " + client.isRunning());
-		System.out.print("Closing Server. ");
-		server.close();
-		System.out.println("Server status: " + server.isRunning());
-
+		
 		try {
-			System.out.println("Joining client");
-			System.out.println("Client running: " + client.isRunning());
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		server.close();
+		
+		try {
 			client.join();
-			
-			System.out.println("Joining server");
-			System.out.println("Server running: " + server.isRunning());
 			server.join();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+		System.out.println("Server still alive: " + server.isAlive());
+		System.out.println("Client still alive: " + client.isAlive());
 		System.out.println("Profit?");
 		
 		// Done!
