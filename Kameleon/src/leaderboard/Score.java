@@ -4,6 +4,9 @@ import java.util.Calendar;
 
 import players.Player;
 
+// TODO: Win or not?
+// TODO: Make toNetworkString method actually work
+
 public class Score implements Comparable<Score>, Cloneable {
 	private Calendar date; // Calendar
 	private String team; // Team
@@ -51,6 +54,11 @@ public class Score implements Comparable<Score>, Cloneable {
 	@Override
 	public Score clone() {
 		return new Score(player.getName(), score, team, date);
+	}
+	
+	// TODO: DON'T FORGET THIS!
+	public String toString() {												// birthday lol
+		return player.getName() + " " + Integer.toString(getScore()) + " N 788209200";
 	}
 	
 }

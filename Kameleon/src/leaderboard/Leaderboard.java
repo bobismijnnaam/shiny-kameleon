@@ -3,6 +3,7 @@ package leaderboard;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import utility.Utils;
 
 public class Leaderboard {
 	ArrayList<Score> scores;
@@ -104,7 +105,10 @@ public class Leaderboard {
 		lb.addScore("Dennis", 75, null, date);
 		
 		List<Score> result;
-		result = lb.getScoresBelow(11);
+		result = lb.getScoresBelow(100);
+		
+		System.out.println(Utils.join(result, "\n"));
+		
 		for (Score s : result) {
 			System.out.println(s.getScore());
 		}

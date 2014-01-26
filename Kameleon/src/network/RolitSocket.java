@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import utility.Utils;
+
 public class RolitSocket extends Thread {
 	
 	public enum MessageType {
@@ -558,15 +560,7 @@ public class RolitSocket extends Thread {
 	}
 	
 	public String getQueuedMsg() {
-		String[] args = getQueuedMsgArray();
-		String result = new String();
-		for (int i = 0; i < args.length - 1; i++) {
-			result += args[i] + " ";
-		}
-		
-		result += args[args.length - 1];
-		
-		return result;
+		return Utils.join(Arrays.asList(getQueuedMsgArray()), " ");
 	}
 	
 	private void queueMsg(MessageType type) {
@@ -580,6 +574,7 @@ public class RolitSocket extends Thread {
 		listLock.unlock();
 	}
 	
+	// TODO 
 	/**
 	 * Send an arbitrary string to the other side. Adds a newline for you if needed.
 	 * @param msg - The message to be sent.
@@ -595,7 +590,7 @@ public class RolitSocket extends Thread {
 		} catch (IOException e) {
 			// Does this mean that the other side disconnected?
 			System.out.println("Network error: couldn't send to the "
-					+ getType()
+					+ getOtherType()
 					+ " . The command was: \"" + msg + "\"");
 		}
 	}
@@ -635,10 +630,29 @@ public class RolitSocket extends Thread {
 	}
 	
 	public void tellERROR(Error e) {
-		sendMsg(e.toString());
+		sendMsg("ERROR " + e.toString());
+	}
+	
+	public void tellERROR(Error e, String details) {
+		sendMsg("ERROR " + e.toString() + " " + details);
+	}
+	
+	public void tellWARNI(String info) {
+		sendMsg("WARNI " + info);
 	}
 	
 	public void tellHELLO() {
 		sendMsg("HELLO CL");
+	}
+	
+	public boolean askALIVE() {
+		try {
+			out.write("ALIVE");
+			out.flush();
+		} catch (IOException e) {
+			return false;
+		}
+		
+		return true;
 	}
 }
