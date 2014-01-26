@@ -106,4 +106,83 @@ public class ClientRolitSocket extends RolitSocket {
 	public void tellCHATM(String msg) {
 		sendMsg("CHATM " + msg);
 	}
+	
+	public static void main(String[] args) {
+		ClientRolitSocket crs = new ClientRolitSocket("localhost", Server.SERVER_PORT);
+		
+		System.out.println("Let's do this!");
+		crs.start();
+		
+		while (!crs.isConnected()) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				System.out.println("Oops, something went wrong while waiting!");
+			}
+		}
+		
+		int amountIn = 0;
+		int amountOut = 0;
+		
+		// TEST ALL THE COMMANDS!
+		crs.askLOGIN("client");
+		// crs.tellVSIGN()
+		crs.askSTATE();
+		crs.askNGAME("ruben");
+		crs.tellGMOVE(5, 4);
+		crs.askBOARD();
+		crs.askGPLST();
+		crs.askSCORE(2);
+		crs.askPLIST();
+		crs.askINVIT("bob");
+		crs.tellINVIT(INVITStatus.Accept);
+		crs.tellCHATM("HELLO WORLD");
+		
+		amountOut = 11; 
+		
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			System.out.println("oops");
+		}
+		
+		// Process all the commands... :(
+		while (crs.isNewMsgQueued()) {
+			amountIn++;
+			System.out.print("Incoming command: ");
+			switch (crs.getQueuedMsgType()) {
+				case AL_STATE:
+					Utils.disp("STATE", crs.getQueuedMsgArray());
+					break;
+				case LO_INVIT:
+					Utils.disp("INVIT", crs.getQueuedMsgArray());
+					break;
+				case IG_GMOVE:
+					Utils.disp("GMOVE", crs.getQueuedMsgArray());
+					break;
+				case IG_BOARD:
+					Utils.disp("BOARD", crs.getQueuedMsgArray());
+					break;
+				case IG_GPLST:
+					Utils.disp("GPLST", crs.getQueuedMsgArray());
+					break;
+				case AL_SCORE:
+					Utils.disp("SCORE", crs.getQueuedMsgArray());
+					break;
+				case LO_PLIST:
+					Utils.disp("PLIST", crs.getQueuedMsgArray());
+					break;
+				default:
+					System.out.print("you missed one :( : ");
+					System.out.print(crs.getQueuedMsgType().toString());
+					break;
+			}
+		}
+		
+		System.out.println("In: " + amountIn + " out: " + amountOut);
+		
+		crs.close();
+		
+		System.out.println("Done. Cya!");
+	}
 }

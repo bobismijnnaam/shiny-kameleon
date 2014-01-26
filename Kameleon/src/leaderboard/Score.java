@@ -14,7 +14,7 @@ public class Score implements Comparable<Score>, Cloneable {
 	private int score;
 	
 	public Score(String inputPlayer, int inputScore, String inputTeam, Calendar inputDate) {
-		date = (Calendar) inputDate.clone();
+		date = inputDate == null ? null : (Calendar) inputDate.clone();
 		team = inputTeam == null ? null : new String(inputTeam);
 		player = new Player(Player.Colour.Blue , inputPlayer);
 		score = inputScore;

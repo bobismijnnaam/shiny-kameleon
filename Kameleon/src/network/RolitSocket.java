@@ -5,7 +5,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +51,48 @@ public class RolitSocket extends Thread {
 		FB_SINFO, // Without authentication!
 		
 		X_NONE; // To indicate that there is no message
+		
+		private String s;
+		
+		static {
+			// The commands you can always do
+			AL_STATE.s = "AL_STATE";
+			AL_SCORE.s = "AL_SCORE";
+			AL_BCAST.s = "AL_BCAST";
+			AL_ALIVE.s = "AL_ALIVE";
+			AL_LEAVE.s = "AL_LEAVE";
+			AL_CHATM.s = "AL_CHATM";
+			
+			// Authentication commands
+			AC_LOGIN.s = "AC_LOGIN";
+			AC_VSIGN.s = "AC_VSIGN";
+			AC_HELLO.s = "AC_HELLO";
+			
+			// Lobby commands
+			LO_NGAME.s = "LO_NGAME";
+			LO_START.s = "LO_START";
+			LO_PLIST.s = "LO_PLIST";
+			LO_LJOIN.s = "LO_LJOIN";
+			LO_INVIT.s = "LO_INVIT";
+			
+			// In game commands
+			IG_GTURN.s = "IG_GTURN";
+			IG_GMOVE.s = "IG_GMOVE";
+			IG_GPLST.s = "IG_GPLST";
+			IG_BOARD.s = "IG_BOARD";
+			
+			// Feedback commands. Are always allowed!
+			FB_ERROR.s = "FB_ERROR";
+			FB_WARNI.s = "FB_WARNI";
+			FB_PROTO.s = "FB_PROTO";
+			FB_SINFO.s = "FB_SINFO";
+			
+			X_NONE.s = "X_NONE";
+		}
+		
+		public String toString() {
+			return new String(s);
+		}
 	} // 18 commands
 	
 	public enum Error {
@@ -99,7 +140,7 @@ public class RolitSocket extends Thread {
 	public final static boolean ID_SERVER = true;
 	public final static boolean ID_CLIENT = false;
 	
-	ServerSocket serversock;
+//	ServerSocket serversock;
 	private Socket sock;
 	private boolean id;
 	private boolean connected = false;
@@ -116,17 +157,19 @@ public class RolitSocket extends Thread {
 	private List<MessageType> queuedMsgsType;
 	
 	// For the server
-	public RolitSocket(int port) {
+	public RolitSocket(Socket inputSock) {
 		id = ID_SERVER;
 		
-		// Try to connect to a player
-		try {
-			// Start listening on a port
-			serversock = new ServerSocket(port);
-		} catch (IOException e) {
-			System.out.println("Could not open socket on port " + Integer.toString(port));
-			System.exit(0);
-		}
+		sock = inputSock;
+		
+//		// Try to connect to a player
+//		try {
+//			// Start listening on a port
+//			serversock = new ServerSocket(port);
+//		} catch (IOException e) {
+//			System.out.println("Could not open socket on port " + Integer.toString(port));
+//			System.exit(0);
+//		}
 	}
 	
 	// For the client
@@ -162,13 +205,13 @@ public class RolitSocket extends Thread {
 			// Connect with a player
 			try {
 				// System.out.println("Looking for a player...");
-				sock = serversock.accept();
+				// sock = serversock.accept();
 				// System.out.println("Found a player!");
 				
 				in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 				out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
 			} catch (IOException e) {
-				System.out.println("Network error: could not open a socket with client.");
+				System.out.println("Network error: could not open the socket streams.");
 				System.exit(0);
 			}
 		} else {
@@ -195,9 +238,9 @@ public class RolitSocket extends Thread {
 			if (tail == null) {
 				tellPROTO();
 			} else if (tail.length < 2) {
-				tellERROR(Error.TooFewArgumentsException);
+				tellERROR(Error.TooFewArgumentsException, "PROTO");
 			} else if (tail.length > 2) {
-				tellERROR(Error.TooManyArgumentsException);
+				tellERROR(Error.TooManyArgumentsException, "PROTO");
 			} else {
 				// parse prototype
 				queueMsg(MessageType.FB_PROTO, tail);
@@ -207,25 +250,25 @@ public class RolitSocket extends Thread {
 				// Queue the message, so the outer class can send
 				// the state using a function of this class
 				if (tail != null) {
-					tellERROR(Error.TooManyArgumentsException);
+					tellERROR(Error.TooManyArgumentsException, "STATE");
 				} else {
 					queueMsg(MessageType.AL_STATE);
 				}
 			} else {
 				if (tail == null) {
-					tellERROR(Error.TooFewArgumentsException);
+					tellERROR(Error.TooFewArgumentsException, "STATE");
 				} else if (tail.length > 1) {
-					tellERROR(Error.TooManyArgumentsException);
+					tellERROR(Error.TooManyArgumentsException, "STATE");
 				} else {
 					queueMsg(MessageType.AL_STATE, tail);
 				}
 			}
 		} else if (token.equals("BCAST")) { // A message from the server
 			if (id == ID_SERVER) {
-				tellERROR(Error.UnexpectedOperationException);
+				tellERROR(Error.UnexpectedOperationException, "BCAST");
 			} else {
 				if (tail == null) {
-					tellERROR(Error.TooFewArgumentsException);
+					tellERROR(Error.TooFewArgumentsException, "BCAST");
 				} else {
 					queueMsg(MessageType.AL_BCAST, tail);
 				}
@@ -234,68 +277,68 @@ public class RolitSocket extends Thread {
 			if (tail == null) {
 				tellSINFO();
 			} else if (tail.length == 1) {
-				tellERROR(Error.TooFewArgumentsException);
+				tellERROR(Error.TooFewArgumentsException, "SINFO");
 			} else if (tail.length > 2) {
-				tellERROR(Error.TooManyArgumentsException);
+				tellERROR(Error.TooManyArgumentsException, "SINFO");
 			} else {
 				queueMsg(MessageType.FB_SINFO, tail);
 			}
 		} else if (token.equals("ERROR")) { // For an error of the other side
 			// TODO: Maybe write details to error.log?
 			if (tail == null) {
-				tellERROR(Error.TooFewArgumentsException);
+				tellERROR(Error.TooFewArgumentsException, "ERROR (lol)");
 			} else {
 				queueMsg(MessageType.FB_ERROR, tail);
 			}
 		} else if (token.equals("WARNI")) { // For a warning from the other side
 			// TODO: Maybe write details to warning.log?
 			if (tail == null) {
-				tellERROR(Error.TooFewArgumentsException);
+				tellERROR(Error.TooFewArgumentsException, "WARNI (lel)");
 			} else {
 				String warning = Arrays.toString(tail);
 				System.out.println("Received a warning from other side: \""
 						+ warning + "\"");
 			}
 		} else if (token.equals("SCORE")) { // A score request
-			if (tail == null || tail.length == 1) {
-				tellERROR(Error.TooFewArgumentsException);
-			} else {
-				queueMsg(MessageType.FB_ERROR, tail);
-			}
+//			if (tail == null || tail.length == 1) { // What if there are no highscores?
+//				tellERROR(Error.TooFewArgumentsException);
+//			} else {
+			queueMsg(MessageType.AL_SCORE, tail);
+//			}
 		} else if (token.equals("LEAVE")) { // When a client disconnects or leaves the lobby
 			if (id == ID_SERVER) { // Disconnect happened
 				if (tail == null) {
 					queueMsg(MessageType.AL_LEAVE);
 				} else { // More than 0 arguments is unexpected!
-					tellERROR(Error.IllegalArgumentException);
+					tellERROR(Error.IllegalArgumentException, "LEAVE");
 				}
 			} else { // Someone left the lobby
 				if (tail == null) {
-					tellERROR(Error.TooFewArgumentsException);
+					tellERROR(Error.TooFewArgumentsException, "TAIL");
 				} else if (tail.length == 1) {
 					queueMsg(MessageType.AL_LEAVE, tail);
 				} else {
-					tellERROR(Error.TooManyArgumentsException);
+					tellERROR(Error.TooManyArgumentsException, "TAIL");
 				}
 				
 			}
 		} else if (token.equals("LOGIN")) { // When a client tries to get access to the server
 			if (id == ID_SERVER) { // Someone's trying to connect
 				if (tail == null) {
-					tellERROR(Error.TooFewArgumentsException);
+					tellERROR(Error.TooFewArgumentsException, "LOGIN");
 				} else if (tail.length == 1) {
 					queueMsg(MessageType.AC_LOGIN, tail);
 				} else {
-					tellERROR(Error.TooManyArgumentsException);
+					tellERROR(Error.TooManyArgumentsException, "LOGIN");
 				}
 			} else { // Client does not support this.
-				tellERROR(Error.UnexpectedOperationException);
+				tellERROR(Error.UnexpectedOperationException, "LOGIN");
 			}
 		} else if (token.equals("VSIGN")) { // To prove a clients identity
 			if (tail == null) {
-				tellERROR(Error.TooFewArgumentsException);
+				tellERROR(Error.TooFewArgumentsException, "VSIGN");
 			} else if (tail.length > 1) {
-				tellERROR(Error.TooManyArgumentsException);
+				tellERROR(Error.TooManyArgumentsException, "VSIGN");
 			} else {
 				queueMsg(MessageType.AC_VSIGN, tail);
 			}
@@ -303,44 +346,44 @@ public class RolitSocket extends Thread {
 			// To acknowledge a clients identity
 			// and tell client/server your capabilities
 			if (tail == null) {
-				tellERROR(Error.TooFewArgumentsException);
+				tellERROR(Error.TooFewArgumentsException, "VSIGN");
 			} else if (tail.length > 1) {
-				tellERROR(Error.TooManyArgumentsException);
+				tellERROR(Error.TooManyArgumentsException, "VSIGN");
 			} else {
 				queueMsg(MessageType.AC_HELLO, tail);
 			}
 		} else if (token.equals("NGAME")) {
 			if (id == ID_SERVER) {
 				if (tail == null) {
-					tellERROR(Error.TooFewArgumentsException);
+					tellERROR(Error.TooFewArgumentsException, "NGAME");
 				} else if (tail.length == 1 || tail.length == 2) {
 					queueMsg(MessageType.LO_NGAME);
 				} else {
-					tellERROR(Error.TooManyArgumentsException);
+					tellERROR(Error.TooManyArgumentsException, "NGAME");
 				}
 			} else {
-				tellERROR(Error.UnexpectedOperationException);
+				tellERROR(Error.UnexpectedOperationException, "NGAME");
 			}
 		} else if (token.equals("START")) {
 			if (id == ID_SERVER) {
-				tellERROR(Error.UnexpectedOperationException);
+				tellERROR(Error.UnexpectedOperationException, "START");
 			} else {
 				if (tail == null) {
-					tellERROR(Error.TooFewArgumentsException);
+					tellERROR(Error.TooFewArgumentsException, "START");
 				} else if (tail.length > 4) {
-					tellERROR(Error.TooManyArgumentsException);
+					tellERROR(Error.TooManyArgumentsException, "START");
 				} else {
 					queueMsg(MessageType.LO_START, tail);
 				}
 			}
 		} else if (token.equals("GTURN")) {
 			if (id == ID_SERVER) {
-				tellERROR(Error.UnexpectedOperationException);
+				tellERROR(Error.UnexpectedOperationException, "GTURN");
 			} else {
 				if (tail == null) {
-					tellERROR(Error.TooFewArgumentsException);
+					tellERROR(Error.TooFewArgumentsException, "GTURN");
 				} else if (tail.length > 1) {
-					tellERROR(Error.TooManyArgumentsException);
+					tellERROR(Error.TooManyArgumentsException, "GTURN");
 				} else {
 					queueMsg(MessageType.IG_GTURN, tail);
 				}
@@ -348,19 +391,19 @@ public class RolitSocket extends Thread {
 		} else if (token.equals("GMOVE")) {
 			if (id == ID_SERVER) {
 				if (tail == null || tail.length == 1) {
-					tellERROR(Error.TooFewArgumentsException);
+					tellERROR(Error.TooFewArgumentsException, "GMOVE");
 				} else if (tail.length == 2) {
 					queueMsg(MessageType.IG_GMOVE, tail);
 				} else if (tail.length > 2) {
-					tellERROR(Error.TooManyArgumentsException);
+					tellERROR(Error.TooManyArgumentsException, "GMOVE");
 				}
 			} else {
 				if (tail == null || tail.length < 3) {
-					tellERROR(Error.TooFewArgumentsException);
+					tellERROR(Error.TooFewArgumentsException, "GMOVE");
 				} else if (tail.length == 3) {
 					queueMsg(MessageType.IG_GMOVE, tail);
 				} else {
-					tellERROR(Error.TooManyArgumentsException);
+					tellERROR(Error.TooManyArgumentsException, "GMOVE");
 				}
 			}
 		} else if (token.equals("BOARD")) {
@@ -368,15 +411,15 @@ public class RolitSocket extends Thread {
 				if (tail == null) {
 					queueMsg(MessageType.IG_BOARD);
 				} else {
-					tellERROR(Error.TooManyArgumentsException);
+					tellERROR(Error.TooManyArgumentsException, "BOARD");
 				}
 			} else { 
 				if (tail == null || tail.length < 64) {
-					tellERROR(Error.TooFewArgumentsException);
+					tellERROR(Error.TooFewArgumentsException, "BOARD");
 				} else if (tail.length == 64) {
 					queueMsg(MessageType.IG_BOARD, tail);
 				} else {
-					tellERROR(Error.TooManyArgumentsException);
+					tellERROR(Error.TooManyArgumentsException, "BOARD");
 				}
 			}
 		} else if (token.equals("GPLST")) {
@@ -384,11 +427,11 @@ public class RolitSocket extends Thread {
 				if (tail == null) {
 					queueMsg(MessageType.IG_GPLST);
 				} else {
-					tellERROR(Error.TooManyArgumentsException);
+					tellERROR(Error.TooManyArgumentsException, "GPLST");
 				}
 			} else {
 				if (tail == null || tail.length == 1) {
-					tellERROR(Error.TooFewArgumentsException);
+					tellERROR(Error.TooFewArgumentsException, "GPLST");
 				} else if (tail.length <= 4) {
 					queueMsg(MessageType.IG_GPLST, tail);
 				} else {
@@ -402,39 +445,39 @@ public class RolitSocket extends Thread {
 				if (tail == null) {
 					queueMsg(MessageType.LO_PLIST);
 				} else {
-					tellERROR(Error.TooManyArgumentsException);
+					tellERROR(Error.TooManyArgumentsException, "PLIST");
 				}
 			} else {
 				queueMsg(MessageType.LO_PLIST, tail);
 			}
 		} else if (token.equals("LJOIN")) {
 			if (id == ID_SERVER) {
-				tellERROR(Error.UnexpectedOperationException);
+				tellERROR(Error.UnexpectedOperationException, "LJOIN");
 			} else {
 				if (tail == null) {
-					tellERROR(Error.TooFewArgumentsException);
+					tellERROR(Error.TooFewArgumentsException, "LJOIN");
 				} else if (tail.length == 1) {
 					queueMsg(MessageType.LO_LJOIN, tail);
 				} else {
-					tellERROR(Error.TooManyArgumentsException);
+					tellERROR(Error.TooManyArgumentsException, "LJOIN");
 				}
 			}
 		} else if (token.equals("INVIT")) {
 			if (tail == null) {
-				tellERROR(Error.TooFewArgumentsException);
+				tellERROR(Error.TooFewArgumentsException, "INVIT");
 			} else if (tail.length > 5) {
-				tellERROR(Error.TooManyArgumentsException);
+				tellERROR(Error.TooManyArgumentsException, "INVIT");
 			} else {
 				queueMsg(MessageType.LO_INVIT, tail);
 			}
 		} else if (token.equals("CHATM")) {
 			if (tail == null) {
-				tellERROR(Error.TooFewArgumentsException);
+				tellERROR(Error.TooFewArgumentsException, "CHATM");
 			} else {
-				queueMsg(MessageType.AL_CHATM);
+				queueMsg(MessageType.AL_CHATM, tail);
 			}
 		} else {
-			tellERROR(Error.UnsupportedOperationException);
+			tellERROR(Error.UnsupportedOperationException, "CHATM");
 		}
 	}
 	
@@ -446,7 +489,7 @@ public class RolitSocket extends Thread {
 		// Establish connection
 		setupSocket();
 		
-		System.out.println("Connected [" + getType() + "]");
+		System.out.println("Connected [I am a " + toString() + "]");
 		
 		queuedMsgs = Collections.synchronizedList(new ArrayList<String[]>());
 		queuedMsgsType = Collections.synchronizedList(new ArrayList<MessageType>());
@@ -489,7 +532,7 @@ public class RolitSocket extends Thread {
 			}
 		}
 		
-		System.out.println("Closing RolitSocket [" + getType() + "]");
+		System.out.println("Closing RolitSocket [" + toString() + "]");
 		
 		// Tell the other side we are disconnecting. If we are a client
 		// a LEAVE command will be dispatched. Otherwise, nothing will
@@ -500,11 +543,11 @@ public class RolitSocket extends Thread {
 		
 		try {
 			sock.close();
-			System.out.println(getType() + " socket closed.");
-			if (serversock != null) {
-				serversock.close();
-				System.out.println("Special server socket closed;");
-			}
+			System.out.println(toString() + " socket closed.");
+//			if (serversock != null) {
+//				serversock.close();
+//				System.out.println("Special server socket closed;");
+//			}
 			
 			connected = false;
 		} catch (IOException e) {
@@ -525,14 +568,23 @@ public class RolitSocket extends Thread {
 		return connected;
 	}
 	
-	public boolean isNewMsgQueued() {
+	public boolean isNewMsgQueued() throws Exception {
+		if (queuedMsgs == null) {
+			throw new Exception("Socket Exception: socket has not yet connected");
+		}
+		
 		listLock.lock();
 		int size = queuedMsgs.size(); 
 		listLock.unlock();
 		return size > 0;
 	}
 	
-	public MessageType getQueuedMsgType() {
+	// TODO: Find a proper exception!
+	public MessageType getQueuedMsgType() throws Exception {
+		if (queuedMsgs == null) {
+			throw new Exception("Socket Exception: socket has not yet connected");
+		}
+		
 		listLock.lock();
 		if (queuedMsgsType.size() > 0) {
 			MessageType type = queuedMsgsType.get(0);
@@ -545,6 +597,10 @@ public class RolitSocket extends Thread {
 	}
 	
 	public String[] getQueuedMsgArray() {
+		if (queuedMsgs == null) {
+			throw new NullPointerException("Socket Exception: socket has not yet connected");
+		}
+		
 		listLock.lock();
 		
 		if (queuedMsgsType.size() > 0) {
@@ -568,6 +624,10 @@ public class RolitSocket extends Thread {
 	}
 	
 	private void queueMsg(MessageType type, String[] msg) {
+		if (queuedMsgs == null) {
+			throw new NullPointerException("Socket Exception: socket has not yet connected.");
+		}
+		
 		listLock.lock();
 		queuedMsgsType.add(type);
 		queuedMsgs.add(msg);
@@ -580,6 +640,10 @@ public class RolitSocket extends Thread {
 	 * @param msg - The message to be sent.
 	 */
 	protected void sendMsg(String msg) {
+		if (out == null) {
+			throw new NullPointerException("Socket Exception: Socket stream not yet opened");
+		}
+		
 		try {
 			if (msg.substring(msg.length() - 1).equals("\n")) {
 				out.write(msg);
