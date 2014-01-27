@@ -103,7 +103,7 @@ public class PKISocket extends Thread {
 		privateKey = in.next();
 		System.out.println("Private key: \"" + privateKey + "\"");
 		
-		System.out.println("Closing socket...");
+		System.out.println("Closing PKI socket...");
 		
 		try {
 			sock.close();
@@ -112,7 +112,7 @@ public class PKISocket extends Thread {
 			return;
 		}
 		
-		System.out.println("Socket closed!");
+		System.out.println("Socket PKI closed!");
 	}
 	
 	public void retrievePublicKey() {
@@ -120,7 +120,7 @@ public class PKISocket extends Thread {
 		BufferedWriter out;
 		Socket sock;
 		
-		System.out.println("Opening socket...");
+		System.out.println("Opening PKI socket...");
 		
 		try {
 			sock = new Socket(PKI_SERVER_ADDR, PKI_SERVER_PORT);
@@ -168,16 +168,16 @@ public class PKISocket extends Thread {
 		publicKey = in.next(); 
 		System.out.println("Public key: \"" + publicKey + "\"");
 		
-		System.out.println("Closing socket...");
+		System.out.println("Closing PKI socket...");
 		
 		try {
 			sock.close();
 		} catch (IOException e) {
-			System.out.println("Couldn't close socket");
+			System.out.println("Couldn't PKI close socket");
 			return;
 		}
 		
-		System.out.println("Socket closed!");
+		System.out.println("Socket PKI closed!");
 	}
 	
 	public boolean isPrivateKeyReady() {

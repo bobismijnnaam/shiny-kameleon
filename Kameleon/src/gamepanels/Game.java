@@ -67,12 +67,7 @@ public class Game extends JFrame {
 				settings = inputSettings;
 				remove(mainMenu);
 				setSize(0, 0);
-				lobby = new Lobby(this);
-				lobby.setBackground(Color.GREEN);
-				System.out.println("Got the settings:");
-				for (int x = 0; x < 4; x++) {
-					System.out.println(settings[x]);
-				}
+				lobby = new Lobby(this, settings);
 				add(lobby);
 				setSize(620, 620);
 				break;

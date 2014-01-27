@@ -71,8 +71,10 @@ public class Server extends Thread { // Extends JFrame?? Or do that seperately?
 					try {
 					// Check for incoming messages
 						if (p.net().isNewMsgQueued()) {
+							System.out.println(" check");
 							switch (p.net().getQueuedMsgType()) {
 								case AC_LOGIN:
+									System.out.println("Someone trying to login");
 									if (p.getAuthState() == PlayerAuthState.Unathenticated) { 
 										String username = p.net().getQueuedMsg();
 										String authKey = PKISocket.getRandomString(50);
@@ -95,6 +97,7 @@ public class Server extends Thread { // Extends JFrame?? Or do that seperately?
 									}
 									break;
 								default:
+									
 									break;
 							}
 						}
@@ -116,6 +119,12 @@ public class Server extends Thread { // Extends JFrame?? Or do that seperately?
 				
 				// TODO: Checking for what type of lobby client can handle
 				if (p.getAuthState() == PlayerAuthState.Authenticated) {
+					try {
+						p.net().tellHELLO();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					frontline.remove(i);
 					nonlobby.add(p);
 					out("Player entered the lobby!");
