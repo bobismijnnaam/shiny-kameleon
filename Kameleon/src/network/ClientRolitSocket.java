@@ -1,6 +1,7 @@
 package network;
 
 import java.io.IOException;
+import java.net.Authenticator.RequestorType;
 import java.util.Arrays;
 
 import utility.Utils;
@@ -53,6 +54,11 @@ public class ClientRolitSocket extends RolitSocket {
 		sendMsg("NGAME " + flag.toString());
 	}
 	
+	/**
+	 * 
+	 * @param player
+	 * @deprecated Use {@link ClientRolitSocket#askINVIT(String...)} instead.
+	 */
 	public void askNGAME(String player) {
 		sendMsg("NGAME C " + player);
 	}
@@ -101,6 +107,11 @@ public class ClientRolitSocket extends RolitSocket {
 	}
 	
 	public void tellINVIT(INVITStatus status) {
+		if (status == INVITStatus.Failed) {
+			throw new IllegalArgumentException("Illegal argment exception: "
+					+ "you can't tell the server \"Failed\".");
+		}
+		
 		sendMsg("INVIT " + status.toString());
 	}
 	

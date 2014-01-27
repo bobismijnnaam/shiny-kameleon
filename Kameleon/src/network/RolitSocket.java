@@ -144,6 +144,7 @@ public class RolitSocket extends Thread {
 	private boolean id;
 	private boolean connected = false;
 	private boolean running = false;
+	private boolean closeCalled = false;
 	
 	String serverAddress;
 	int serverPort;
@@ -480,7 +481,6 @@ public class RolitSocket extends Thread {
 		}
 	}
 	
-	
 	public void run() {
 		// Initialize lock
 		listLock = new ReentrantLock();
@@ -488,7 +488,7 @@ public class RolitSocket extends Thread {
 		// Establish connection
 		setupSocket();
 		
-		System.out.println("Connected [I am a " + toString() + "]");
+		System.out.println("[" + toString() + "Socket] Connected");
 		
 		queuedMsgs = Collections.synchronizedList(new ArrayList<String[]>());
 		queuedMsgsType = Collections.synchronizedList(new ArrayList<MessageType>());
@@ -500,7 +500,7 @@ public class RolitSocket extends Thread {
 			try {
 				if (in.ready()) {
 					// Download the string
-					String msg = in.readLine();; 
+					String msg = in.readLine();
 					
 					// Pre-parse the string
 					String[] msgSplit = msg.split(" ");
@@ -547,14 +547,23 @@ public class RolitSocket extends Thread {
 			// If this happens there will be some serious issues.
 			e.printStackTrace();
 		}
+		
+		// Nullify the streams to make sure they don't cause errors when writing
+		in = null;
+		out = null;
 	}
 	
 	public void close() {
 		running = false;
+		closeCalled = true;
 	}
 	
 	public boolean isRunning() {
 		return running;
+	}
+	
+	public boolean isCloseCalled() {
+		return closeCalled;
 	}
 	
 	public boolean isConnected() {
@@ -606,7 +615,12 @@ public class RolitSocket extends Thread {
 	}
 	
 	public String getQueuedMsg() {
-		return Utils.join(Arrays.asList(getQueuedMsgArray()), " ");
+		String[] msg = getQueuedMsgArray();
+		if (msg == null) {
+			return null;
+		} else {
+			return Utils.join(Arrays.asList(msg), " ");
+		}
 	}
 	
 	private void queueMsg(MessageType type) {
@@ -648,12 +662,6 @@ public class RolitSocket extends Thread {
 		}
 	}
 	
-//	private void oocWarning(String func) { // Out Of Context warning 
-//		System.out.println("RolitSocket warning: " + func + " is being "
-//				+ "used out of context. Only the " + getOtherType()
-//				+ " is allowed to use this function.");
-//	}
-	
 	/////////////////////////////////////
 	/////////////////////////////////////
 	///////// COMMAND FUNCTIONS /////////
@@ -661,7 +669,7 @@ public class RolitSocket extends Thread {
 	/////////////////////////////////////
 	
 	public void tellPROTO() {
-		String msg = "PROTO INFB 1.3.1";
+		String msg = "PROTO INFB 1.4.0";
 		sendMsg(msg);
 	}
 	

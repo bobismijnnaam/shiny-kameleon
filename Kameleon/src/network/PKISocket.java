@@ -56,64 +56,63 @@ public class PKISocket extends Thread {
 		BufferedWriter out;
 		Socket sock;
 		
-		System.out.println("Opening socket...");
+		System.out.println("[PKI] Opening socket...");
 		
 		try {
 			sock = new Socket(PKI_SERVER_ADDR, PKI_SERVER_PORT);
 		} catch (IOException e) {
-			System.out.println("Network error: could not open socket");
+			System.out.println("[PKI] Network error: could not open socket");
 			return;
 		}
 		
-		System.out.println("Socket opened. Opening streams...");
+//		System.out.println("Socket opened. Opening streams...");
 		
 		try {
 			in = new Scanner(new InputStreamReader(sock.getInputStream()));
 			out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
 		} catch (IOException e) {
-			System.out.println("Network error: could not open socket streams");
+			System.out.println("[PKI] Network error: could not open socket streams");
 			return;
 		}
 		
-		System.out.println("Streams opened. Sending request...");
+//		System.out.println("Streams opened. Sending request...");
 		
 		try {
 			out.write("IDPLAYER " + user + " " + pass + System.lineSeparator());
 			out.flush();
 		} catch (IOException e) {
-			System.out.println("Could not write to outputstream");
+			System.out.println("[PKI] Could not write to outputstream");
 			return;
 		}
 		
-		System.out.println("Message sent! Waiting for response...");
+//		System.out.println("Message sent! Waiting for response...");
 		
 		while (!in.hasNext()) {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
-				System.out.println("Wait was interrupted");
+				System.out.println("[PKI] Wait was interrupted");
 				return;
 			}
 			
 			System.out.print("|");
 		}
 		
-		System.out.println("Received repsonse!");
+//		System.out.println("Received repsonse!");
 		
 		in.next();
 		privateKey = in.next();
-		System.out.println("Private key: \"" + privateKey + "\"");
 		
-		System.out.println("Closing PKI socket...");
+//		System.out.println("Closing PKI socket...");
 		
 		try {
 			sock.close();
 		} catch (IOException e) {
-			System.out.println("Couldn't close socket");
+			System.out.println("[PKI] Couldn't close socket");
 			return;
 		}
 		
-		System.out.println("Socket PKI closed!");
+		System.out.println("[PKI] Socket PKI closed! Private key: \"" + privateKey + "\"");
 	}
 	
 	public void retrievePublicKey() {
@@ -121,64 +120,63 @@ public class PKISocket extends Thread {
 		BufferedWriter out;
 		Socket sock;
 		
-		System.out.println("Opening PKI socket...");
+		System.out.println("[PKI] Opening PKI socket...");
 		
 		try {
 			sock = new Socket(PKI_SERVER_ADDR, PKI_SERVER_PORT);
 		} catch (IOException e) {
-			System.out.println("Network error: could not open socket");
+			System.out.println("[PKI] Network error: could not open socket");
 			return;
 		}
 		
-		System.out.println("Socket opened. Opening streams...");
+//		System.out.println("Socket opened. Opening streams...");
 		
 		try {
 			in = new Scanner(new InputStreamReader(sock.getInputStream()));
 			out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
 		} catch (IOException e) {
-			System.out.println("Network error: could not open socket streams");
+			System.out.println("[PKI] Network error: could not open socket streams");
 			return;
 		}
 		
-		System.out.println("Streams opened. Sending request...");
+//		System.out.println("Streams opened. Sending request...");
 		
 		try {
 			out.write("PUBLICKEY " + user + System.lineSeparator());
 			out.flush();
 		} catch (IOException e) {
-			System.out.println("Could not write to outputstream");
+			System.out.println("[PKI] Could not write to outputstream");
 			return;
 		}
 		
-		System.out.println("Message sent! Waiting for response...");
+//		System.out.println("Message sent! Waiting for response...");
 		
 		while (!in.hasNext()) {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
-				System.out.println("Wait was interrupted");
+				System.out.println("[PKI] Wait was interrupted");
 				return;
 			}
 			
 			System.out.print("|");
 		}
 		
-		System.out.println("Received repsonse!");
+//		System.out.println("Received repsonse!");
 		
 		in.next();
 		publicKey = in.next(); 
-		System.out.println("Public key: \"" + publicKey + "\"");
 		
-		System.out.println("Closing PKI socket...");
+//		System.out.println("Closing PKI socket...");
 		
 		try {
 			sock.close();
 		} catch (IOException e) {
-			System.out.println("Couldn't PKI close socket");
+			System.out.println("[PKI] Couldn't PKI close socket");
 			return;
 		}
 		
-		System.out.println("Socket PKI closed!");
+		System.out.println("[PKI] Socket PKI closed! Public key: \"" + publicKey + "\"");
 	}
 	
 	public boolean isPrivateKeyReady() {
