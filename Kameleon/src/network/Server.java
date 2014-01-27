@@ -7,12 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import network.RolitSocket.MessageType;
+import network.ServerPlayer.PlayerAuthState;
 
 public class Server extends Thread { // Extends JFrame?? Or do that seperately?
 	public static final int SERVER_PORT = 8494;
 	
 	private List<ServerPlayer> frontline;
-//	private List<ServerPlayer> nonlobby;
+	private List<ServerPlayer> nonlobby;
 //	private List<ServerPlayer> lobby;
 //	private List<Invite> invites;
 //	private List<ServerGame> games;
@@ -22,6 +23,7 @@ public class Server extends Thread { // Extends JFrame?? Or do that seperately?
 	public Server() {
 		// Let's do this!
 		frontline = new ArrayList<ServerPlayer>();
+		nonlobby = new ArrayList<ServerPlayer>();
 		
 		running = false;
 	}
@@ -62,31 +64,61 @@ public class Server extends Thread { // Extends JFrame?? Or do that seperately?
 				// Transfer the reference
 				// Store it in a value for quick access
 				ServerPlayer p = frontline.get(i);
-				
-				boolean newMsg = false;
-				MessageType newMsgType = MessageType.X_NONE;
-				try {
-					newMsg = p.net().isNewMsgQueued();
-					if (newMsg) {
-						newMsgType = p.net().getQueuedMsgType();
+
+				// Only do stuff when socket is running!
+				// Otherwise stream errors and shit				
+				if (p.net().isRunning()) {
+					try {
+					// Check for incoming messages
+						if (p.net().isNewMsgQueued()) {
+							switch (p.net().getQueuedMsgType()) {
+								case AC_LOGIN:
+									if (p.getAuthState() == PlayerAuthState.Unathenticated) { 
+										String username = p.net().getQueuedMsg();
+										String authKey = PKISocket.getRandomString(50);
+										p.net().askVSIGN(authKey);
+										p.setAuthKeySent(username, authKey);
+									} else {
+										p.net().tellERROR(
+												RolitSocket.Error.UnexpectedOperationException,
+												"L2AUTH 1");
+									}
+									
+									break;
+								case AC_VSIGN:
+									if (p.getAuthState() == PlayerAuthState.KeySent) {
+										p.setAuthKeyReceived(p.net().getQueuedMsg());
+									} else {
+										p.net().tellERROR(
+												RolitSocket.Error.UnexpectedOperationException,
+												"L2AUTH 2");
+									}
+									break;
+								default:
+									break;
+							}
+						}
+						
+						if (p.getAuthState() == PlayerAuthState.SignatureAwaitsChecking) {
+							p.tryVerifySignature();
+							if (p.getAuthState() == PlayerAuthState.Authenticated) {
+								System.out.println("Player " + p.getName() + " was authenticated!");
+							} else if (p.getAuthState() == PlayerAuthState.Unathenticated) {
+								System.out.println("Player " + p.getName()
+										+ " has not been verified!");
+								
+							}
+						}
+					} catch (IOException e) {
+						p.net().close();
 					}
-				} catch (Exception e) {
-					// Stream is not yet initialized
-					newMsg = false;
 				}
 				
-				// Check for incoming messages
-				if (newMsg) {
-					switch (newMsgType) {
-						case AC_LOGIN:
-							String tail = p.net().getQueuedMsg();
-							out(tail);
-							break;
-						default:
-//							p.net().tellERROR(RolitSocket.Error.UnexpectedOperationException,
-//									"Unexpected Operation "
-//									+ p.net().getQueuedMsgType().toString());
-					}
+				// TODO: Checking for what type of lobby client can handle
+				if (p.getAuthState() == PlayerAuthState.Authenticated) {
+					frontline.remove(i);
+					nonlobby.add(p);
+					out("Player entered the lobby!");
 				}
 			}
 			

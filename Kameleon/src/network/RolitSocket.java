@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import utility.Utils;
 
 public class RolitSocket extends Thread {
@@ -136,7 +135,7 @@ public class RolitSocket extends Thread {
 			return s;
 		}
 	}
-	
+
 	public final static boolean ID_SERVER = true;
 	public final static boolean ID_CLIENT = false;
 	
@@ -231,7 +230,7 @@ public class RolitSocket extends Thread {
 		}
 	}
 	
-	public void processCommand(String token, String[] tail) {
+	public void processCommand(String token, String[] tail) throws IOException {
 		// Parse msg prefix and the rest of the message
 		// Commands that can be invoked at any given point in time
 		if (token.equals("PROTO")) { // For protocol type info
@@ -501,14 +500,7 @@ public class RolitSocket extends Thread {
 			try {
 				if (in.ready()) {
 					// Download the string
-					String msg;
-					try {
-						msg = in.readLine();
-					} catch (IOException e1) {
-						msg = null;
-						System.out.println("Network error: could not read from socket inputstream");
-						break;
-					}
+					String msg = in.readLine();; 
 					
 					// Pre-parse the string
 					String[] msgSplit = msg.split(" ");
@@ -523,6 +515,7 @@ public class RolitSocket extends Thread {
 				}
 			} catch (IOException e1) {
 				System.out.println("Network error: could not curry socket! Closing socket.");
+				close();
 			}
 			
 			try {
@@ -538,7 +531,12 @@ public class RolitSocket extends Thread {
 		// a LEAVE command will be dispatched. Otherwise, nothing will
 		// be sent.
 		if (getType() == ID_CLIENT) {
-			sendMsg("LEAVE");
+			try {
+				sendMsg("LEAVE");
+			} catch (IOException e) {
+				// Server already shut down so doesn't matter?
+				System.out.println("Network exception: couldn't send LEAVE to server");
+			}
 		}
 		
 		try {
@@ -568,9 +566,10 @@ public class RolitSocket extends Thread {
 		return connected;
 	}
 	
-	public boolean isNewMsgQueued() throws Exception {
+	public boolean isNewMsgQueued() {
 		if (queuedMsgs == null) {
-			throw new Exception("Socket Exception: socket has not yet connected");
+//			throw new IOException("Socket Exception: socket has not yet connected");
+			return false;
 		}
 		
 		listLock.lock();
@@ -579,10 +578,10 @@ public class RolitSocket extends Thread {
 		return size > 0;
 	}
 	
-	// TODO: Find a proper exception!
-	public MessageType getQueuedMsgType() throws Exception {
+	public MessageType getQueuedMsgType() {
 		if (queuedMsgs == null) {
-			throw new Exception("Socket Exception: socket has not yet connected");
+//			throw new IOException("Socket Exception: socket has not yet connected");
+			return MessageType.X_NONE;
 		}
 		
 		listLock.lock();
@@ -597,10 +596,6 @@ public class RolitSocket extends Thread {
 	}
 	
 	public String[] getQueuedMsgArray() {
-		if (queuedMsgs == null) {
-			throw new NullPointerException("Socket Exception: socket has not yet connected");
-		}
-		
 		listLock.lock();
 		
 		if (queuedMsgsType.size() > 0) {
@@ -624,10 +619,6 @@ public class RolitSocket extends Thread {
 	}
 	
 	private void queueMsg(MessageType type, String[] msg) {
-		if (queuedMsgs == null) {
-			throw new NullPointerException("Socket Exception: socket has not yet connected.");
-		}
-		
 		listLock.lock();
 		queuedMsgsType.add(type);
 		queuedMsgs.add(msg);
@@ -638,10 +629,12 @@ public class RolitSocket extends Thread {
 	/**
 	 * Send an arbitrary string to the other side. Adds a newline for you if needed.
 	 * @param msg - The message to be sent.
+	 * @throws StreamNotOpenException 
 	 */
-	protected void sendMsg(String msg) {
+	protected void sendMsg(String msg) throws IOException {
 		if (out == null) {
-			throw new NullPointerException("Socket Exception: Socket stream not yet opened");
+//			throw new StreamNotOpenException("Socket Exception: Socket stream not yet opened");
+			return; // Function is not supposed to be used before the streams are ready!
 		}
 		
 		try {
@@ -656,6 +649,7 @@ public class RolitSocket extends Thread {
 			System.out.println("Network error: couldn't send to the "
 					+ getOtherType()
 					+ " . The command was: \"" + msg + "\"");
+			throw e;
 		}
 	}
 	
@@ -671,17 +665,17 @@ public class RolitSocket extends Thread {
 	/////////////////////////////////////
 	/////////////////////////////////////
 	
-	public void tellPROTO() {
+	public void tellPROTO() throws IOException {
 		String msg = "PROTO INFB 1.3.1";
 		sendMsg(msg);
 	}
 	
-	public void askPROTO() {
+	public void askPROTO() throws IOException {
 		String msg = "PROTO";
 		sendMsg(msg);
 	}
 	
-	public void tellSINFO() {
+	public void tellSINFO() throws IOException {
 		if (id == ID_SERVER) {
 			sendMsg("SINFO HONEYBADGER 0.0.1");
 		} else {
@@ -689,23 +683,23 @@ public class RolitSocket extends Thread {
 		}
 	}
 	
-	public void askSINFO() {
+	public void askSINFO() throws IOException {
 		sendMsg("SINFO");
 	}
 	
-	public void tellERROR(Error e) {
+	public void tellERROR(Error e) throws IOException {
 		sendMsg("ERROR " + e.toString());
 	}
 	
-	public void tellERROR(Error e, String details) {
+	public void tellERROR(Error e, String details) throws IOException {
 		sendMsg("ERROR " + e.toString() + " " + details);
 	}
 	
-	public void tellWARNI(String info) {
+	public void tellWARNI(String info) throws IOException {
 		sendMsg("WARNI " + info);
 	}
 	
-	public void tellHELLO() {
+	public void tellHELLO() throws IOException {
 		sendMsg("HELLO CL");
 	}
 	

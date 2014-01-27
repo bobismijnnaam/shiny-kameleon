@@ -11,11 +11,13 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -219,17 +221,17 @@ public class PKISocket extends Thread {
 		return randomString;
 	}
 	
-	public static String getSignature(String plain, String key) {
+	public static String signMessage(String plain, String privatekey) {
 		// Loosely copied from week 8 manual
 		// Construct key
-		byte[] rawKey = Base64.decodeBase64(key);
+		byte[] rawKey = Base64.decodeBase64(privatekey);
 		PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(rawKey);		
 		
 		KeyFactory fact;
 		PrivateKey priv;
 		Signature sig;
 		byte[] signature = null;
-		try {
+		try {	
 			fact = KeyFactory.getInstance("RSA");
 			priv = fact.generatePrivate(keySpec);
 		
@@ -258,21 +260,68 @@ public class PKISocket extends Thread {
 		return signature64;
 	}
 	
-	public static boolean verifySignature(String plain, String key, String signature64) {
-		String expectedSignature = PKISocket.getSignature(plain, key);
-		return expectedSignature.equals(signature64);
+	public static boolean verifySignature(String plain, String publickey, String signature64) {
+		// Loosely copied from week 8 manual
+		byte[] rawKey = Base64.decodeBase64(publickey);
+		X509EncodedKeySpec keySpec = new X509EncodedKeySpec(rawKey);		
+		
+		KeyFactory fact;
+		PublicKey pub;
+		Signature sig;
+		byte[] signature = Base64.decodeBase64(signature64);
+	
+		try {
+			fact = KeyFactory.getInstance("RSA");
+			pub = fact.generatePublic(keySpec);
+			sig = Signature.getInstance("SHA1withRSA");
+			sig.initVerify(pub);
+			sig.update(plain.getBytes());
+			Boolean check = sig.verify(signature);
+			return check;
+		} catch (NoSuchAlgorithmException e) {
+			System.out.println("Algorithm unknown!");
+		} catch (InvalidKeySpecException e) {
+			System.out.println("Invalid key specification! Fuuu");
+			e.printStackTrace();
+		} catch (InvalidKeyException e) {
+			System.out.println("Invalid key!");
+		} catch (SignatureException e) {
+			System.out.println("Signature exception!");
+		}
+		
+		return false;
+		
+//		String expectedSignature = PKISocket.getSignature(plain, key);
+//		return expectedSignature.equals(signature64);
 	}
 	
 	public static void main(String[] args) {
-		PKISocket pki = new PKISocket("player_rub", "hond");
+		PKISocket pkiServer = new PKISocket("player_test1");
+		PKISocket pkiClient = new PKISocket("player_test1", "test1");
 		
 		try {
-			pki.start();
-			pki.join();
-			System.out.println("\n\n");
-			pki = new PKISocket("player_rub");
-			pki.start();
-			pki.join();
+			pkiServer.start();
+			pkiServer.join();
+			System.out.println("server closed");
+			
+			System.out.println("\n");
+			
+			pkiClient.start();
+			pkiClient.join();
+			System.out.println("client closed");
+			
+			System.out.println("\n");
+			
+			String signature = PKISocket.signMessage("hi", pkiClient.getPrivateKey());
+			
+			Boolean verified = PKISocket.verifySignature("hi", pkiServer.getPublicKey(),
+					signature);
+			
+			if (verified) {
+				System.out.println("VERIFIED");
+			} else {
+				System.out.println("NOT VERIFIED");
+			}
 		} catch (InterruptedException e) {
 			System.out.println("Thread got interruped!");
 		}
