@@ -660,17 +660,17 @@ public class RolitSocket extends Thread {
 	/////////////////////////////////////
 	/////////////////////////////////////
 	
-	public void tellPROTO() throws IOException {
+	public void tellPROTO() {
 		String msg = "PROTO INFB 1.3.1";
 		sendMsg(msg);
 	}
 	
-	public void askPROTO() throws IOException {
+	public void askPROTO() {
 		String msg = "PROTO";
 		sendMsg(msg);
 	}
 	
-	public void tellSINFO() throws IOException {
+	public void tellSINFO() {
 		if (id == ID_SERVER) {
 			sendMsg("SINFO HONEYBADGER 0.0.1");
 		} else {
@@ -678,23 +678,23 @@ public class RolitSocket extends Thread {
 		}
 	}
 	
-	public void askSINFO() throws IOException {
+	public void askSINFO() {
 		sendMsg("SINFO");
 	}
 	
-	public void tellERROR(Error e) throws IOException {
+	public void tellERROR(Error e) {
 		sendMsg("ERROR " + e.toString());
 	}
 	
-	public void tellERROR(Error e, String details) throws IOException {
+	public void tellERROR(Error e, String details) {
 		sendMsg("ERROR " + e.toString() + " " + details);
 	}
 	
-	public void tellWARNI(String info) throws IOException {
+	public void tellWARNI(String info) {
 		sendMsg("WARNI " + info);
 	}
 	
-	public void tellHELLO() throws IOException {
+	public void tellHELLO() {
 		sendMsg("HELLO CL");
 	}
 	

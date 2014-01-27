@@ -21,6 +21,7 @@ import java.security.spec.X509EncodedKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 
+// TODO: Make it work for unknown passwords and accounts (error)
 public class PKISocket extends Thread {
 	public static final String PKI_SERVER_ADDR = "ss-security.student.utwente.nl";
 	public static final int PKI_SERVER_PORT = 2013;
