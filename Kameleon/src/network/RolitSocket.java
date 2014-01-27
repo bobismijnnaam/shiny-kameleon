@@ -531,12 +531,7 @@ public class RolitSocket extends Thread {
 		// a LEAVE command will be dispatched. Otherwise, nothing will
 		// be sent.
 		if (getType() == ID_CLIENT) {
-			try {
-				sendMsg("LEAVE");
-			} catch (IOException e) {
-				// Server already shut down so doesn't matter?
-				System.out.println("Network exception: couldn't send LEAVE to server");
-			}
+			sendMsg("LEAVE");
 		}
 		
 		try {
@@ -631,7 +626,7 @@ public class RolitSocket extends Thread {
 	 * @param msg - The message to be sent.
 	 * @throws StreamNotOpenException 
 	 */
-	protected void sendMsg(String msg) throws IOException {
+	protected void sendMsg(String msg) {
 		if (out == null) {
 //			throw new StreamNotOpenException("Socket Exception: Socket stream not yet opened");
 			return; // Function is not supposed to be used before the streams are ready!
@@ -649,7 +644,7 @@ public class RolitSocket extends Thread {
 			System.out.println("Network error: couldn't send to the "
 					+ getOtherType()
 					+ " . The command was: \"" + msg + "\"");
-			throw e;
+			close();
 		}
 	}
 	

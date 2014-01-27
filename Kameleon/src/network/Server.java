@@ -54,7 +54,7 @@ public class Server extends Thread { // Extends JFrame?? Or do that seperately?
 				// Extract the socket and create a new serverplayer
 				ServerPlayer newPlayer = new ServerPlayer(sb.getNewConnection());
 				newPlayer.net().start();
-				frontline.add(newPlayer);
+				frontline.add(newPlayer);	
 				// Log the connect
 				clientConnected();
 			}

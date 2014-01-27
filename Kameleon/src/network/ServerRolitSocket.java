@@ -16,19 +16,19 @@ public class ServerRolitSocket extends RolitSocket {
 		super(inputSock);
 	}
 	
-	public void tellLEAVE(String player) throws IOException {
+	public void tellLEAVE(String player) {
 		sendMsg("LEAVE " + player);
 	}
 	
-	public void askVSIGN(String challenge) throws IOException {
+	public void askVSIGN(String challenge) {
 		sendMsg("VSIGN " + challenge);
 	}
 	
-	public void tellSTATE(PlayerState state) throws IOException {
+	public void tellSTATE(PlayerState state) {
 		sendMsg("STATE " + state.toString());
 	}
 	
-	public void tellSTART(String... players) throws IOException {
+	public void tellSTART(String... players) {
 		if (players.length > 4 || players.length == 0) {
 			throw new IllegalArgumentException("Illegal Argument Exception:"
 					+ "Can only pass between 1 and 4 players");
@@ -37,7 +37,7 @@ public class ServerRolitSocket extends RolitSocket {
 		sendMsg("START " + Utils.join(Arrays.asList(players), " "));
 	}
 	
-	public void tellGTURN(int player) throws IOException {
+	public void tellGTURN(int player) {
 		if (player > 3 || player < 0) {
 			throw new IllegalArgumentException("Illegal Argument Exception: "
 					+ "player must be between 0 and 3");
@@ -46,7 +46,7 @@ public class ServerRolitSocket extends RolitSocket {
 		sendMsg("GTURN " + Integer.toString(player));
 	}
 	
-	public void tellGMOVE(int player, int x, int y) throws IOException {
+	public void tellGMOVE(int player, int x, int y) {
 		if (x > 7 || x < 0 || y > 7 || y < 0) {
 			throw new IllegalArgumentException("Illegal Argument Exception: "
 					+ "x & y must both be between 0 & 7 inclusive");
@@ -56,7 +56,7 @@ public class ServerRolitSocket extends RolitSocket {
 				+ Integer.toString(x) + " " + Integer.toString(y));
 	}
 	
-	public void tellBOARD(int[] board) throws IOException {
+	public void tellBOARD(int[] board) {
 		if (board.length != 64) {
 			throw new IllegalArgumentException("Illegal Argument Exception: "
 					+ "length of board must be 64");
@@ -65,29 +65,29 @@ public class ServerRolitSocket extends RolitSocket {
 		sendMsg("BOARD " + Utils.join(board, " "));
 	}
 	
-	public void tellGPLST(String... players) throws IOException {
+	public void tellGPLST(String... players) {
 		sendMsg("GPLST " + Utils.join(Arrays.asList(players), " "));
 	}
 	
-	public void tellBCAST(String msg) throws IOException {
+	public void tellBCAST(String msg) {
 		sendMsg("BCAST " + msg);
 	}
 	
 	// TODO: Make Score.toString actually work!
-	public void tellSCORE(List<Score> scores) throws IOException {
+	public void tellSCORE(List<Score> scores) {
 		
 		sendMsg("SCORE " + Utils.join(scores, " "));
 	}
 	
-	public void tellPLIST(String... players) throws IOException {
+	public void tellPLIST(String... players) {
 		sendMsg("PLIST " + Utils.join(Arrays.asList(players), " "));
 	}
 	
-	public void tellLJOIN(String player) throws IOException {
+	public void tellLJOIN(String player) {
 		sendMsg("LJOIN " + player);
 	}
 	
-	public void askINVIT(String... players) throws IOException {
+	public void askINVIT(String... players) {
 		if (players.length == 0 || players.length > 3) {
 			throw new IllegalArgumentException("Illegal Argument Exception: "
 					+ "you must at least invite 1 and can invite up to 3 players "
@@ -97,7 +97,7 @@ public class ServerRolitSocket extends RolitSocket {
 		sendMsg("INVIT R " + Utils.join(Arrays.asList(players), " "));
 	}
 	
-	public void tellINVIT() throws IOException {
+	public void tellINVIT() {
 //		if (status == INVITStatus.Denied || status == INVITStatus)
 //		sendMsg("INVIT " + status.toString());
 		sendMsg("INVIT " + INVITStatus.Denied.toString());
@@ -110,7 +110,7 @@ public class ServerRolitSocket extends RolitSocket {
 		// (Since there are effectively no other values left)
 	}
 	
-	public void tellCHATM(String player, String msg) throws IOException {
+	public void tellCHATM(String player, String msg) {
 		sendMsg("CHATM " + player + " " + msg);
 	}
 	
