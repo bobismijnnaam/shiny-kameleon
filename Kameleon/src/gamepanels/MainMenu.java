@@ -173,13 +173,13 @@ public class MainMenu extends JPanel {
 				settings[2] = server.getText();
 				settings[3] = port.getText();
 				try {
-					currentGame.setNextState(Game.STATE_LOBBY, settings);
+					currentGame.setNextState(Game.STATE_LOBBY, settings, null);
 				} catch (IOException ie) {
 					System.out.println("Game State couldn't be changed");
 				}
 			} else if (check.getName() == "offline") {
 				try {
-					currentGame.setNextState(Game.STATE_OFFLINE, settings);
+					currentGame.setNextState(Game.STATE_OFFLINE, settings, null);
 				} catch (IOException ie) {
 					System.out.println("Game State couldn't be changed");
 				}

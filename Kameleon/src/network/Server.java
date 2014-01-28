@@ -245,7 +245,7 @@ public class Server extends Thread {
 							playerQ.addQuatroer(p);
 						} else {
 							p.net().tellERROR(RolitSocket.Error.IllegalArgumentException,
-									"NGAME only supports D, H, I, J" + msg.length);
+									"NGAME only supports D, H, I, J");
 						}
 					}
 					break;

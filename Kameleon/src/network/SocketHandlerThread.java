@@ -60,7 +60,7 @@ public class SocketHandlerThread extends Thread {
 					players[m] = "network";
 				}
 				try {
-					game.setNextState(game.STATE_ONLINE, players);
+					game.setNextState(game.STATE_ONLINE, players, crs);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -76,6 +76,12 @@ public class SocketHandlerThread extends Thread {
 		switch (inputServerMessageType) {
 			case X_NONE:
 				//System.out.println("No action");
+				break;
+			case IG_GMOVE:
+				System.out.println("Received move from player");
+				break;
+			case IG_GTURN:
+				System.out.println("It's our turn now");
 				break;
 			default:
 				break;

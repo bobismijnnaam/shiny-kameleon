@@ -13,6 +13,8 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
+import network.ClientRolitSocket;
+import network.SocketHandlerThread;
 import players.NaiveAI;
 import players.NetworkPlayer;
 import players.Player;
@@ -43,6 +45,49 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 	 * @throws IOException
 	 */
 	public MainGamePanel(String[] inputSettings, Game inputGame) throws IOException {
+		// attempt to put everything in a layered pane
+		layeredPane = new JLayeredPane();
+		layeredPane.setLayout(new GridBagLayout());
+		game = inputGame;
+		settings = inputSettings;
+		setLayout(new GridBagLayout());
+		c = new GridBagConstraints();
+		System.out.println("Created a new board");
+		board = new BoardModel();
+		System.out.println("Created a new board view");
+		mainView = new BoardView(board);
+		//RatioPanel boardWrapper = new RatioPanel();
+		//boardWrapper.add(mainView.getRootPane());
+		//boardWrapper.setBackground(Color.BLACK);
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 0.1;
+		c.weighty = 0.1;
+		c.gridx = 0;
+		c.weightx = 0.5;
+		c.weighty = 0.9;
+		c.gridy = 0;
+		c.gridx = 0;
+		BackgroundPanel menuBar = new BackgroundPanel("media/bg.png");
+		menuBar.setLayout(new BorderLayout());
+		//JButton filling = new JButton();
+		//filling.setEnabled(false);
+		//filling.setOpaque(false);
+		//filling.setContentAreaFilled(false);
+		//filling.setBorderPainted(false);
+		JPanel leftHand = drawLeftHand();
+		menuBar.add(leftHand, BorderLayout.CENTER);
+		layeredPane.add(menuBar, c);
+		c.gridx = 1;
+		layeredPane.setLayer(mainView, 0);
+		layeredPane.add(mainView.getRootPane(), c);
+		add(layeredPane, c);
+		setOpaque(false);
+	}
+	
+	public MainGamePanel(String[] inputSettings, Game inputGame, 
+			ClientRolitSocket inputCrs) throws IOException {
+		SocketHandlerThread socketHandler = new SocketHandlerThread(inputCrs, game, this);
+		socketHandler.start();
 		// attempt to put everything in a layered pane
 		layeredPane = new JLayeredPane();
 		layeredPane.setLayout(new GridBagLayout());
@@ -197,7 +242,7 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 	public void goToMainMenu() {
 		String[] inputSettings = new String[4];
 		try {
-			game.setNextState(game.STATE_MAIN, inputSettings);
+			game.setNextState(game.STATE_MAIN, inputSettings, null);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

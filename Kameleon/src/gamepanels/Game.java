@@ -8,6 +8,8 @@ import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
+import network.ClientRolitSocket;
+
 public class Game extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
@@ -40,7 +42,8 @@ public class Game extends JFrame {
 	 * @param inputSettings - inputSettings received out of mainFrame to set the players.
 	 * @throws IOException
 	 */
-	public void setNextState(int nextState, String[] inputSettings) throws IOException {
+	public void setNextState(int nextState, String[] inputSettings,
+			ClientRolitSocket inputCrs) throws IOException {
 		switch (nextState) {
 			case STATE_MAIN:
 				if (lastState == STATE_OFFLINE) {
@@ -115,7 +118,7 @@ public class Game extends JFrame {
 	public static void main(String[] args) throws IOException {
 		final Game gm = new Game();
 		String[] settings = new String[4];
-		gm.setNextState(STATE_MAIN, settings);
+		gm.setNextState(STATE_MAIN, settings, null);
 	
 	}
 	
