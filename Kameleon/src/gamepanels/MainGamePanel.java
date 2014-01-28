@@ -86,8 +86,9 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 	
 	public MainGamePanel(String[] inputSettings, Game inputGame, 
 			ClientRolitSocket inputCrs) throws IOException {
-		SocketHandlerThread socketHandler = new SocketHandlerThread(inputCrs, game, this);
-		socketHandler.start();
+		System.out.println("CONSTRUCTING ONLINE GAME");
+		SocketHandlerThread onlineHandler = new SocketHandlerThread(inputCrs, game, this);
+		onlineHandler.start();
 		// attempt to put everything in a layered pane
 		layeredPane = new JLayeredPane();
 		layeredPane.setLayout(new GridBagLayout());

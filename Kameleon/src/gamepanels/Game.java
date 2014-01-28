@@ -93,7 +93,7 @@ public class Game extends JFrame {
 				setSize(0, 0);
 				System.out.println("online game is ready");
 				System.out.println("Have drawn the new gamePanel");
-				onlineView = new MainGamePanel(settings, this);
+				onlineView = new MainGamePanel(settings, this, inputCrs);
 				System.out.println("Initilized the board");
 				add(onlineView.getRootPane());
 				setSize(812, 590);
