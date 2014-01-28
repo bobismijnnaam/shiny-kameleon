@@ -2,8 +2,10 @@ package gamepanels;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.lang.Thread.State;
 
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
 public class Game extends JFrame {
@@ -18,6 +20,8 @@ public class Game extends JFrame {
 	private String[] settings;
 	private MainMenu mainMenu;
 	private Lobby lobby;
+	private OfflineGame view;
+	private int lastState = 0;
 
 	/**
 	 * Initializes a new game, sets the size and title of the screen and visible.
@@ -38,11 +42,17 @@ public class Game extends JFrame {
 	public void setNextState(int nextState, String[] inputSettings) throws IOException {
 		switch (nextState) {
 			case STATE_MAIN:
+				if (lastState == STATE_OFFLINE) {
+					System.out.println("state was offline");
+					remove(view.getRootPane());
+				}
 				mainMenu = new MainMenu(this);
 				add(mainMenu);
 				setSize(650, 620);
 				break;
 			case STATE_OFFLINE:
+				// attempt to create a layered panel
+				lastState = STATE_OFFLINE;
 				System.out.println("Attempt to start an offline game");
 				remove(mainMenu);
 				setSize(0, 0);
@@ -53,12 +63,11 @@ public class Game extends JFrame {
 				for (int x = 0; x < 4; x++) {
 					System.out.println(settings[x]);
 				}
-				
 				System.out.println("Have drawn the new gamePanel");
-				OfflineGame view = new OfflineGame(settings);
+				view = new OfflineGame(settings, this);
 				System.out.println("Initilized the board");
 				add(view.getRootPane());
-				setSize(600, 620);
+				setSize(812, 590);
 				view.setStartPosition();
 				view.addListeners();
 				view.setPlayerTurn();
