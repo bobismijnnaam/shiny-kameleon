@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
+import players.Player;
 import utility.Utils;
 import net.miginfocom.swing.MigLayout;
 import network.ClientRolitSocket;
@@ -32,12 +33,14 @@ public class Lobby extends JPanel implements ActionListener {
 	private JTextArea chat;
 	private JTextArea playerName;
 	private JButton c, d, h, i, j, send;
+	private Game game;
 	public Lobby(Game inputGame, String[] inputSettings) {
 		settings = inputSettings;
-		createLobby(inputGame);
+		game = inputGame;
+		createLobby();
 	}
 	
-	public void createLobby(Game inputGame) {
+	public void createLobby() {
 		JLabel test = new JLabel("Welcome to the lobby!");
 		add(test);
 		try {
@@ -133,12 +136,6 @@ public class Lobby extends JPanel implements ActionListener {
 	public void drawDefault() {
 		JLabel title = new JLabel("Welcome to the default online game " + settings[0]);
 		add(title);
-		playerName = new JTextArea();
-		playerName.setText("Playername");
-		add(playerName);
-		c = new JButton("Play 1 vs 1, enter player name");
-		c.addActionListener(this);
-		c.setName("NGAMEC");
 		d = new JButton("Play 1 vs 1, default");
 		d.addActionListener(this);
 		d.setName("NGAMED");
@@ -151,7 +148,6 @@ public class Lobby extends JPanel implements ActionListener {
 		j = new JButton("Play against 3 players");
 		j.addActionListener(this);
 		j.setName("NGAMEJ");
-		add(c);
 		add(d);
 		add(h);
 		add(i);
@@ -234,13 +230,13 @@ public class Lobby extends JPanel implements ActionListener {
 						serverMessageType = crs.getQueuedMsgType();
 						System.out.println(serverMessageType.toString());
 						newMessage = crs.getQueuedMsgArray();
-						System.out.println(newMessage);
+						System.out.println(Utils.join(newMessage));
 						// check the type
 						switch (serverMessageType) {
 							case X_NONE:
 								//System.out.println("No action");
 								break;
-							case AL_CHATM:
+							/*case AL_CHATM:
 								String chatMessage;
 								System.out.println("Received chatmessage");
 								String[] realMessage = new String[newMessage.length - 1];
@@ -248,14 +244,23 @@ public class Lobby extends JPanel implements ActionListener {
 											newMessage.length - 1);
 								chatMessage = Utils.join(realMessage);
 								addChatMessage(newMessage[0], chatMessage);
-								break;
+								break;*/
 							case LO_INVIT:
 								System.out.println("Request for starting game");
 								System.out.println("Display accept or deny window");
 								break;
-							case LO_START:
+							case AL_CHATM:
 								System.out.println("WOOOW EEN SPEL GAAT STARTEN!, wat spannend!");
-								
+								String[] players = new String[4];
+								for (int m = 0; m < newMessage.length; m++) {
+									players[0] = "NETWERK";
+								}
+								try {
+									game.setNextState(game.STATE_ONLINE, players);
+								} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
 								break;
 							default:
 								break;

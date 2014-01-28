@@ -20,7 +20,7 @@ public class Game extends JFrame {
 	private String[] settings;
 	private MainMenu mainMenu;
 	private Lobby lobby;
-	private OfflineGame view;
+	private MainGamePanel view;
 	private int lastState = 0;
 
 	/**
@@ -64,7 +64,7 @@ public class Game extends JFrame {
 					System.out.println(settings[x]);
 				}
 				System.out.println("Have drawn the new gamePanel");
-				view = new OfflineGame(settings, this);
+				view = new MainGamePanel(settings, this);
 				System.out.println("Initilized the board");
 				add(view.getRootPane());
 				setSize(812, 590);
@@ -82,7 +82,21 @@ public class Game extends JFrame {
 				break;
 			case STATE_ONLINE:
 				remove(lobby);
+				settings = inputSettings;
+				for (int i = 0; i < settings.length; i++) {
+					System.out.println(settings[i]);
+				}
+				setSize(0, 0);
 				System.out.println("online game is ready");
+				System.out.println("Have drawn the new gamePanel");
+				view = new MainGamePanel(settings, this);
+				System.out.println("Initilized the board");
+				add(view.getRootPane());
+				setSize(812, 590);
+				view.setStartPosition();
+				view.addListeners();
+				view.setPlayerTurn();
+				setSize(812, 590);
 				break;
 
 		}

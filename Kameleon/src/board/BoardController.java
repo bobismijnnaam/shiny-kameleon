@@ -1,6 +1,6 @@
 package board;
 
-import gamepanels.OfflineGame;
+import gamepanels.MainGamePanel;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,16 +21,17 @@ public class BoardController implements ActionListener {
 	//private BackgroundPanel[][] fields;
 	//private Player[] players;
 	private Player currentPlayer;
-	private OfflineGame offlineGame;
+	private MainGamePanel mainGamePanel;
 	
 	public BoardController(BoardModel inputBoard, JButton[][] inputFieldButtons, 
-			BackgroundPanel[][] inputFields, Player[] inputPlayers, OfflineGame inputGame) {
+			BackgroundPanel[][] inputFields, Player[] inputPlayers,
+			MainGamePanel inputMainGamePanel) {
 		
 		board = inputBoard;
 		fieldButtons = inputFieldButtons;
 		//fields = inputFields;
 		//players = inputPlayers;
-		offlineGame = inputGame;
+		mainGamePanel = inputMainGamePanel;
 		disableButtons();
 	}
 	
@@ -106,7 +107,7 @@ public class BoardController implements ActionListener {
 			disableButtons();
 			// Signal to outer game class that the turn has been done?
 		} 
-		offlineGame.setPlayerTurn();
+		mainGamePanel.setPlayerTurn();
 	}
 
 }
