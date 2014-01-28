@@ -17,7 +17,7 @@ public class Server extends Thread {
 	private List<ServerPlayer> frontline;
 	private List<ServerPlayer> lobby;
 	// private List<Invite> invites;
-	// private List<ServerGame> games;
+	private List<ServerGame> games;
 	
 	private PlayerQueue playerQ;
 
@@ -31,7 +31,7 @@ public class Server extends Thread {
 		frontline = new ArrayList<ServerPlayer>();
 		lobby = new ArrayList<ServerPlayer>();
 //		invites = new LinkedList<ServerPlayer>();
-//		games = new ArrayList<ServerGame>();
+		games = new ArrayList<ServerGame>();
 		
 		playerQ = new PlayerQueue();
 
@@ -45,7 +45,7 @@ public class Server extends Thread {
 		frontline = new ArrayList<ServerPlayer>();
 		lobby = new ArrayList<ServerPlayer>();
 //		invites = new LinkedList<ServerPlayer>();
-//		games = new ArrayList<ServerGame>();
+		games = new ArrayList<ServerGame>();
 		
 		playerQ = new PlayerQueue();
 		
@@ -83,9 +83,7 @@ public class Server extends Thread {
 	
 	private void broadcastPlayerJoin(ServerPlayer player) {
 		for (ServerPlayer lobbyist : lobby) {
-			if (player != lobbyist) {
-				lobbyist.net().tellLJOIN(player.getName());
-			}
+			lobbyist.net().tellLJOIN(player.getName());
 		}
 	}
 
@@ -174,6 +172,9 @@ public class Server extends Thread {
 				if (p.tryVerifySignature(publicKey) == PlayerAuthState.Authenticated) {
 					serverSays("Pretty good handshake, " + p.getName() + "! 8/10");
 					p.net().tellHELLO();
+					p.net().tellBCAST("Welcome to HONEYBADGER's Controlit Server! "
+							+ "If your name is not Michiel we welcome you. "
+							+ "Otherwise, the exit is in the top right corner.");
 				} else if (p.getAuthState() == PlayerAuthState.Authenticated) {
 					serverSays("Shitty handshake, " + p.getName() + ". 1/10");
 					p.net().tellERROR(RolitSocket.Error.LogInFailedException,
@@ -216,7 +217,7 @@ public class Server extends Thread {
 						p.net().tellSTATE(PlayerState.LOBBY);
 					}
 					break;
-				case LO_NGAME:
+				case LO_NGAME: // TODO: Send error when already in queue
 					if (!playerQ.isQueued(p)) { // TODO: Check if player has no invites
 						if (msg.equals("D") || msg.equals("H")) {
 							playerQ.addDuoer(p);
@@ -250,7 +251,12 @@ public class Server extends Thread {
 	
 	private void handleQueues() {
 		while (playerQ.hasDuo()) {
-			
+			ServerPlayer[] players = playerQ.getDuo();
+			lobby.remove(players[0]);
+			lobby.remove(players[1]);
+			ServerGame game = new ServerGame(players);
+			game.start();
+			games.add(game);
 		}
 		while (playerQ.hasTrio()) {
 			
