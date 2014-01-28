@@ -10,7 +10,9 @@ import network.ServerPlayer.PlayerAuthState;
 // TODO: Make sure you can only login once, otherwise error!
 // TODO: Implement new PKISocket!
 public class Server extends Thread {
-	public static final int SERVER_PORT = 8494;
+	public static final int SERVER_PORT = 2014;
+	
+	private int usePort = 0;
 
 	private List<ServerPlayer> frontline;
 	private List<ServerPlayer> lobby;
@@ -19,7 +21,7 @@ public class Server extends Thread {
 	
 	private PlayerQueue playerQ;
 
-	private boolean running;
+	private boolean running = false;
 
 	ServerBouncer sb; // Incoming connections handler
 	PKISocket pki;
@@ -34,8 +36,22 @@ public class Server extends Thread {
 		playerQ = new PlayerQueue();
 
 		running = false;
+		
+		usePort = SERVER_PORT;
 	}
-
+	
+	public Server(int port) {
+		// Let's do this!
+		frontline = new ArrayList<ServerPlayer>();
+		lobby = new ArrayList<ServerPlayer>();
+//		invites = new LinkedList<ServerPlayer>();
+//		games = new ArrayList<ServerGame>();
+		
+		playerQ = new PlayerQueue();
+		
+		usePort = port;
+	}
+	
 	private void out(String msg) {
 		System.out.println(msg);
 	}
@@ -200,8 +216,8 @@ public class Server extends Thread {
 						p.net().tellSTATE(PlayerState.LOBBY);
 					}
 					break;
-				case LO_NGAME: // TODO: Queues and shit
-					if (!playerQ.isQueued(p)) {
+				case LO_NGAME:
+					if (!playerQ.isQueued(p)) { // TODO: Check if player has no invites
 						if (msg.equals("D") || msg.equals("H")) {
 							playerQ.addDuoer(p);
 						} else if (msg.equals("I")) {
@@ -221,7 +237,7 @@ public class Server extends Thread {
 					}
 					p.net().tellPLIST(playersAvailable.toArray(new String[0]));
 					break;
-				case LO_INVIT:
+				case LO_INVIT: // TODO: Check if in playerqueue. If so, remove
 					serverSays("Gamemode not yet supported");
 					break;
 				default:
@@ -247,7 +263,7 @@ public class Server extends Thread {
 	public void run() {
 		serverSays("HONEYBADGER ON DUTY!");
 
-		sb = new ServerBouncer(SERVER_PORT);
+		sb = new ServerBouncer(usePort);
 		Thread sbThread = new Thread(sb);
 		sbThread.start();
 		serverSays("Started server socket");

@@ -372,11 +372,11 @@ public class PKISocket extends Thread {
 		
 		try {
 			pkiServer.start();
-			pkiServer.requestPublicKey("player_test1");
-			pkiServer.requestPublicKey("player_test2");
-			pkiServer.requestPublicKey("player_dne");
+			pkiServer.requestPublicKey("test1");
+			pkiServer.requestPublicKey("test2");
+			pkiServer.requestPublicKey("dne");
 			
-			while (!pkiServer.hasKey("player_test1")) {
+			while (!pkiServer.hasKey("test1")) {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
@@ -385,7 +385,7 @@ public class PKISocket extends Thread {
 				}
 			}
 			
-			while (!pkiServer.hasKey("player_test2")) {
+			while (!pkiServer.hasKey("test2")) {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
@@ -394,7 +394,7 @@ public class PKISocket extends Thread {
 				}
 			}
 			
-			while (!pkiServer.hasKey("player_dne")) {
+			while (!pkiServer.hasKey("dne")) {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
@@ -403,9 +403,9 @@ public class PKISocket extends Thread {
 				}
 			}
 			
-			System.out.println("test1: " + pkiServer.getPublicKey("player_test1"));
-			System.out.println("test2: " + pkiServer.getPublicKey("player_test2"));
-			System.out.println("player_dne: " + pkiServer.getPublicKey("player_dne"));
+			System.out.println("test1: " + pkiServer.getPublicKey("test1"));
+			System.out.println("test2: " + pkiServer.getPublicKey("test2"));
+			System.out.println("dne: " + pkiServer.getPublicKey("dne"));
 			
 			pkiServer.close();
 			pkiServer.join();
