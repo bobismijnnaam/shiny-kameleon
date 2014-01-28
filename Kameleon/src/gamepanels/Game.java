@@ -42,7 +42,7 @@ public class Game extends JFrame {
 	public void setNextState(int nextState, String[] inputSettings) throws IOException {
 		switch (nextState) {
 			case STATE_MAIN:
-				if (lastState == STATE_OFFLINE) {
+				if (lastState == STATE_OFFLINE || lastState == STATE_ONLINE) {
 					System.out.println("state was offline");
 					remove(view.getRootPane());
 				}
@@ -82,6 +82,7 @@ public class Game extends JFrame {
 				break;
 			case STATE_ONLINE:
 				remove(lobby);
+				lastState = STATE_ONLINE;
 				settings = inputSettings;
 				for (int i = 0; i < settings.length; i++) {
 					System.out.println(settings[i]);
