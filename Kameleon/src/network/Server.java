@@ -86,6 +86,20 @@ public class Server extends Thread {
 			lobbyist.net().tellLJOIN(player.getName());
 		}
 	}
+	
+	private void broadcastPlayerLeave(ServerPlayer[] players) {
+		for (ServerPlayer p : players) {
+			broadcastPlayerLeave(p);
+		}
+	}
+	
+	private void broadcastPlayerLeave(ServerPlayer player) {
+		for (ServerPlayer p : lobby) {
+			if (p != player) {
+				p.net().tellLEAVE(player.getName());
+			}
+		}
+	}
 
 	private void handleFrontline(ServerPlayer p) {
 		// Only do stuff when socket is running!
@@ -147,6 +161,8 @@ public class Server extends Thread {
 					serverSays("Player " + p.getName()
 							+ " has disconnected before completing handshake");
 					p.net().close();
+					frontline.remove(p);
+					broadcastPlayerLeave(p);
 					break;
 				default:
 					p.net().tellERROR(
@@ -184,7 +200,7 @@ public class Server extends Thread {
 			}
 		}
 
-		garbageCollectPlayer(frontline, p);
+//		garbageCollectPlayer(frontline, p);
 	}
 
 	private void handleLobby(ServerPlayer p) {
@@ -208,6 +224,8 @@ public class Server extends Thread {
 				case AL_LEAVE:
 					serverSays(p.getName() + " left");
 					p.net().close();
+					lobby.remove(p);
+					broadcastPlayerLeave(p);
 					// TODO: Clean up pending invites/queues
 					break;
 				case AL_STATE:
@@ -242,6 +260,8 @@ public class Server extends Thread {
 					serverSays("Gamemode not yet supported");
 					break;
 				default:
+					p.net().tellERROR(RolitSocket.Error.UnexpectedOperationException,
+							msgType.toString());
 					break;
 			}
 		}
@@ -250,19 +270,38 @@ public class Server extends Thread {
 	}
 	
 	private void handleQueues() {
-		while (playerQ.hasDuo()) {
+		while (playerQ.hasDuo()) { // TODO: add leave when they leave lobby!
 			ServerPlayer[] players = playerQ.getDuo();
 			lobby.remove(players[0]);
 			lobby.remove(players[1]);
+			broadcastPlayerLeave(players);
+			
 			ServerGame game = new ServerGame(players);
 			game.start();
 			games.add(game);
 		}
 		while (playerQ.hasTrio()) {
+			ServerPlayer[] players = playerQ.getTrio();
+			lobby.remove(players[0]);
+			lobby.remove(players[1]);
+			lobby.remove(players[2]);
+			broadcastPlayerLeave(players);
 			
+			ServerGame game = new ServerGame(players);
+			game.start();
+			games.add(game);
 		}
 		while (playerQ.hasQuatro()) {
+			ServerPlayer[] players = playerQ.getQuatro();
+			lobby.remove(players[0]);
+			lobby.remove(players[1]);
+			lobby.remove(players[3]);
+			lobby.remove(players[4]);
+			broadcastPlayerLeave(players);
 			
+			ServerGame game = new ServerGame(players);
+			game.start();
+			games.add(game);
 		}
 	}
 
