@@ -1,6 +1,7 @@
 package board;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -35,6 +36,8 @@ public class BoardView extends JInternalFrame implements Observer {
 	}
 	
 	public void makeGUI(BoardModel inputBoard) throws IOException {
+		BackgroundPanel bg = new BackgroundPanel("media/bg.png");
+		bg.setLayout(new BorderLayout());
 		// initialize arrays
 		fields = new BackgroundPanel[8][8];
 		fieldButtons = new JButton[8][8];
@@ -43,7 +46,11 @@ public class BoardView extends JInternalFrame implements Observer {
 		// the board container a ratio Panel
 		RatioPanel container = new RatioPanel();
 		container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
-		add(container);
+		container.setOpaque(false);
+		bg.add(container, BorderLayout.CENTER);
+		bg.setPreferredSize(new Dimension(8000, 800));
+		
+		add(bg);
 		
 		// adds the x row 10 times
 		for (int y = 0; y < 10; y++) {
@@ -76,6 +83,7 @@ public class BoardView extends JInternalFrame implements Observer {
 					// add the button and add everything up
 					leftEdge.setLayout(new BorderLayout());
 					leftEdge.add(button, BorderLayout.CENTER);
+					xRow.setOpaque(false);
 					xRow.add(leftEdge);
 				}
 				
@@ -101,6 +109,7 @@ public class BoardView extends JInternalFrame implements Observer {
 					// add to the array
 					fieldButtons[arrayX][arrayY] = button;
 					fields[arrayX][arrayY] = empty;
+					xRow.setOpaque(false);
 					xRow.add(empty);
 				}
 				
@@ -128,6 +137,7 @@ public class BoardView extends JInternalFrame implements Observer {
 					rightEdge.setLayout(new BorderLayout());
 					rightEdge.add(button, BorderLayout.CENTER);
 					xRow.add(rightEdge);
+					xRow.setOpaque(false);
 				}
 				
 				// topRow
@@ -157,6 +167,7 @@ public class BoardView extends JInternalFrame implements Observer {
 					// add to row
 					topBorder.setLayout(new BorderLayout());
 					topBorder.add(button, BorderLayout.CENTER);
+					xRow.setOpaque(false);
 					xRow.add(topBorder);
 				}
 				
@@ -187,17 +198,18 @@ public class BoardView extends JInternalFrame implements Observer {
 					// add everything
 					lowerBorder.setLayout(new BorderLayout());
 					lowerBorder.add(button, BorderLayout.CENTER);
+					xRow.setOpaque(false);
  					xRow.add(lowerBorder);
 				}
 			}
 			
 			// set the preferred y row size
-			xRow.setPreferredSize(new Dimension(600, 60));
+			xRow.setPreferredSize(new Dimension(8000, 800));
 			// xRow creation done
 			container.add(xRow);
 		}
 		
-		container.setPreferredSize(new Dimension(600, 600));
+		container.setPreferredSize(new Dimension(8000, 8000));
 		//setTitle("ROLLIT RUB");
 		
 		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -215,6 +227,11 @@ public class BoardView extends JInternalFrame implements Observer {
 		board.addObserver(this);
 		
 	}
+	private int integer(int i) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 	
 	public void setStartPosition() {
 // set the initial fields

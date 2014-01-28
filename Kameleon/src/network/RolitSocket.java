@@ -695,7 +695,7 @@ public class RolitSocket extends Thread {
 	}
 	
 	public void tellHELLO() throws IOException {
-		sendMsg("HELLO CL");
+		sendMsg("HELLO DC");
 	}
 	
 	public boolean askALIVE() {
