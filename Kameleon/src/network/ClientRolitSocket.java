@@ -43,6 +43,7 @@ public class ClientRolitSocket extends RolitSocket {
 	
 	public void tellVSIGN(String plain, String key) {
 		String signature = PKISocket.signMessage(plain, key);
+		System.out.println("Signature: " + signature);
 		sendMsg("VSIGN " + signature);
 	}
 	

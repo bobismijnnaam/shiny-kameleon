@@ -105,10 +105,10 @@ public class MainMenu extends JPanel {
 		add(playOnline, "span, growx, width 100%, height 25%");
 		
 		// textfield
-		username = new JTextField("player_test1");
+		username = new JTextField("test1");
 		password = new JPasswordField("test1");
 		server = new JTextField("localhost");
-		port = new JTextField("8494");
+		port = new JTextField("2014");
 		add(username, "span, split 4, height 5%, width 25%");
 		add(password, "height 5%, width 25%");
 		add(server, "height 5%, width 25%");

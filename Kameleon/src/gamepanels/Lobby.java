@@ -87,7 +87,6 @@ public class Lobby extends JPanel implements ActionListener {
 		
 		System.out.println("Received string to sign!");
 		String toSign = crs.getQueuedMsg();
-
 		crs.tellVSIGN(toSign, pki.getPrivateKey());
 		
 		System.out.println(toSign);
@@ -134,6 +133,8 @@ public class Lobby extends JPanel implements ActionListener {
 		add(title);
 		JButton c = new JButton("Play 1 vs 1, enter player name");
 		JButton d = new JButton("Play 1 vs 1, default");
+		d.addActionListener(this);
+		d.setName("NGAMED");
 		JButton h = new JButton("Play against 1 player");
 		JButton i = new JButton("Play against 2 players");
 		JButton j = new JButton("Play against 3 players");
@@ -187,6 +188,9 @@ public class Lobby extends JPanel implements ActionListener {
 			System.out.println(message.getText());
 			crs.tellCHATM(message.getText());
 			System.out.println("Send the message");
+		} else if (source.getName().equals("NGAMED")) {
+			System.out.println("Requesting default game");
+			crs.askNGAME(ClientRolitSocket.NGAMEFlags.Default);
 		}
 	}
 	
