@@ -20,6 +20,7 @@ public class Server extends Thread {
 	private boolean running;
 
 	ServerBouncer sb; // Incoming connections handler
+	PKISocket pki;
 
 	public Server() {
 		// Let's do this!
@@ -77,12 +78,14 @@ public class Server extends Thread {
 		while (p.net().isNewMsgQueued()) {
 			MessageType msgType = p.net().getQueuedMsgType();
 			String[] msg = p.net().getQueuedMsgArray();
+			
 			switch (msgType) {
 				case AC_LOGIN:
-					if (p.getAuthState() == PlayerAuthState.Unathenticated) {
+					if (p.getAuthState() == PlayerAuthState.Unauthenticated) {
 						String username = msg[0];
 						String authKey = PKISocket.getRandomString(50);
 						p.setAuthKeySent(username, authKey);
+						pki.requestPublicKey(username);
 
 						serverSays("Player " + username
 								+ " wants to shake hands. "
@@ -138,16 +141,23 @@ public class Server extends Thread {
 		}
 		
 		// Signature magic
-		if (p.getAuthState() == PlayerAuthState.SignatureAwaitsChecking) {
-			p.tryVerifySignature();
-			if (p.getAuthState() == PlayerAuthState.Authenticated) {
-				serverSays("Pretty good handshake, " + p.getName() + "! 8/10");
-				p.net().tellHELLO();
-			} else if (p.getAuthState() == PlayerAuthState.Unathenticated) {
-				serverSays("Shitty handshake, " + p.getName() + ". 1/10");
-				p.net().tellERROR(RolitSocket.Error.LogInFailedException,
-						"Wrong username/password #bitch cheater!");
+		if (p.getAuthState() == PlayerAuthState.SignatureAwaitsChecking
+				&& pki.hasKey(p.getName())) {
+			String publicKey = pki.getPublicKey(p.getName());
+			if (publicKey.equals(PKISocket.PKI_USER_INVALID)) {
+				serverSays("That handshake feels fake, " + p.getName() + "! [PKI_USER_INVALID]");
+				p.net().tellERROR(RolitSocket.Error.LogInFailedException);
 				p.net().close();
+			} else {
+				if (p.tryVerifySignature(publicKey) == PlayerAuthState.Authenticated) {
+					serverSays("Pretty good handshake, " + p.getName() + "! 8/10");
+					p.net().tellHELLO();
+				} else if (p.getAuthState() == PlayerAuthState.Authenticated) {
+					serverSays("Shitty handshake, " + p.getName() + ". 1/10");
+					p.net().tellERROR(RolitSocket.Error.LogInFailedException,
+							"Wrong username/password #bitch cheater!");
+					p.net().close();
+				}
 			}
 		}
 
@@ -187,7 +197,7 @@ public class Server extends Thread {
 					ArrayList<String> playersAvailable = new ArrayList<String>();
 					for (ServerPlayer otherP : lobby) {
 						if (otherP != p) {
-							playersAvailable.add(otherP);
+							playersAvailable.add(otherP.getName());
 						}
 					}
 					p.net().tellPLIST(playersAvailable.toArray(new String[0]));
@@ -208,6 +218,19 @@ public class Server extends Thread {
 		sb = new ServerBouncer(SERVER_PORT);
 		Thread sbThread = new Thread(sb);
 		sbThread.start();
+		serverSays("Started server socket");
+		
+		pki = new PKISocket();
+		pki.start();
+		serverSays("Started PKI handler");
+		
+		while (!pki.isRunning() && !sb.isRunning()) {
+			try {
+				Thread.sleep(17);
+			} catch (InterruptedException e) {
+				System.out.println("Haha no way"); // ya way
+			}
+		}
 
 		// Set server loop to GOGOGOGOGOGOGO
 		running = true;
@@ -222,12 +245,10 @@ public class Server extends Thread {
 
 			// Check front line for clients wanting to get in
 			for (int i = 0; i < frontline.size(); i++) {
-				// Transfer the reference
-				// Store it in a value for quick access
-
 				handleFrontline(frontline.get(i));
 			}
 
+			// Handle lobby mechanics
 			for (int i = 0; i < lobby.size(); i++) {
 				handleLobby(lobby.get(i));
 			}

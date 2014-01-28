@@ -488,7 +488,7 @@ public class RolitSocket extends Thread {
 		// Establish connection
 		setupSocket();
 		
-		System.out.println("[" + toString() + "Socket] Connected");
+		System.out.println("[" + toString() + "Socket] Connected to a client");
 		
 		queuedMsgs = Collections.synchronizedList(new ArrayList<String[]>());
 		queuedMsgsType = Collections.synchronizedList(new ArrayList<MessageType>());

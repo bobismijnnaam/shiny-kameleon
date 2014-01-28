@@ -48,6 +48,8 @@ public class PerfectClient {
 		
 		crs.tellVSIGN(toSign, pki.getPrivateKey());
 		
+		System.out.println("Sent signed string");
+		
 		while (crs.getQueuedMsgType() != RolitSocket.MessageType.AC_HELLO) {
 			try {
 				Thread.sleep(100);

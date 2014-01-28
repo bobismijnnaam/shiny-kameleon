@@ -41,7 +41,6 @@ public class PKISocket extends Thread {
 	private String user;
 	private String pass;
 	private String privateKey = null;
-	private String publicKey = null;
 	
 	private boolean running = false;
 	
@@ -69,6 +68,10 @@ public class PKISocket extends Thread {
 		}
 	}
 	
+	public boolean isRunning() {
+		return running;
+	}
+	
 	public void retrievePublicKey() {
 		BufferedWriter out;
 		BufferedReader in;
@@ -84,10 +87,15 @@ public class PKISocket extends Thread {
 			
 			running = true;
 			
+			System.out.println("[PKI] PKI Socket intialization successful");
+			
 			while (running) {
 				pantryLock.lock();
+				boolean leftoversAvailable = !leftovers.isEmpty();
+				pantryLock.unlock();
 				
-				if (!leftovers.isEmpty()) {
+				if (leftoversAvailable) {
+					pantryLock.lock();
 					String requestedUser = leftovers.remove(0);
 					pantryLock.unlock();
 					
@@ -172,8 +180,9 @@ public class PKISocket extends Thread {
 		if (leftovers == null && pubkeys == null) {
 			throw new NullPointerException("YOU ARE TRYING TO GET PKI IN THE WRONG MODE");
 		}
-		
+		System.out.println("tetstststst");
 		pantryLock.lock();
+		System.out.println("testttt");
 		leftovers.add(requestedUser);
 		pantryLock.unlock();
 	}

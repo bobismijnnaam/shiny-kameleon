@@ -4,7 +4,7 @@ import java.net.Socket;
 
 public class ServerPlayer {
 	public enum PlayerAuthState {
-		Unathenticated,
+		Unauthenticated,
 		KeySent,
 		SignatureAwaitsChecking,
 		Authenticated;
@@ -17,21 +17,21 @@ public class ServerPlayer {
 	private String name;
 	private String textToSign;
 	private String signature;
-	private String publickey;
+//	private String publickey;
 	private PlayerAuthState authState;
 	
-	private boolean defaultSupport;
+//	private boolean defaultSupport;
 	private boolean chatSupport;
 	private boolean lobbySupport;
 	
 	private ServerRolitSocket srs;
-	private PKISocket ps;
+//	private PKISocket ps;
 	
 	public ServerPlayer(Socket inputSocket) {
 		srs = new ServerRolitSocket(inputSocket);
-		authState = PlayerAuthState.Unathenticated;
+		authState = PlayerAuthState.Unauthenticated;
 		
-		defaultSupport = false;
+//		defaultSupport = false;
 		chatSupport = false;
 		lobbySupport = false;
 	}
@@ -44,9 +44,9 @@ public class ServerPlayer {
 		return srs;
 	}
 	
-	public PKISocket pki() {
-		return ps;
-	}
+//	public PKISocket pki() {
+//		return ps;
+//	}
 	
 	public PlayerAuthState getAuthState() {
 		return authState;
@@ -56,8 +56,8 @@ public class ServerPlayer {
 		name = inputName;
 		textToSign = inputAuth;
 		authState = authState.next();	
-		ps = new PKISocket(name);
-		ps.start();
+//		ps = new PKISocket(name);
+//		ps.start();
 		
 		net().askVSIGN(textToSign);
 	}
@@ -67,15 +67,17 @@ public class ServerPlayer {
 		authState = authState.next();
 	}
 	
-	public void tryVerifySignature() {
-		if (ps.isPublicKeyReady()) {
-			publickey = ps.getPublicKey();
-			if (PKISocket.verifySignature(textToSign, publickey, signature)) {
-				authState = authState.next();
-			} else {
-				authState = PlayerAuthState.Unathenticated;
-			}
+	public PlayerAuthState tryVerifySignature(String publickey) {
+//		if (ps.isPublicKeyReady()) {
+//			publickey = ps.getPublicKey();
+		if (PKISocket.verifySignature(textToSign, publickey, signature)) {
+			authState = authState.next();
+		} else {
+			authState = PlayerAuthState.Unauthenticated;
 		}
+//		}
+		
+		return authState;
 	}
 	
 	public void setClientType(String flags) {
