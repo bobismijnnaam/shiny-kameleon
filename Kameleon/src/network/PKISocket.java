@@ -99,7 +99,7 @@ public class PKISocket extends Thread {
 					String requestedUser = leftovers.remove(0);
 					pantryLock.unlock();
 					
-					out.write("PUBLICKEY " + requestedUser + System.lineSeparator());
+					out.write("PUBLICKEY player_" + requestedUser + System.lineSeparator());
 					out.flush();
 					
 					while (!in.ready()) {
@@ -222,7 +222,7 @@ public class PKISocket extends Thread {
 //		System.out.println("Streams opened. Sending request...");
 		
 		try {
-			out.write("IDPLAYER " + user + " " + pass + System.lineSeparator());
+			out.write("IDPLAYER player_" + user + " " + pass + System.lineSeparator());
 			out.flush();
 		} catch (IOException e) {
 			System.out.println("[PKI] Could not write to outputstream");

@@ -16,6 +16,8 @@ public class Server extends Thread {
 	private List<ServerPlayer> lobby;
 	// private List<Invite> invites;
 	// private List<ServerGame> games;
+	
+	private PlayerQueue playerQ;
 
 	private boolean running;
 
@@ -26,6 +28,10 @@ public class Server extends Thread {
 		// Let's do this!
 		frontline = new ArrayList<ServerPlayer>();
 		lobby = new ArrayList<ServerPlayer>();
+//		invites = new LinkedList<ServerPlayer>();
+//		games = new ArrayList<ServerGame>();
+		
+		playerQ = new PlayerQueue();
 
 		running = false;
 	}
@@ -168,7 +174,7 @@ public class Server extends Thread {
 		if (!p.net().isRunning()) {
 			return;
 		}
-
+		
 		while (p.net().isNewMsgQueued()) {
 			MessageType msgType = p.net().getQueuedMsgType();
 			String[] msg = p.net().getQueuedMsgArray();
@@ -187,22 +193,38 @@ public class Server extends Thread {
 				case AL_LEAVE:
 					serverSays(p.getName() + " left");
 					p.net().close();
+					// TODO: Clean up pending invites/queues
 					break;
 				case AL_STATE:
-					p.net().tellSTATE(PlayerState.LOBBY);
+					if (playerQ.isQueued(p)) {
+						p.net().tellSTATE(PlayerState.WAITING);
+					} else {
+						p.net().tellSTATE(PlayerState.LOBBY);
+					}
 					break;
 				case LO_NGAME: // TODO: Queues and shit
+					if (!playerQ.isQueued(p)) {
+						if (msg.equals("D") || msg.equals("H")) {
+							playerQ.addDuoer(p);
+						} else if (msg.equals("I")) {
+							playerQ.addTrioer(p);
+						} else if (msg.equals("J")) {
+							playerQ.addQuatroer(p);
+						} else {
+							p.net().tellERROR(RolitSocket.Error.IllegalArgumentException,
+									"NGAME only supports D, H, I, J");
+						}
+					}
 					break;
 				case LO_PLIST:
 					ArrayList<String> playersAvailable = new ArrayList<String>();
 					for (ServerPlayer otherP : lobby) {
-						if (otherP != p) {
-							playersAvailable.add(otherP.getName());
-						}
+						playersAvailable.add(otherP.getName());
 					}
 					p.net().tellPLIST(playersAvailable.toArray(new String[0]));
 					break;
 				case LO_INVIT:
+					serverSays("Gamemode not yet supported");
 					break;
 				default:
 					break;
@@ -210,6 +232,18 @@ public class Server extends Thread {
 		}
 
 		garbageCollectPlayer(lobby, p);
+	}
+	
+	private void handleQueues() {
+		while (playerQ.hasDuo()) {
+			
+		}
+		while (playerQ.hasTrio()) {
+			
+		}
+		while (playerQ.hasQuatro()) {
+			
+		}
 	}
 
 	public void run() {
@@ -252,6 +286,7 @@ public class Server extends Thread {
 			for (int i = 0; i < lobby.size(); i++) {
 				handleLobby(lobby.get(i));
 			}
+			handleQueues();
 
 			try {
 				Thread.sleep(17);
