@@ -32,7 +32,6 @@ public class ServerGame extends Thread{
 		
 		board = new BoardModel();
 		
-		// TODO: Make this prettier?
 		playerObjs = new Player[players.length];
 		playerObjs[0] = players[0].getPlayerObject();
 		playerObjs[1] = players[1].getPlayerObject();
@@ -43,7 +42,7 @@ public class ServerGame extends Thread{
 			playerObjs[3] = players[3].getPlayerObject();
 		}
 		
-		switch (players.length) { // TODO: Make this prettier?
+		switch (players.length) {
 			case 2:
 				board.setStartPosition(playerObjs[0], playerObjs[1]);
 				break;
@@ -134,6 +133,7 @@ public class ServerGame extends Thread{
 				case AL_LEAVE:
 					p.net().close();
 					players[i] = null;
+					break;
 				default:
 					p.net().tellERROR(RolitSocket.Error.UnexpectedOperationException,
 							msgType.toString());
@@ -145,6 +145,7 @@ public class ServerGame extends Thread{
 	public void run() {
 		for (ServerPlayer p : players) {
 			p.net().tellSTART(playerNames);
+			p.net().tellGTURN(turn);
 		}
 		
 		running = true;

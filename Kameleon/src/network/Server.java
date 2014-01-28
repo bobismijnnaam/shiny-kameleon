@@ -8,7 +8,8 @@ import network.RolitSocket.MessageType;
 import network.ServerPlayer.PlayerAuthState;
 
 // TODO: Make sure you can only login once, otherwise error!
-// TODO: Implement new PKISocket!
+// TODO: Queue mechanics
+// TODO: Alive pings :D
 public class Server extends Thread {
 	public static final int SERVER_PORT = 2014;
 	

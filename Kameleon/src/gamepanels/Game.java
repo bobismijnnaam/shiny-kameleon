@@ -1,11 +1,7 @@
 package gamepanels;
 
-import java.awt.Color;
 import java.io.IOException;
-import java.lang.Thread.State;
-
 import javax.swing.JFrame;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
 import network.ClientRolitSocket;
