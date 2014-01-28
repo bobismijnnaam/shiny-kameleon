@@ -1,12 +1,18 @@
 package network;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -21,34 +27,163 @@ import java.security.spec.X509EncodedKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 
-// TODO: Make it work for unknown passwords and accounts (error)
+import utility.Utils;
+
+// Should actually be quite easy 0- it was, kinda
+
 public class PKISocket extends Thread {
 	public static final String PKI_SERVER_ADDR = "ss-security.student.utwente.nl";
 	public static final int PKI_SERVER_PORT = 2013;
+	public static final String PKI_USER_INVALID = new String("INVALID USER");
 	
 	private static SecureRandom random = new SecureRandom();
 
-	String user;
-	String pass;
-	String privateKey = null;
-	String publicKey = null;
+	private String user;
+	private String pass;
+	private String privateKey = null;
+	private String publicKey = null;
+	
+	private boolean running = false;
+	
+	private Lock pantryLock = new ReentrantLock();
+	private Map<String, String> pubkeys = null;
+	private List<String> leftovers = null;
 		
 	public PKISocket(String inputUser, String inputPass) {
 		user = inputUser;
 		pass = inputPass;
 	}
 	
-	public PKISocket(String inputUser) {
-		user = inputUser;
-		pass = null;
+	public PKISocket() {
+//		user = inputUser;
+//		pass = null;
+		pubkeys = new HashMap<String, String>();
+		leftovers = new ArrayList<String>();
 	}
 	
 	public void run() {
-		if (pass == null && user != null) {
-			retrievePublicKey();
-		} else if (pass != null && user != null) {
+		if (pubkeys == null && leftovers == null) {
 			retrievePrivateKey();
+		} else {
+			retrievePublicKey();
 		}
+	}
+	
+	public void retrievePublicKey() {
+		BufferedWriter out;
+		BufferedReader in;
+		Socket sock;
+		
+		System.out.println("[PKI] Opening PKI socket...");
+		
+		try {
+			sock = new Socket(PKI_SERVER_ADDR, PKI_SERVER_PORT);
+			
+			in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+			out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
+			
+			running = true;
+			
+			while (running) {
+				pantryLock.lock();
+				
+				if (!leftovers.isEmpty()) {
+					String requestedUser = leftovers.remove(0);
+					pantryLock.unlock();
+					
+					out.write("PUBLICKEY " + requestedUser + System.lineSeparator());
+					out.flush();
+					
+					while (!in.ready()) {
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							System.out.println("[PKI] Wait was interrupted");
+							sock.close();
+							return;
+						}
+					}
+					
+					String response = in.readLine();
+					String[] resploded = response.split(" ");
+					
+					pantryLock.lock();
+					if (resploded[0].equals("PUBKEY")) {
+						System.out.println("Received pubkey: " + resploded[1]);
+						pubkeys.put(requestedUser, resploded[1]);
+					} else if (resploded[0].equals("ERROR")) {
+						System.out.println("[PKI] " + Utils.join(resploded));
+						pubkeys.put(requestedUser, PKI_USER_INVALID);
+						System.out.println("mapkey: " + pubkeys.get(requestedUser));
+					} else {
+						System.out.println("[PKI] UNKNOWN ERROR: " + Utils.join(resploded));
+						pubkeys.put(requestedUser, new String("PKI_USER_INVALID"));
+					}
+					pantryLock.unlock();
+				}
+				
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					System.out.println("[PKI] Wait was interrupted");
+					sock.close();
+					return;
+				}	
+			}
+			
+			sock.close();
+			
+		} catch (IOException e) {
+			System.out.println("[PKI] Network error: something went wrong (?)");
+			return;
+		}
+		
+		return;
+	}
+	
+	public boolean hasKey(String requestedUser) {
+		if (leftovers == null && pubkeys == null) {
+			throw new NullPointerException("YOU ARE TRYING TO GET PKI IN THE WRONG MODE");
+		}
+		
+		pantryLock.lock();
+		boolean keyAvailable = pubkeys.containsKey(requestedUser);
+		pantryLock.unlock();
+		return keyAvailable;
+	}
+	
+	public String getPublicKey(String requestedUser) {
+		if (leftovers == null && pubkeys == null) {
+			throw new NullPointerException("YOU ARE TRYING TO GET PKI IN THE WRONG MODE");
+		}
+		
+		pantryLock.lock();
+		if (!hasKey(requestedUser)) {
+			pantryLock.unlock();
+			return null;
+		} else {
+			String theKey = pubkeys.get(requestedUser);
+			pantryLock.unlock();
+			return theKey;
+		}
+	}
+	
+	public void requestPublicKey(String requestedUser) {
+		if (leftovers == null && pubkeys == null) {
+			throw new NullPointerException("YOU ARE TRYING TO GET PKI IN THE WRONG MODE");
+		}
+		
+		pantryLock.lock();
+		leftovers.add(requestedUser);
+		pantryLock.unlock();
+	}
+	
+	public void close() {
+		if (leftovers == null && pubkeys == null) {
+			throw new NullPointerException("YOU ARE TRYING TO GET PKI IN THE WRONG MODE");
+		}
+		
+		running = false;
 	}
 	
 	public void retrievePrivateKey() {
@@ -115,84 +250,12 @@ public class PKISocket extends Thread {
 		System.out.println("[PKI] Socket PKI closed! Private key: \"" + privateKey + "\"");
 	}
 	
-	public void retrievePublicKey() {
-		Scanner in;
-		BufferedWriter out;
-		Socket sock;
-		
-		System.out.println("[PKI] Opening PKI socket...");
-		
-		try {
-			sock = new Socket(PKI_SERVER_ADDR, PKI_SERVER_PORT);
-		} catch (IOException e) {
-			System.out.println("[PKI] Network error: could not open socket");
-			return;
-		}
-		
-//		System.out.println("Socket opened. Opening streams...");
-		
-		try {
-			in = new Scanner(new InputStreamReader(sock.getInputStream()));
-			out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
-		} catch (IOException e) {
-			System.out.println("[PKI] Network error: could not open socket streams");
-			return;
-		}
-		
-//		System.out.println("Streams opened. Sending request...");
-		
-		try {
-			out.write("PUBLICKEY " + user + System.lineSeparator());
-			out.flush();
-		} catch (IOException e) {
-			System.out.println("[PKI] Could not write to outputstream");
-			return;
-		}
-		
-//		System.out.println("Message sent! Waiting for response...");
-		
-		while (!in.hasNext()) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				System.out.println("[PKI] Wait was interrupted");
-				return;
-			}
-			
-			System.out.print("|");
-		}
-		
-//		System.out.println("Received repsonse!");
-		
-		in.next();
-		publicKey = in.next(); 
-		
-//		System.out.println("Closing PKI socket...");
-		
-		try {
-			sock.close();
-		} catch (IOException e) {
-			System.out.println("[PKI] Couldn't PKI close socket");
-			return;
-		}
-		
-		System.out.println("[PKI] Socket PKI closed! Public key: \"" + publicKey + "\"");
-	}
-	
 	public boolean isPrivateKeyReady() {
 		return privateKey != null;
 	}
 	
-	public boolean isPublicKeyReady() {
-		return publicKey != null;
-	}
-	
 	public String getPrivateKey() {
 		return new String(privateKey);
-	}
-	
-	public String getPublicKey() {
-		return new String(publicKey);
 	}
 	
 	public static String getRandomString() {
@@ -295,32 +358,68 @@ public class PKISocket extends Thread {
 	}
 	
 	public static void main(String[] args) {
-		PKISocket pkiServer = new PKISocket("player_test1");
-		PKISocket pkiClient = new PKISocket("player_test1", "test1");
+		PKISocket pkiServer = new PKISocket();
+//		PKISocket pkiClient = new PKISocket("player_test1", "test1");
 		
 		try {
 			pkiServer.start();
-			pkiServer.join();
-			System.out.println("server closed");
+			pkiServer.requestPublicKey("player_test1");
+			pkiServer.requestPublicKey("player_test2");
+			pkiServer.requestPublicKey("player_dne");
 			
-			System.out.println("\n");
-			
-			pkiClient.start();
-			pkiClient.join();
-			System.out.println("client closed");
-			
-			System.out.println("\n");
-			
-			String signature = PKISocket.signMessage("hi", pkiClient.getPrivateKey());
-			
-			Boolean verified = PKISocket.verifySignature("hi", pkiServer.getPublicKey(),
-					signature);
-			
-			if (verified) {
-				System.out.println("VERIFIED");
-			} else {
-				System.out.println("NOT VERIFIED");
+			while (!pkiServer.hasKey("player_test1")) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					System.out.println("[PKI] Wait was interrupted");
+					return;
+				}
 			}
+			
+			while (!pkiServer.hasKey("player_test2")) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					System.out.println("[PKI] Wait was interrupted");
+					return;
+				}
+			}
+			
+			while (!pkiServer.hasKey("player_dne")) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					System.out.println("[PKI] Wait was interrupted");
+					return;
+				}
+			}
+			
+			System.out.println("test1: " + pkiServer.getPublicKey("player_test1"));
+			System.out.println("test2: " + pkiServer.getPublicKey("player_test2"));
+			System.out.println("player_dne: " + pkiServer.getPublicKey("player_dne"));
+			
+			pkiServer.close();
+			pkiServer.join();
+//			System.out.println("server closed");
+//			
+//			System.out.println("\n");
+//			
+//			pkiClient.start();
+//			pkiClient.join();
+//			System.out.println("client closed");
+//			
+//			System.out.println("\n");
+//			
+//			String signature = PKISocket.signMessage("hi", pkiClient.getPrivateKey());
+//			
+//			Boolean verified = PKISocket.verifySignature("hi", pkiServer.getPublicKey(),
+//					signature);
+//			
+//			if (verified) {
+//				System.out.println("VERIFIED");
+//			} else {
+//				System.out.println("NOT VERIFIED");
+//			}
 		} catch (InterruptedException e) {
 			System.out.println("Thread got interruped!");
 		}

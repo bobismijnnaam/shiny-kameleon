@@ -3,10 +3,13 @@ package network;
 import java.util.ArrayList;
 import java.util.List;
 
+import utility.Utils;
+import network.RolitSocket.MessageType;
 import network.ServerPlayer.PlayerAuthState;
 
 // TODO: Make sure you can only login once, otherwise error!
-public class Server extends Thread { // Extends JFrame?? Or do that seperately?
+// TODO: Implement new PKISocket!
+public class Server extends Thread {
 	public static final int SERVER_PORT = 8494;
 
 	private List<ServerPlayer> frontline;
@@ -54,6 +57,14 @@ public class Server extends Thread { // Extends JFrame?? Or do that seperately?
 			l.remove(p);
 		}
 	}
+	
+	private void broadcastPlayerJoin(ServerPlayer player) {
+		for (ServerPlayer lobbyist : lobby) {
+			if (player != lobbyist) {
+				lobbyist.net().tellLJOIN(player.getName());
+			}
+		}
+	}
 
 	private void handleFrontline(ServerPlayer p) {
 		// Only do stuff when socket is running!
@@ -63,11 +74,13 @@ public class Server extends Thread { // Extends JFrame?? Or do that seperately?
 		}
 
 		// Check for incoming messages
-		if (p.net().isNewMsgQueued()) {
-			switch (p.net().getQueuedMsgType()) {
+		while (p.net().isNewMsgQueued()) {
+			MessageType msgType = p.net().getQueuedMsgType();
+			String[] msg = p.net().getQueuedMsgArray();
+			switch (msgType) {
 				case AC_LOGIN:
 					if (p.getAuthState() == PlayerAuthState.Unathenticated) {
-						String username = p.net().getQueuedMsg();
+						String username = msg[0];
 						String authKey = PKISocket.getRandomString(50);
 						p.setAuthKeySent(username, authKey);
 
@@ -83,7 +96,7 @@ public class Server extends Thread { // Extends JFrame?? Or do that seperately?
 					break;
 				case AC_VSIGN:
 					if (p.getAuthState() == PlayerAuthState.KeySent) {
-						p.setAuthKeyReceived(p.net().getQueuedMsg());
+						p.setAuthKeyReceived(msg[0]);
 
 						serverSays(p.getName()
 								+ " returned the handshake. Grading handshake...");
@@ -95,9 +108,10 @@ public class Server extends Thread { // Extends JFrame?? Or do that seperately?
 					break;
 				case AC_HELLO:
 					if (p.getAuthState() == PlayerAuthState.Authenticated) {
-						p.setClientType(p.net().getQueuedMsg());
+						p.setClientType(msg[0]);
 						frontline.remove(p);
 						lobby.add(p);
+						broadcastPlayerJoin(p);
 						serverSays("Player " + p.getName()
 								+ " entered the lobby");
 					} else {
@@ -112,17 +126,18 @@ public class Server extends Thread { // Extends JFrame?? Or do that seperately?
 					p.net().close();
 					break;
 				default:
-					p.net()
-							.tellERROR(
-									RolitSocket.Error.UnexpectedOperationException,
+					p.net().tellERROR(
+							RolitSocket.Error.UnexpectedOperationException, 
 									p.net().getQueuedMsgType().toString()
-											+ " (Either we implemented shit wrong or"
-											+ "you just went full retard.\n\n"
-											+ "\nNever go full retard man.)");
+									+ " (Either we implemented shit wrong or"
+									+ "you just went full retard.\n\n"
+									+ "\nNever go full retard man.)");
+					p.net().getQueuedMsg();
 					break;
 			}
 		}
-
+		
+		// Signature magic
 		if (p.getAuthState() == PlayerAuthState.SignatureAwaitsChecking) {
 			p.tryVerifySignature();
 			if (p.getAuthState() == PlayerAuthState.Authenticated) {
@@ -144,15 +159,17 @@ public class Server extends Thread { // Extends JFrame?? Or do that seperately?
 			return;
 		}
 
-		if (p.net().isNewMsgQueued()) {
-			switch (p.net().getQueuedMsgType()) {
+		while (p.net().isNewMsgQueued()) {
+			MessageType msgType = p.net().getQueuedMsgType();
+			String[] msg = p.net().getQueuedMsgArray();
+			switch (msgType) {
 				case AL_CHATM:
-					String msg = p.net().getQueuedMsg();
-					playerSays(p, msg);
+					String chatmsg = Utils.join(msg);
+					playerSays(p, chatmsg);
 
 					for (ServerPlayer otherP : lobby) {
 						if (otherP != p) {
-							otherP.net().tellCHATM(p.getName(), msg);
+							otherP.net().tellCHATM(p.getName(), chatmsg);
 						}
 					}
 
@@ -161,8 +178,21 @@ public class Server extends Thread { // Extends JFrame?? Or do that seperately?
 					serverSays(p.getName() + " left");
 					p.net().close();
 					break;
-				case FB_PROTO:
-					playerSays(p, p.net().getQueuedMsg());
+				case AL_STATE:
+					p.net().tellSTATE(PlayerState.LOBBY);
+					break;
+				case LO_NGAME: // TODO: Queues and shit
+					break;
+				case LO_PLIST:
+					ArrayList<String> playersAvailable = new ArrayList<String>();
+					for (ServerPlayer otherP : lobby) {
+						if (otherP != p) {
+							playersAvailable.add(otherP);
+						}
+					}
+					p.net().tellPLIST(playersAvailable.toArray(new String[0]));
+					break;
+				case LO_INVIT:
 					break;
 				default:
 					break;
