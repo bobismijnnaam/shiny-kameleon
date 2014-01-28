@@ -81,6 +81,7 @@ public class Game extends JFrame {
 				setSize(620, 620);
 				break;
 			case STATE_ONLINE:
+				remove(lobby);
 				System.out.println("online game is ready");
 				break;
 

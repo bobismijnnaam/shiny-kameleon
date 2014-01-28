@@ -29,8 +29,9 @@ public class Lobby extends JPanel implements ActionListener {
 	private JTextArea message;
 	private ClientRolitSocket crs;
 	MessageType newMsgType = MessageType.X_NONE;
-	JTextArea chat;
-	
+	private JTextArea chat;
+	private JTextArea playerName;
+	private JButton c, d, h, i, j, send;
 	public Lobby(Game inputGame, String[] inputSettings) {
 		settings = inputSettings;
 		createLobby(inputGame);
@@ -124,6 +125,7 @@ public class Lobby extends JPanel implements ActionListener {
 			addChatMessage("Bob", "Kom rolit spelen dan");
 			addChatMessage("Florian", "nee fuck you");
 		} else if (hello.equals("CL")) {
+			drawDefault();
 			drawChat();
 		}
 	}
@@ -131,13 +133,24 @@ public class Lobby extends JPanel implements ActionListener {
 	public void drawDefault() {
 		JLabel title = new JLabel("Welcome to the default online game " + settings[0]);
 		add(title);
-		JButton c = new JButton("Play 1 vs 1, enter player name");
-		JButton d = new JButton("Play 1 vs 1, default");
+		playerName = new JTextArea();
+		playerName.setText("Playername");
+		add(playerName);
+		c = new JButton("Play 1 vs 1, enter player name");
+		c.addActionListener(this);
+		c.setName("NGAMEC");
+		d = new JButton("Play 1 vs 1, default");
 		d.addActionListener(this);
 		d.setName("NGAMED");
-		JButton h = new JButton("Play against 1 player");
-		JButton i = new JButton("Play against 2 players");
-		JButton j = new JButton("Play against 3 players");
+		h = new JButton("Play against 1 player");
+		h.addActionListener(this);
+		h.setName("NGAMEH");
+		i = new JButton("Play against 2 players");
+		i.addActionListener(this);
+		i.setName("NGAMEI");
+		j = new JButton("Play against 3 players");
+		j.addActionListener(this);
+		j.setName("NGAMEJ");
 		add(c);
 		add(d);
 		add(h);
@@ -153,25 +166,25 @@ public class Lobby extends JPanel implements ActionListener {
 	public void drawChat() {
 		JPanel chatBox = new JPanel();
 		chatBox.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
+		GridBagConstraints gbc = new GridBagConstraints();
 		chatBox.setSize(400, 400);
 		
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
 		chat = new JTextArea("hii, i'm bob welcome to our fabulous chatbox!");
 		chat.setBorder(BorderFactory.createLineBorder(Color.black));
 		chat.setEditable(false);  
-		chatBox.add(chat, c);
+		chatBox.add(chat, gbc);
 		message = new JTextArea("Message:");
 		message.setBorder(BorderFactory.createLineBorder(Color.black));
-		JButton send = new JButton("Send");
+		send = new JButton("Send");
 		send.setName("send");
-		c.gridy = 1;
-		chatBox.add(message, c);
-		c.gridy = 1;
-		c.gridx = 1;
-		chatBox.add(send, c);
+		gbc.gridy = 1;
+		chatBox.add(message, gbc);
+		gbc.gridy = 1;
+		gbc.gridx = 1;
+		chatBox.add(send, gbc);
 		send.addActionListener(this);
 		chatBox.setSize(400, 400);
 		add(chatBox);
@@ -183,14 +196,22 @@ public class Lobby extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		JButton source = (JButton) e.getSource();
-		if (source.getName().equals("send")) {
+		if (e.getSource().equals(send)) {
 			System.out.println(message.getText());
 			crs.tellCHATM(message.getText());
 			System.out.println("Send the message");
-		} else if (source.getName().equals("NGAMED")) {
+		} else if (e.getSource().equals(d)) {
 			System.out.println("Requesting default game");
 			crs.askNGAME(ClientRolitSocket.NGAMEFlags.Default);
+		} else if (e.getSource().equals(h)) {
+			System.out.println("Requesting 2 players");
+			crs.askNGAME(ClientRolitSocket.NGAMEFlags.TwoPlayerGame);
+		} else if (e.getSource().equals(i)) {
+			System.out.println("Requesting 3 players");
+			crs.askNGAME(ClientRolitSocket.NGAMEFlags.ThreePlayerGame);
+		} else if (e.getSource().equals(j)) {
+			System.out.println("Requesting 4 players");
+			crs.askNGAME(ClientRolitSocket.NGAMEFlags.FourPlayerGame);
 		}
 	}
 	
@@ -231,6 +252,10 @@ public class Lobby extends JPanel implements ActionListener {
 							case LO_INVIT:
 								System.out.println("Request for starting game");
 								System.out.println("Display accept or deny window");
+								break;
+							case LO_START:
+								System.out.println("WOOOW EEN SPEL GAAT STARTEN!, wat spannend!");
+								
 								break;
 							default:
 								break;
