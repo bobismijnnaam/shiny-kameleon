@@ -237,15 +237,15 @@ public class Server extends Thread {
 					break;
 				case LO_NGAME: // TODO: Send error when already in queue
 					if (!playerQ.isQueued(p)) { // TODO: Check if player has no invites
-						if (msg.equals("D") || msg.equals("H")) {
+						if (msg[0].equals("D") || msg[0].equals("H")) {
 							playerQ.addDuoer(p);
-						} else if (msg.equals("I")) {
+						} else if (msg[0].equals("I")) {
 							playerQ.addTrioer(p);
-						} else if (msg.equals("J")) {
+						} else if (msg[0].equals("J")) {
 							playerQ.addQuatroer(p);
 						} else {
 							p.net().tellERROR(RolitSocket.Error.IllegalArgumentException,
-									"NGAME only supports D, H, I, J");
+									"NGAME only supports D, H, I, J" + msg.length);
 						}
 					}
 					break;

@@ -52,7 +52,7 @@ public class PlayerQueue {
 		ServerPlayer[] res = new ServerPlayer[2];
 		if (hasDuo()) {
 			res[0] = duoQ.remove(0);
-			res[1] = duoQ.remove(1);
+			res[1] = duoQ.remove(0);
 			return res;
 		} else {
 			return null;
@@ -63,8 +63,8 @@ public class PlayerQueue {
 		ServerPlayer[] res = new ServerPlayer[3];
 		if (hasTrio()) {
 			res[0] = duoQ.remove(0);
-			res[1] = duoQ.remove(1);
-			res[2] = duoQ.remove(2);
+			res[1] = duoQ.remove(0);
+			res[2] = duoQ.remove(0);
 			return res;
 		} else {
 			return null;
@@ -75,9 +75,9 @@ public class PlayerQueue {
 		ServerPlayer[] res = new ServerPlayer[4];
 		if (hasQuatro()) {
 			res[0] = duoQ.remove(0);
-			res[1] = duoQ.remove(1);
-			res[2] = duoQ.remove(2);
-			res[3] = duoQ.remove(3);
+			res[1] = duoQ.remove(0);
+			res[2] = duoQ.remove(0);
+			res[3] = duoQ.remove(0);
 			return res;
 		} else {
 			return null;

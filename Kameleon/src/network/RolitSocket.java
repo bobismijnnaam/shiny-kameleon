@@ -356,8 +356,8 @@ public class RolitSocket extends Thread {
 			if (id == ID_SERVER) {
 				if (tail == null) {
 					tellERROR(Error.TooFewArgumentsException, "NGAME");
-				} else if (tail.length == 1 || tail.length == 2) {
-					queueMsg(MessageType.LO_NGAME);
+				} else if (tail.length == 1) {
+					queueMsg(MessageType.LO_NGAME, tail);
 				} else {
 					tellERROR(Error.TooManyArgumentsException, "NGAME");
 				}
