@@ -15,13 +15,13 @@ public class SocketHandlerThread extends Thread {
 	private Game game;
 	private Lobby lobby;
 	private MainGamePanel online;
-	private boolean state =  false;
+	private boolean isLobby =  true;
 	
 	public SocketHandlerThread(ClientRolitSocket inputCrs, Game inputGame, Lobby inputLobby) {
 		crs = inputCrs;
 		game = inputGame;
 		lobby = inputLobby;
-		state = false;
+		isLobby = true;
 		System.out.println("Entered lobby");
 	}
 	
@@ -30,11 +30,12 @@ public class SocketHandlerThread extends Thread {
 		crs = inputCrs;
 		game = inputGame;
 		online = inputOnlineGame;
-		state = true;
+		isLobby = false;
 		System.out.println("Entered online game-modus");
 	}
 	
 	public void handleLobby(MessageType inputServerMessageType, String[] inputNewMessage) {
+		System.out.println("Handle lobby");
 		// check the type
 		switch (inputServerMessageType) {
 			case X_NONE:
@@ -72,6 +73,7 @@ public class SocketHandlerThread extends Thread {
 	}
 	
 	public void handleOnline(MessageType inputServerMessageType, String[] inputNewMessage) {
+		System.out.println("Handle online");
 		// check the type
 		switch (inputServerMessageType) {
 			case X_NONE:
@@ -91,15 +93,15 @@ public class SocketHandlerThread extends Thread {
 	@Override
 	public void run() {
 		String[] newMessage;
-		System.out.println("Started the socket handler");
 		while (crs.isRunning()) {
+			System.out.println("Handling" + isLobby);
 			if (crs.isNewMsgQueued()) {
 				try {
 					serverMessageType = crs.getQueuedMsgType();
 					System.out.println(serverMessageType.toString());
 					newMessage = crs.getQueuedMsgArray();
 					System.out.println(Utils.join(newMessage));
-					if (!state) {
+					if (isLobby) {
 						handleLobby(serverMessageType, newMessage);
 					} else {
 						handleOnline(serverMessageType, newMessage);
