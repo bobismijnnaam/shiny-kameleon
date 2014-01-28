@@ -20,12 +20,20 @@ public class ServerPlayer {
 	private String publickey;
 	private PlayerAuthState authState;
 	
+	private boolean defaultSupport;
+	private boolean chatSupport;
+	private boolean lobbySupport;
+	
 	private ServerRolitSocket srs;
 	private PKISocket ps;
 	
 	public ServerPlayer(Socket inputSocket) {
 		srs = new ServerRolitSocket(inputSocket);
 		authState = PlayerAuthState.Unathenticated;
+		
+		defaultSupport = false;
+		chatSupport = false;
+		lobbySupport = false;
 	}
 	
 	public void start() {
@@ -50,7 +58,8 @@ public class ServerPlayer {
 		authState = authState.next();	
 		ps = new PKISocket(name);
 		ps.start();
-		System.out.println("Started PKI public key getter");
+		
+		net().askVSIGN(textToSign);
 	}
 	
 	public void setAuthKeyReceived(String inputSignature) {
@@ -67,6 +76,23 @@ public class ServerPlayer {
 				authState = PlayerAuthState.Unathenticated;
 			}
 		}
+	}
+	
+	public void setClientType(String flags) {
+		if (flags.contains("C")) {
+			chatSupport = true;
+		}
+		if (flags.contains("L")) {
+			lobbySupport = true;
+		}
+	}
+	
+	public boolean isChatSupported() {
+		return chatSupport;
+	}
+	
+	public boolean isLobbySupported() {
+		return lobbySupport;
 	}
 	
 	public String getName() {

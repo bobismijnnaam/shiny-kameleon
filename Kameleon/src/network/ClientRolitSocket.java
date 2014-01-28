@@ -1,6 +1,7 @@
 package network;
 
 import java.io.IOException;
+import java.net.Authenticator.RequestorType;
 import java.util.Arrays;
 
 import utility.Utils;
@@ -36,28 +37,33 @@ public class ClientRolitSocket extends RolitSocket {
 	
 	// Doesn't need a tellLeave() method, since the RolitSocket class does this automatically
 	
-	public void askLOGIN(String username) throws IOException {
+	public void askLOGIN(String username) {
 		sendMsg("LOGIN " + username);
 	}
 	
-	public void tellVSIGN(String plain, String key) throws IOException {
+	public void tellVSIGN(String plain, String key) {
 		String signature = PKISocket.signMessage(plain, key);
 		sendMsg("VSIGN " + signature);
 	}
 	
-	public void askSTATE() throws IOException {
+	public void askSTATE() {
 		sendMsg("STATE");
 	}
 	
-	public void askNGAME(NGAMEFlags flag) throws IOException {
+	public void askNGAME(NGAMEFlags flag) {
 		sendMsg("NGAME " + flag.toString());
 	}
 	
-	public void askNGAME(String player) throws IOException {
+	/**
+	 * 
+	 * @param player
+	 * @deprecated Use {@link ClientRolitSocket#askINVIT(String...)} instead.
+	 */
+	public void askNGAME(String player) {
 		sendMsg("NGAME C " + player);
 	}
 	
-	public void tellGMOVE(int x, int y) throws IOException {
+	public void tellGMOVE(int x, int y) {
 		if (x < 0 || x > 7 || y < 0 || y > 7) {
 			throw new IllegalArgumentException("Illegal Argument Exception: "
 					+ "x & y must both be between 0 and 7 inclusive");
@@ -66,31 +72,31 @@ public class ClientRolitSocket extends RolitSocket {
 		sendMsg("GMOVE " + Integer.toString(x) + " " + Integer.toString(y));
 	}
 	
-	public void askBOARD() throws IOException {
+	public void askBOARD() {
 		sendMsg("BOARD");
 	}
 	
-	public void askGPLST() throws IOException {
+	public void askGPLST() {
 		sendMsg("GPLST");
 	}
 	
-	public void askSCORE(String playerName, int amount) throws IOException {
+	public void askSCORE(String playerName, int amount) {
 		sendMsg("SCORE PLAYER " + playerName + " " + Integer.toString(amount));
 	}
 	
-	public void askSCORE(int amount) throws IOException {
+	public void askSCORE(int amount) {
 		sendMsg("SCORE HIGH " + Integer.toString(amount));
 	}
 	
-	public void askSCORE(int amount, ScoreTime time) throws IOException {
+	public void askSCORE(int amount, ScoreTime time) {
 		sendMsg("SCORE TIME " + Integer.toString(amount) + " " + time.toString());
 	}
 	
-	public void askPLIST() throws IOException {
+	public void askPLIST() {
 		sendMsg("PLIST");
 	}
 	
-	public void askINVIT(String... players) throws IOException {
+	public void askINVIT(String... players) {
 		if (players.length == 0 || players.length > 3) {
 			throw new IllegalArgumentException("Illegal Argument Exception: "
 					+ "you must at least invite 1 and can invite up to 3 players "
@@ -100,15 +106,20 @@ public class ClientRolitSocket extends RolitSocket {
 		sendMsg("INVIT R " + Utils.join(Arrays.asList(players), " "));
 	}
 	
-	public void tellINVIT(INVITStatus status) throws IOException {
+	public void tellINVIT(INVITStatus status) {
+		if (status == INVITStatus.Failed) {
+			throw new IllegalArgumentException("Illegal argment exception: "
+					+ "you can't tell the server \"Failed\".");
+		}
+		
 		sendMsg("INVIT " + status.toString());
 	}
 	
-	public void tellCHATM(String msg) throws IOException {
+	public void tellCHATM(String msg) {
 		sendMsg("CHATM " + msg);
 	}
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		ClientRolitSocket crs = new ClientRolitSocket("localhost", Server.SERVER_PORT);
 		
 		System.out.println("Let's do this!");

@@ -1,217 +1,319 @@
 package network;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import utility.Utils;
 import network.RolitSocket.MessageType;
 import network.ServerPlayer.PlayerAuthState;
 
-public class Server extends Thread { // Extends JFrame?? Or do that seperately?
+// TODO: Make sure you can only login once, otherwise error!
+// TODO: Implement new PKISocket!
+public class Server extends Thread {
 	public static final int SERVER_PORT = 8494;
-	
+
 	private List<ServerPlayer> frontline;
-	private List<ServerPlayer> nonlobby;
-//	private List<ServerPlayer> lobby;
-//	private List<Invite> invites;
-//	private List<ServerGame> games;
-	
+	private List<ServerPlayer> lobby;
+	// private List<Invite> invites;
+	// private List<ServerGame> games;
+
 	private boolean running;
+
+	ServerBouncer sb; // Incoming connections handler
 
 	public Server() {
 		// Let's do this!
 		frontline = new ArrayList<ServerPlayer>();
-		nonlobby = new ArrayList<ServerPlayer>();
-		
+		lobby = new ArrayList<ServerPlayer>();
+
 		running = false;
 	}
-	
+
 	private void out(String msg) {
 		System.out.println(msg);
 	}
-	
-	private void clientConnected() {
-		out("A client connected!");
+
+	private void serverSays(String msg) {
+		out("[Server] " + msg);
+	}
+
+	private void playerSays(ServerPlayer player, String msg) {
+		out("[" + player.getName() + "] " + msg);
+	}
+
+	private void handleNewConnections() {
+		while (sb.isNewConnection()) {
+			// Extract the socket and create a new serverplayer
+			ServerPlayer newPlayer = new ServerPlayer(sb.getNewConnection());
+			newPlayer.net().start();
+			frontline.add(newPlayer);
+			// Log the connect
+			serverSays("A new client connected");
+		}
+	}
+
+	private void garbageCollectPlayer(List<ServerPlayer> l, ServerPlayer p) {
+		if (p.net().isCloseCalled()) {
+			l.remove(p);
+		}
 	}
 	
-	public void run() {
-		System.out.println("HONEYBADGER ACTIVATED!");
-		out("HONEYBADGER ACTIVATED!");
+	private void broadcastPlayerJoin(ServerPlayer player) {
+		for (ServerPlayer lobbyist : lobby) {
+			if (player != lobbyist) {
+				lobbyist.net().tellLJOIN(player.getName());
+			}
+		}
+	}
+
+	private void handleFrontline(ServerPlayer p) {
+		// Only do stuff when socket is running!
+		// Otherwise stream errors and shit
+		if (!p.net().isRunning()) {
+			return;
+		}
+
+		// Check for incoming messages
+		while (p.net().isNewMsgQueued()) {
+			MessageType msgType = p.net().getQueuedMsgType();
+			String[] msg = p.net().getQueuedMsgArray();
+			switch (msgType) {
+				case AC_LOGIN:
+					if (p.getAuthState() == PlayerAuthState.Unathenticated) {
+						String username = msg[0];
+						String authKey = PKISocket.getRandomString(50);
+						p.setAuthKeySent(username, authKey);
+
+						serverSays("Player " + username
+								+ " wants to shake hands. "
+								+ "Extended hand to " + username);
+					} else {
+						p.net().tellERROR(
+								RolitSocket.Error.UnexpectedOperationException,
+								"L2AUTH 1");
+					}
+
+					break;
+				case AC_VSIGN:
+					if (p.getAuthState() == PlayerAuthState.KeySent) {
+						p.setAuthKeyReceived(msg[0]);
+
+						serverSays(p.getName()
+								+ " returned the handshake. Grading handshake...");
+					} else {
+						p.net().tellERROR(
+								RolitSocket.Error.UnexpectedOperationException,
+								"L2AUTH 2");
+					}
+					break;
+				case AC_HELLO:
+					if (p.getAuthState() == PlayerAuthState.Authenticated) {
+						p.setClientType(msg[0]);
+						frontline.remove(p);
+						lobby.add(p);
+						broadcastPlayerJoin(p);
+						serverSays("Player " + p.getName()
+								+ " entered the lobby");
+					} else {
+						p.net().tellERROR(
+								RolitSocket.Error.UnexpectedOperationException,
+								"L2AUTH 2");
+					}
+					break;
+				case AL_LEAVE:
+					serverSays("Player " + p.getName()
+							+ " has disconnected before completing handshake");
+					p.net().close();
+					break;
+				default:
+					p.net().tellERROR(
+							RolitSocket.Error.UnexpectedOperationException, 
+									p.net().getQueuedMsgType().toString()
+									+ " (Either we implemented shit wrong or"
+									+ "you just went full retard.\n\n"
+									+ "\nNever go full retard man.)");
+					p.net().getQueuedMsg();
+					break;
+			}
+		}
 		
-		ServerBouncer sb = new ServerBouncer(SERVER_PORT);
+		// Signature magic
+		if (p.getAuthState() == PlayerAuthState.SignatureAwaitsChecking) {
+			p.tryVerifySignature();
+			if (p.getAuthState() == PlayerAuthState.Authenticated) {
+				serverSays("Pretty good handshake, " + p.getName() + "! 8/10");
+				p.net().tellHELLO();
+			} else if (p.getAuthState() == PlayerAuthState.Unathenticated) {
+				serverSays("Shitty handshake, " + p.getName() + ". 1/10");
+				p.net().tellERROR(RolitSocket.Error.LogInFailedException,
+						"Wrong username/password #bitch cheater!");
+				p.net().close();
+			}
+		}
+
+		garbageCollectPlayer(frontline, p);
+	}
+
+	private void handleLobby(ServerPlayer p) {
+		if (!p.net().isRunning()) {
+			return;
+		}
+
+		while (p.net().isNewMsgQueued()) {
+			MessageType msgType = p.net().getQueuedMsgType();
+			String[] msg = p.net().getQueuedMsgArray();
+			switch (msgType) {
+				case AL_CHATM:
+					String chatmsg = Utils.join(msg);
+					playerSays(p, chatmsg);
+
+					for (ServerPlayer otherP : lobby) {
+						if (otherP != p) {
+							otherP.net().tellCHATM(p.getName(), chatmsg);
+						}
+					}
+
+					break;
+				case AL_LEAVE:
+					serverSays(p.getName() + " left");
+					p.net().close();
+					break;
+				case AL_STATE:
+					p.net().tellSTATE(PlayerState.LOBBY);
+					break;
+				case LO_NGAME: // TODO: Queues and shit
+					break;
+				case LO_PLIST:
+					ArrayList<String> playersAvailable = new ArrayList<String>();
+					for (ServerPlayer otherP : lobby) {
+						if (otherP != p) {
+							playersAvailable.add(otherP.getName());
+						}
+					}
+					p.net().tellPLIST(playersAvailable.toArray(new String[0]));
+					break;
+				case LO_INVIT:
+					break;
+				default:
+					break;
+			}
+		}
+
+		garbageCollectPlayer(lobby, p);
+	}
+
+	public void run() {
+		serverSays("HONEYBADGER ON DUTY!");
+
+		sb = new ServerBouncer(SERVER_PORT);
 		Thread sbThread = new Thread(sb);
 		sbThread.start();
-		
-		// Set server loop to GOGOGOGOGOGOGO 
+
+		// Set server loop to GOGOGOGOGOGOGO
 		running = true;
-		
+
+		// Server loop
 		while (running) {
 			// Check if there connected a client
 			// If so, add it to the frontlines! CHARGE
-			while (sb.isNewConnection()) {
-				// Extract the socket and create a new serverplayer
-				ServerPlayer newPlayer = new ServerPlayer(sb.getNewConnection());
-				newPlayer.net().start();
-				frontline.add(newPlayer);	
-				// Log the connect
-				clientConnected();
-			}
-			
+			handleNewConnections();
+
+			ServerPlayer p;
+
 			// Check front line for clients wanting to get in
 			for (int i = 0; i < frontline.size(); i++) {
 				// Transfer the reference
 				// Store it in a value for quick access
-				ServerPlayer p = frontline.get(i);
 
-				// Only do stuff when socket is running!
-				// Otherwise stream errors and shit				
-				if (p.net().isRunning()) {
-					try {
-					// Check for incoming messages
-						if (p.net().isNewMsgQueued()) {
-							System.out.println(" check");
-							switch (p.net().getQueuedMsgType()) {
-								case AC_LOGIN:
-									System.out.println("Someone trying to login");
-									if (p.getAuthState() == PlayerAuthState.Unathenticated) { 
-										String username = p.net().getQueuedMsg();
-										String authKey = PKISocket.getRandomString(50);
-										p.net().askVSIGN(authKey);
-										p.setAuthKeySent(username, authKey);
-									} else {
-										p.net().tellERROR(
-												RolitSocket.Error.UnexpectedOperationException,
-												"L2AUTH 1");
-									}
-									
-									break;
-								case AC_VSIGN:
-									if (p.getAuthState() == PlayerAuthState.KeySent) {
-										p.setAuthKeyReceived(p.net().getQueuedMsg());
-									} else {
-										p.net().tellERROR(
-												RolitSocket.Error.UnexpectedOperationException,
-												"L2AUTH 2");
-									}
-									break;
-								default:
-									
-									break;
-							}
-						}
-						
-						if (p.getAuthState() == PlayerAuthState.SignatureAwaitsChecking) {
-							p.tryVerifySignature();
-							if (p.getAuthState() == PlayerAuthState.Authenticated) {
-								System.out.println("Player " + p.getName() + " was authenticated!");
-							} else if (p.getAuthState() == PlayerAuthState.Unathenticated) {
-								System.out.println("Player " + p.getName()
-										+ " has not been verified!");
-								
-							}
-						}
-					} catch (IOException e) {
-						p.net().close();
-					}
-				}
-				
-				// TODO: Checking for what type of lobby client can handle
-				if (p.getAuthState() == PlayerAuthState.Authenticated) {
-					try {
-						p.net().tellHELLO();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					frontline.remove(i);
-					nonlobby.add(p);
-					out("Player entered the lobby!");
-				}
+				handleFrontline(frontline.get(i));
 			}
-			
+
+			for (int i = 0; i < lobby.size(); i++) {
+				handleLobby(lobby.get(i));
+			}
+
 			try {
-				Thread.sleep(100);
+				Thread.sleep(17);
 			} catch (InterruptedException e) {
 				System.out.println("Haha no way"); // ya way
 			}
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		Server serv = new Server();
 		serv.start();
-		
+
 		try {
 			serv.join();
 		} catch (InterruptedException e) {
 			System.out.println("Interruped Exception?");
 			return;
 		}
-		
+
 		System.out.println("-------- All done! --------");
-		System.out.println("-------- HoneyBadger HRTP Server wishes you a good day! --------");
+		System.out
+				.println("-------- HoneyBadger HRTP Server wishes you a good day! --------");
 	}
 }
 
-//RolitSocket server = new RolitSocket(SERVER_PORT);
-//RolitSocket client = new RolitSocket("localhost", SERVER_PORT);
+// RolitSocket server = new RolitSocket(SERVER_PORT);
+// RolitSocket client = new RolitSocket("localhost", SERVER_PORT);
 //
-//server.start();
-//client.start();
+// server.start();
+// client.start();
 //
-//System.out.println("Initialized variables. Waiting for them to connect...");
+// System.out.println("Initialized variables. Waiting for them to connect...");
 //
-//while (!server.isRunning() || !client.isRunning()) {
-//	// Let the thread sleep so the other processes can get some cpu time
-//	try {
-//		Thread.sleep(100);
-//	} catch (InterruptedException e) {
-//		// TODO Auto-generated catch block
-//		e.printStackTrace();
-//	}
-//}
+// while (!server.isRunning() || !client.isRunning()) {
+// // Let the thread sleep so the other processes can get some cpu time
+// try {
+// Thread.sleep(100);
+// } catch (InterruptedException e) {
+// // TODO Auto-generated catch block
+// e.printStackTrace();
+// }
+// }
 //
-//System.out.println("They seem to both have connected and started properly!");
+// System.out.println("They seem to both have connected and started properly!");
 //
-//server.askPROTO();
+// server.askPROTO();
 //
-//while (server.getQueuedMsgType() != RolitSocket.MessageType.FB_PROTO) {
-//	try {
-//		Thread.sleep(100);
-//	} catch (InterruptedException e) {
-//		// TODO Auto-generated catch block
-//		e.printStackTrace();
-//	}
-//}
+// while (server.getQueuedMsgType() != RolitSocket.MessageType.FB_PROTO) {
+// try {
+// Thread.sleep(100);
+// } catch (InterruptedException e) {
+// // TODO Auto-generated catch block
+// e.printStackTrace();
+// }
+// }
 //
-//System.out.println("A message seems to have arrived!");
+// System.out.println("A message seems to have arrived!");
 //
-//System.out.println("Message: \"" + server.getQueuedMsg() + "\"");
+// System.out.println("Message: \"" + server.getQueuedMsg() + "\"");
 //
-//System.out.println("\n");
+// System.out.println("\n");
 //
-//System.out.print("Closing client, server. ");
-//client.close();
+// System.out.print("Closing client, server. ");
+// client.close();
 //
-//try {
-//	Thread.sleep(200);
-//} catch (InterruptedException e) {
-//	// TODO Auto-generated catch block
-//	e.printStackTrace();
-//}
+// try {
+// Thread.sleep(200);
+// } catch (InterruptedException e) {
+// // TODO Auto-generated catch block
+// e.printStackTrace();
+// }
 //
-//server.close();
+// server.close();
 //
-//try {
-//	client.join();
-//	server.join();
-//} catch (InterruptedException e) {
-//	// TODO Auto-generated catch block
-//	e.printStackTrace();
-//}
+// try {
+// client.join();
+// server.join();
+// } catch (InterruptedException e) {
+// // TODO Auto-generated catch block
+// e.printStackTrace();
+// }
 //
-//System.out.println("Server still alive: " + server.isAlive());
-//System.out.println("Client still alive: " + client.isAlive());
-//System.out.println("Profit?");
+// System.out.println("Server still alive: " + server.isAlive());
+// System.out.println("Client still alive: " + client.isAlive());
+// System.out.println("Profit?");

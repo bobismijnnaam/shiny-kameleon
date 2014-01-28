@@ -70,14 +70,9 @@ public class Lobby extends JPanel implements ActionListener {
 				System.out.println("fok joe");
 			}
 		}
-		
+	
 		System.out.println("Asking for login...");
-		try {
-			crs.askLOGIN(settings[0]);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		crs.askLOGIN(settings[0]);
 		
 		while (newMsgType != MessageType.AC_VSIGN) {
 			try {
@@ -91,12 +86,7 @@ public class Lobby extends JPanel implements ActionListener {
 		System.out.println("Received string to sign!");
 		String toSign = crs.getQueuedMsg();
 
-		try {
-			crs.tellVSIGN(toSign, pki.getPrivateKey());
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		crs.tellVSIGN(toSign, pki.getPrivateKey());
 		
 		System.out.println(toSign);
 		
@@ -187,13 +177,8 @@ public class Lobby extends JPanel implements ActionListener {
 		JButton source = (JButton) e.getSource();
 		if (source.getName().equals("send")) {
 			System.out.println("Send the message");
-			try {
-				System.out.println(message.getText());
-				crs.tellCHATM(message.getText());
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			System.out.println(message.getText());
+			crs.tellCHATM(message.getText());
 		}
 	}
 	

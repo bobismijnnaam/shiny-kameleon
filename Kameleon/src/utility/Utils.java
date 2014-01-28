@@ -14,6 +14,14 @@ public class Utils {
 		return join(intList, delimiter);
 	}
 	
+	public static String join(String[] strings) {
+		return join(strings, " ");
+	}
+	
+	public static String join(String[] strings, String delimiter) {
+		return join(Arrays.asList(strings), delimiter);
+	}
+	
 	public static <T> String join(List<T> list, String delimiter) {
 		StringBuilder sb = new StringBuilder(list.size());
 		

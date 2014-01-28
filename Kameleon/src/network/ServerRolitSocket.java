@@ -114,7 +114,7 @@ public class ServerRolitSocket extends RolitSocket {
 		sendMsg("CHATM " + player + " " + msg);
 	}
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		
 		// TODO: Make it function like it used to (just need to do something with
 		// ServerSocket up here

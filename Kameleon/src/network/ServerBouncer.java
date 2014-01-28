@@ -22,8 +22,6 @@ public class ServerBouncer implements Runnable {
 					+ Integer.toString(Server.SERVER_PORT));
 		}
 		
-		System.out.println("Bouncing Badger on duty!");
-		
 		running = true;
 		Socket tSock;
 		socks = new LinkedList<Socket>();
