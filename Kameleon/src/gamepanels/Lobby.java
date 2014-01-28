@@ -23,6 +23,7 @@ import network.ClientRolitSocket;
 import network.PKISocket;
 import network.Server;
 import network.RolitSocket.MessageType;
+import network.SocketHandlerThread;
 
 public class Lobby extends JPanel implements ActionListener {
 	
@@ -46,7 +47,7 @@ public class Lobby extends JPanel implements ActionListener {
 		try {
 			authenticate();
 			init();
-			SocketHandlerThread socketHandler = new SocketHandlerThread(crs);
+			SocketHandlerThread socketHandler = new SocketHandlerThread(crs, game, this);
 			socketHandler.start();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -209,70 +210,6 @@ public class Lobby extends JPanel implements ActionListener {
 			System.out.println("Requesting 4 players");
 			crs.askNGAME(ClientRolitSocket.NGAMEFlags.FourPlayerGame);
 		}
-	}
-	
-	public class SocketHandlerThread extends Thread {
-		private ClientRolitSocket crs;
-		private MessageType serverMessageType;
-		
-		public SocketHandlerThread(ClientRolitSocket inputCrs) {
-			crs = inputCrs;
-		}
-		
-		@Override
-		public void run() {
-			String[] newMessage;
-			System.out.println("Started the socket handler");
-			while (crs.isRunning()) {
-				if (crs.isNewMsgQueued()) {
-					try {
-						//System.out.println("Socket is still running");
-						serverMessageType = crs.getQueuedMsgType();
-						System.out.println(serverMessageType.toString());
-						newMessage = crs.getQueuedMsgArray();
-						System.out.println(Utils.join(newMessage));
-						// check the type
-						switch (serverMessageType) {
-							case X_NONE:
-								//System.out.println("No action");
-								break;
-							/*case AL_CHATM:
-								String chatMessage;
-								System.out.println("Received chatmessage");
-								String[] realMessage = new String[newMessage.length - 1];
-								System.arraycopy(newMessage, 1, realMessage, 0, 
-											newMessage.length - 1);
-								chatMessage = Utils.join(realMessage);
-								addChatMessage(newMessage[0], chatMessage);
-								break;*/
-							case LO_INVIT:
-								System.out.println("Request for starting game");
-								System.out.println("Display accept or deny window");
-								break;
-							case AL_CHATM:
-								System.out.println("WOOOW EEN SPEL GAAT STARTEN!, wat spannend!");
-								String[] players = new String[4];
-								for (int m = 0; m < newMessage.length; m++) {
-									players[0] = "NETWERK";
-								}
-								try {
-									game.setNextState(game.STATE_ONLINE, players);
-								} catch (IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								break;
-							default:
-								break;
-						}
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		}	
 	}
 	
 }

@@ -20,7 +20,8 @@ public class Game extends JFrame {
 	private String[] settings;
 	private MainMenu mainMenu;
 	private Lobby lobby;
-	private MainGamePanel view;
+	private MainGamePanel offlineView;
+	private MainGamePanel onlineView;
 	private int lastState = 0;
 
 	/**
@@ -42,9 +43,12 @@ public class Game extends JFrame {
 	public void setNextState(int nextState, String[] inputSettings) throws IOException {
 		switch (nextState) {
 			case STATE_MAIN:
-				if (lastState == STATE_OFFLINE || lastState == STATE_ONLINE) {
+				if (lastState == STATE_OFFLINE) {
 					System.out.println("state was offline");
-					remove(view.getRootPane());
+					remove(offlineView.getRootPane());
+				} else if (lastState == STATE_ONLINE) {
+					remove(onlineView.getRootPane());
+					System.out.println("state was online");
 				}
 				mainMenu = new MainMenu(this);
 				add(mainMenu);
@@ -64,13 +68,13 @@ public class Game extends JFrame {
 					System.out.println(settings[x]);
 				}
 				System.out.println("Have drawn the new gamePanel");
-				view = new MainGamePanel(settings, this);
+				offlineView = new MainGamePanel(settings, this);
 				System.out.println("Initilized the board");
-				add(view.getRootPane());
+				add(offlineView.getRootPane());
 				setSize(812, 590);
-				view.setStartPosition();
-				view.addListeners();
-				view.setPlayerTurn();
+				offlineView.setStartPosition();
+				offlineView.addListeners();
+				offlineView.setPlayerTurn();
 				break;
 			case STATE_LOBBY:
 				settings = inputSettings;
@@ -90,14 +94,14 @@ public class Game extends JFrame {
 				setSize(0, 0);
 				System.out.println("online game is ready");
 				System.out.println("Have drawn the new gamePanel");
-				view = new MainGamePanel(settings, this);
+				onlineView = new MainGamePanel(settings, this);
 				System.out.println("Initilized the board");
-				add(view.getRootPane());
+				add(onlineView.getRootPane());
 				setSize(812, 590);
-				view.setStartPosition();
-				view.addListeners();
-				view.setPlayerTurn();
-				setSize(812, 590);
+				onlineView.setStartPosition();
+				onlineView.addListeners();
+				onlineView.setPlayerTurn();
+				lastState = STATE_ONLINE;
 				break;
 
 		}
