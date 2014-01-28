@@ -14,6 +14,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
 import players.NaiveAI;
+import players.NetworkPlayer;
 import players.Player;
 import players.Player.Colour;
 import utility.BackgroundPanel;
@@ -91,16 +92,23 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 		maxPlayer = 0;
 		for (int i = 0; i < 4; i++) {
 			System.out.println("Settings is:" + settings[i] + "|");
-			if (settings[i].equals("human")) {
-				players[i] = new Player(currentColor, "Human");
-				System.out.println("Set a human player");
-				currentColor = currentColor.getNext();
-				maxPlayer++;
-			}  else if (settings[i].equals("easy")) {
-				players[i] = new NaiveAI(currentColor);
-				System.out.println("Set a easy computer");
-				currentColor = currentColor.getNext();
-				maxPlayer++;
+			if (settings[i] != null) {
+				if (settings[i].equals("human")) {
+					players[i] = new Player(currentColor, "Human");
+					System.out.println("Set a human player");
+					currentColor = currentColor.getNext();
+					maxPlayer++;
+				}  else if (settings[i].equals("easy")) {
+					players[i] = new NaiveAI(currentColor);
+					System.out.println("Set a easy computer");
+					currentColor = currentColor.getNext();
+					maxPlayer++;
+				} else if (settings[i].equals("network")) {
+					players[i] = new NetworkPlayer(currentColor, "network", false);
+					currentColor = currentColor.getNext();
+					System.out.println("Set a network player");
+					maxPlayer++;
+				}
 			}
 		}
 		

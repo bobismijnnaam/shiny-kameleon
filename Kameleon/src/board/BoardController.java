@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import javax.swing.JButton;
 
 import players.AI;
+import players.NetworkPlayer;
 import players.Player;
 import utility.BackgroundPanel;
 import utility.Move;
@@ -66,7 +67,11 @@ public class BoardController implements ActionListener {
 			fieldButtons[position.x][position.y].doClick();
 			System.out.println("PUSS THAT BUTTON!!!");*/
 		} else {
-			enableButtons(currentPlayer);
+			if (player instanceof NetworkPlayer) {
+				System.out.println("HOly sjit it's a network player!");
+			} else {
+				enableButtons(currentPlayer);
+			}
 		}
 	}
 	
