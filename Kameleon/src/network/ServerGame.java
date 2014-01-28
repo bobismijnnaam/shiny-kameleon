@@ -81,6 +81,14 @@ public class ServerGame extends Thread{
 		}
 	}
 	
+	public void distributeGameEnd() {
+		for (int i = 0; i < players.length; i++) {
+			if (players[i] != null) {
+				players[i].net().tellSTATE(PlayerState.STOPPED);
+			}
+		}
+	}
+	
 	public void nextTurn() {
 		turn = (turn + 1) % players.length;
 		if (players[turn] == null) { // Skips players which have leaved
@@ -104,7 +112,13 @@ public class ServerGame extends Thread{
 							// Move is allowed! Let's move on
 							board.applyMove(move);
 							distributeMove(i, move);
-							nextTurn();
+							
+							if (board.hasWinner()) {
+								distributeGameEnd();
+								running = false;
+							} else {
+								nextTurn();
+							}
 						} else {
 							// Move is not allowed! Send error
 							p.net().tellERROR(RolitSocket.Error.InvalidLocationException,
@@ -118,8 +132,11 @@ public class ServerGame extends Thread{
 					}
 					break;
 				case AL_LEAVE:
-					
+					p.net().close();
+					players[i] = null;
 				default:
+					p.net().tellERROR(RolitSocket.Error.UnexpectedOperationException,
+							msgType.toString());
 					break;
 			}
 		}
