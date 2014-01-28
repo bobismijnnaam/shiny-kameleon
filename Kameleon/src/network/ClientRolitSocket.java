@@ -1,7 +1,5 @@
 package network;
 
-import java.io.IOException;
-import java.net.Authenticator.RequestorType;
 import java.util.Arrays;
 
 import utility.Utils;

@@ -10,7 +10,7 @@ public class PerfectClient {
 	public static void main(String[] args) throws IOException {
 		String id = PKISocket.getRandomString(5);
 		
-		PKISocket pki = new PKISocket("player_test1", "test1");
+		PKISocket pki = new PKISocket("test1", "test1");
 		pki.start();
 		
 		while (!pki.isPrivateKeyReady()) {
@@ -32,7 +32,7 @@ public class PerfectClient {
 			}
 		}
 
-		crs.askLOGIN("player_test1");
+		crs.askLOGIN("test1");
 		System.out.println("Asking for login...");
 		
 		while (crs.getQueuedMsgType() != MessageType.AC_VSIGN) {
@@ -45,7 +45,8 @@ public class PerfectClient {
 		
 		System.out.println("Received string to sign!");
 		String toSign = crs.getQueuedMsg();
-		
+		System.out.println("[PKI] String to sign: " + toSign);
+		System.out.println("[PKI] Private key: " + pki.getPrivateKey());
 		crs.tellVSIGN(toSign, pki.getPrivateKey());
 		
 		System.out.println("Sent signed string");

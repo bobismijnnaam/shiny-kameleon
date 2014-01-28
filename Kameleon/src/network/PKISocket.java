@@ -180,9 +180,8 @@ public class PKISocket extends Thread {
 		if (leftovers == null && pubkeys == null) {
 			throw new NullPointerException("YOU ARE TRYING TO GET PKI IN THE WRONG MODE");
 		}
-		System.out.println("tetstststst");
+		
 		pantryLock.lock();
-		System.out.println("testttt");
 		leftovers.add(requestedUser);
 		pantryLock.unlock();
 	}
@@ -201,6 +200,7 @@ public class PKISocket extends Thread {
 		Socket sock;
 		
 		System.out.println("[PKI] Opening socket...");
+//		System.out.println("[PKI] (This is for private key)");
 		
 		try {
 			sock = new Socket(PKI_SERVER_ADDR, PKI_SERVER_PORT);
