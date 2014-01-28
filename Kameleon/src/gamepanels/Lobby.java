@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -15,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
+import utility.Utils;
 import net.miginfocom.swing.MigLayout;
 import network.ClientRolitSocket;
 import network.PKISocket;
@@ -107,6 +109,10 @@ public class Lobby extends JPanel implements ActionListener {
 		
 		System.out.println("Received Hello!");
 		String hello = crs.getQueuedMsg();
+		
+		// say hello back to server
+		crs.tellHELLO();
+		
 		hello = hello.trim();
 		System.out.println(hello);
 		if (hello.equals("D")) {
@@ -118,6 +124,8 @@ public class Lobby extends JPanel implements ActionListener {
 			drawChat();
 			addChatMessage("Bob", "Kom rolit spelen dan");
 			addChatMessage("Florian", "nee fuck you");
+		} else if (hello.equals("CL")) {
+			drawChat();
 		}
 	}
 	
@@ -176,9 +184,9 @@ public class Lobby extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		JButton source = (JButton) e.getSource();
 		if (source.getName().equals("send")) {
-			System.out.println("Send the message");
 			System.out.println(message.getText());
 			crs.tellCHATM(message.getText());
+			System.out.println("Send the message");
 		}
 	}
 	
@@ -192,33 +200,42 @@ public class Lobby extends JPanel implements ActionListener {
 		
 		@Override
 		public void run() {
+			String[] newMessage;
 			System.out.println("Started the socket handler");
 			while (crs.isRunning()) {
-				try {
-					//System.out.println("Socket is still running");
-					serverMessageType = crs.getQueuedMsgType();
-					//System.out.println(serverMessageType.toString());
-					
-					// check the type
-					switch (serverMessageType) {
-						case X_NONE:
-							//System.out.println("No action");
-							break;
-						case AL_CHATM:
-							System.out.println("Received chatmessage");
-							break;
-						case LO_INVIT:
-							System.out.println("Request for starting game");
-							System.out.println("Display accept or deny window");
-							break;
-						default:
-							break;
+				if (crs.isNewMsgQueued()) {
+					try {
+						//System.out.println("Socket is still running");
+						serverMessageType = crs.getQueuedMsgType();
+						System.out.println(serverMessageType.toString());
+						newMessage = crs.getQueuedMsgArray();
+						System.out.println(newMessage);
+						// check the type
+						switch (serverMessageType) {
+							case X_NONE:
+								//System.out.println("No action");
+								break;
+							case AL_CHATM:
+								String chatMessage;
+								System.out.println("Received chatmessage");
+								String[] realMessage = new String[newMessage.length - 1];
+								System.arraycopy(newMessage, 1, realMessage, 0, 
+											newMessage.length - 1);
+								chatMessage = Utils.join(realMessage);
+								addChatMessage(newMessage[0], chatMessage);
+								break;
+							case LO_INVIT:
+								System.out.println("Request for starting game");
+								System.out.println("Display accept or deny window");
+								break;
+							default:
+								break;
+						}
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-					
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
 			}
 		}	

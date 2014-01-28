@@ -184,9 +184,7 @@ public class Server extends Thread {
 					playerSays(p, chatmsg);
 
 					for (ServerPlayer otherP : lobby) {
-						if (otherP != p) {
-							otherP.net().tellCHATM(p.getName(), chatmsg);
-						}
+						otherP.net().tellCHATM(p.getName(), chatmsg);
 					}
 
 					break;
