@@ -139,7 +139,6 @@ public class BoardController implements ActionListener {
 		public void run() {
 			enableButtons(currentPlayer);
 			Vector2i position = ((AI) player).getMove(board);
-			System.out.println(position == null);
 			fieldButtons[position.x][position.y].doClick();
 		}
 	}
