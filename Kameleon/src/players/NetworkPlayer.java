@@ -1,7 +1,5 @@
 package players;
 
-import players.Player.Colour;
-
 public class NetworkPlayer extends Player {
 
 	private boolean checkYou = false;

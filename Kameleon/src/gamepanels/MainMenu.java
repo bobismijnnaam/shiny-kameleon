@@ -185,7 +185,6 @@ public class MainMenu extends JPanel {
 				}
 			} else {
 				id = check.getName();
-				System.out.println(id);
 				if (id.equals("disable-2")) {
 					if (!buttons[3].isEnabled()) {
 						String[] parts = id.split("-");
@@ -195,9 +194,7 @@ public class MainMenu extends JPanel {
 						enableRow(i);
 						check.setEnabled(false);
 					}
-				} else if (id.equals("disable-1") || id.equals("disable-0")) { 
-					// nothing 
-				} else {
+				} else if (!id.equals("disable-1") && !id.equals("disable-0")) { 
 					String[] parts = id.split("-");
 					i = Integer.parseInt(parts[1]);
 					
@@ -211,8 +208,8 @@ public class MainMenu extends JPanel {
 					settings[i] = parts[0];
 					
 					enableRow(i);
-					check.setEnabled(false);
-				}
+					check.setEnabled(false); 
+				} 
 			}
 		}
 

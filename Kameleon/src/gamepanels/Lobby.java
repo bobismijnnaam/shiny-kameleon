@@ -5,23 +5,15 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.Arrays;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.border.Border;
 
-import players.Player;
-import utility.Utils;
-import net.miginfocom.swing.MigLayout;
 import network.ClientRolitSocket;
 import network.PKISocket;
-import network.Server;
 import network.RolitSocket.MessageType;
 import network.SocketHandlerThread;
 
@@ -34,8 +26,7 @@ public class Lobby extends JPanel implements ActionListener {
 	private ClientRolitSocket crs;
 	private MessageType newMsgType = MessageType.X_NONE;
 	private JTextArea chat, playerModus;
-	private JTextArea playerName;
-	private JButton c, d, h, i, j, send, human, easy, medium, hard;
+	private JButton d, h, i, j, send, human, easy, medium, hard;
 	private Game game;
 	
 	/**
@@ -114,7 +105,6 @@ public class Lobby extends JPanel implements ActionListener {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -128,14 +118,10 @@ public class Lobby extends JPanel implements ActionListener {
 		hello = hello.trim();
 		System.out.println(hello);
 		if (hello.equals("D")) {
-			System.out.println("Default");
 			drawDefault();
 		} else if (hello.equals("DC")) {
-			System.out.println("Default + chat");
 			drawDefault();
 			drawChat();
-			addChatMessage("Bob", "Kom rolit spelen dan");
-			addChatMessage("Florian", "nee fuck you");
 		} else if (hello.equals("CL")) {
 			drawDefault();
 			drawChat();
@@ -148,6 +134,7 @@ public class Lobby extends JPanel implements ActionListener {
 	public void drawDefault() {
 		JLabel title = new JLabel("Welcome to the default online game " + settings[0]);
 		add(title);
+		// the buttons which can be used to ask NGAME
 		d = new JButton("Play 1 vs 1, default");
 		d.addActionListener(this);
 		d.setName("NGAMED");
@@ -160,6 +147,7 @@ public class Lobby extends JPanel implements ActionListener {
 		j = new JButton("Play against 3 players");
 		j.addActionListener(this);
 		j.setName("NGAMEJ");
+		// player modus buttons
 		playerModus = new JTextArea("human");
 		human = new JButton("Play online as a human player");
 		human.setName("human");

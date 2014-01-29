@@ -238,7 +238,7 @@ public class BoardModel extends Observable {
 	}
 	
 	/**
-	 * Gets the player occupying the neighbouring field in direction dir
+	 * Gets the player occupying the neighbouring field in direction dir.
 	 * @param p - The position you want to analyze a neighbour of
 	 * @param dir - The direction you want to check
 	 * @return null if empty, or a pointer to the player occupying the neighbouring cell
@@ -270,7 +270,7 @@ public class BoardModel extends Observable {
 	 */
 	public boolean isNeighbourOfBall(Vector2i p) {
 		for (int i = Vector2i.Direction.MIN_INT; i <= Vector2i.Direction.MAX_INT; i++) {
-			if (containsPosition(p.getNeighbour(i)) && getNeighbour(p, i) != null) { // Has a guard for out of bounds protection
+			if (containsPosition(p.getNeighbour(i)) && getNeighbour(p, i) != null) { 
 				return true;
 			}
 		}
@@ -300,7 +300,7 @@ public class BoardModel extends Observable {
 	}
 	
 	/**
-	 * Gives all positions which capture fields and block players if that field
+	 * Gives all positions which capture fields and block players if that field.
 	 * would be occupied by said player 
 	 * @see BoardModel#filterBlockingMoves(LinkedList, Player)
 	 */
@@ -352,7 +352,7 @@ public class BoardModel extends Observable {
 	}
 	
 	/**
-	 * Returns whether a move captures and blocks other players
+	 * Returns whether a move captures and blocks other players.
 	 * @param move - The move you want to check
 	 * @return True if a move captures and blocks, otherwise false
 	 */
@@ -402,27 +402,27 @@ public class BoardModel extends Observable {
 	public Player[] getWinners() {
 		if (isGameOver()) {
 			// Gather players in the game
-			ArrayList<Player> players = new ArrayList<Player>(4);
+			ArrayList<Player> gPlayers = new ArrayList<Player>(4);
 			for (int y = 0; y < BOARD_H; y++) {
 				for (int x = 0; x < BOARD_W; x++) {
-					if (!players.contains(fields[x][y]) && fields[x][y] != null) {
-						players.add(fields[x][y]);
+					if (!gPlayers.contains(fields[x][y]) && fields[x][y] != null) {
+						gPlayers.add(fields[x][y]);
 					}
 					
-					if (players.size() == 4) {
+					if (gPlayers.size() == 4) {
 						break;
 					}
 				}
 				
-				if (players.size() == 4) {
+				if (gPlayers.size() == 4) {
 					break;
 				}
 			}
 			
 			// Gather score for each present player
-			int[] scores = new int[players.size()];
+			int[] scores = new int[gPlayers.size()];
 			for (int i = 0; i < scores.length; i++) {
-				scores[i] = getScore(players.get(i));
+				scores[i] = getScore(gPlayers.get(i));
 			}
 			
 			int highscore = 0;
@@ -430,7 +430,7 @@ public class BoardModel extends Observable {
 			for (int i = 0; i < scores.length; i++) {
 				if (scores[i] > highscore) {
 					highscore = scores[i];
-					highplayer = players.get(i);
+					highplayer = gPlayers.get(i);
 				}
 			}
 			
@@ -438,9 +438,9 @@ public class BoardModel extends Observable {
 			boolean sharedFirstPlace = false;
 			Player otherWinner = null;
 			for (int i = 0; i < scores.length; i++) {
-				if (scores[i] == highscore && players.get(i) != highplayer) {
+				if (scores[i] == highscore && gPlayers.get(i) != highplayer) {
 					sharedFirstPlace = true;
-					otherWinner = players.get(i);
+					otherWinner = gPlayers.get(i);
 				}
 			}
 			
@@ -558,18 +558,7 @@ public class BoardModel extends Observable {
 		return bm;
 	}
 	
-	public int getGrade(Player player) {
-//		int[][] lt = new int[][]{
-//			{7, 2, 5, 4, 4, 5, 2, 7},
-//			{2, 1, 3, 3, 3, 3, 1, 2},
-//			{5, 3, 6, 5, 5, 6, 3, 5},
-//			{4, 3, 5, 6, 6, 5, 3, 4},
-//			{4, 3, 5, 6, 6, 5, 3, 4},
-//			{5, 3, 6, 5, 5, 6, 3, 5},
-//			{2, 1, 3, 3, 3, 3, 1, 2},
-//			{7, 2, 5, 4, 4, 5, 2, 7},
-//		};
-		
+	public int getGrade(Player player) {		
 		int[][] lt = new int[][]{
 			{10000,	-3000, 1000, 800, 800, 1000, -3000, 10000},
 			{-3000, -5000, -450, -500, -500, -450, -5000, -3000},
@@ -613,24 +602,5 @@ public class BoardModel extends Observable {
 		}
 		
 		return copy;
-	}
-	
-	/**
-	 * Test main.
-	 * @param args - fok joe
-	 */
-	public static void main(String[] args) {
-		BoardModel board = new BoardModel();
-		Player plr = new Player(Player.Colour.Blue, "Ruben XII");
-		
-		Move m1 = new Move(new Vector2i(0, 0), plr);
-		Move m2 = new Move(new Vector2i(4, 0), plr);
-		Move m3 = new Move(new Vector2i(4, 4), plr);
-		
-		board.applyMove(m1);
-		board.applyMove(m2);
-		board.applyMove(m3);
-		
-		System.out.println(board.toString());
 	}
 }

@@ -1,7 +1,6 @@
 package board;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -31,10 +30,20 @@ public class BoardView extends JInternalFrame implements Observer {
 	// array is used to store the correct buttons
 	private int arrayX, arrayY;
 	
+	/**
+	 * Creates a new boardView.
+	 * @param inputBoard the Board.
+	 * @throws IOException
+	 */
 	public BoardView(BoardModel inputBoard) throws IOException {
 		makeGUI(inputBoard);
 	}
 	
+	/**
+	 * Makes the GUI and adds them to the internalFrame.
+	 * @param inputBoard The input Board.
+	 * @throws IOException
+	 */
 	public void makeGUI(BoardModel inputBoard) throws IOException {
 		BackgroundPanel bg = new BackgroundPanel("media/bg.png");
 		bg.setLayout(new BorderLayout());
@@ -210,31 +219,16 @@ public class BoardView extends JInternalFrame implements Observer {
 		}
 		
 		container.setPreferredSize(new Dimension(8000, 8000));
-		//setTitle("ROLLIT RUB");
-		
-		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		// Add Board controller
-		//BoardController controller = new BoardController(board, fieldButtons, fields);
-		
-		/*// set action listeners
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				fieldButtons[i][j].addActionListener(controller);
-			}
-		} */
 		// Add board observer
 		board.addObserver(this);
 		
 	}
-	private int integer(int i) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
-	
+	/**
+	 * Sets the startpositions in the View.
+	 */
 	public void setStartPosition() {
-// set the initial fields
+		// set the initial fields
 		fields[3][3].changeTexture("media/red.png");
 		fields[4][3].changeTexture("media/yellow.png");
 		fields[3][4].changeTexture("media/blue.png");
@@ -252,6 +246,10 @@ public class BoardView extends JInternalFrame implements Observer {
 		}
 	}
 	
+	/**
+	 * Adds listeners to the Controller.
+	 * @param inputController
+	 */
 	public void addListeners(BoardController inputController) {
 		// set action listeners
 		for (int i = 0; i < 8; i++) {
@@ -261,14 +259,25 @@ public class BoardView extends JInternalFrame implements Observer {
 		}
 	}
 	
+	/**
+	 * Gets all the texturepanels.
+	 * @return an array of backgroundPanels.
+	 */
 	public BackgroundPanel[][] getFields() {
 		return fields;
 	}
 	
+	/**
+	 * Gets all the field buttons 8 * 8.
+	 * @return an array of JButtons modeling the board.
+	 */
 	public JButton[][] getFieldButtons() {
 		return fieldButtons;
 	}
 
+	/**
+	 * Update gets called when notified by boardModel.
+	 */
 	@Override
 	public void update(Observable arg0, Object arg1) {
 		for (int x = 0; x < 8; x++) {

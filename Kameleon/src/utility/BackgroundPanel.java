@@ -6,8 +6,9 @@ import java.awt.Graphics;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
-public class BackgroundPanel extends JPanel{
+public class BackgroundPanel extends JPanel {
 	
+	private static final long serialVersionUID = -7682342939167890456L;
 	private ImageIcon texture; 
 	
 	/**
