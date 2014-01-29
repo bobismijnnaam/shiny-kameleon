@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 
 import network.ClientRolitSocket;
 import network.SocketHandlerThread;
+import players.AlphaAI;
 import players.NaiveAI;
 import players.NetworkPlayer;
 import players.Player;
@@ -155,7 +156,12 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 					currentColor = currentColor.getNext();
 					maxPlayer++;
 				} else if (settings[i].equals("medium")) {
-					players[i] = new SmartAI(currentColor); // NaiveAI
+					players[i] = new AlphaAI(currentColor, "alpha");  // AlphaAI
+					System.out.println("Set a medium computer");
+					currentColor = currentColor.getNext();
+					maxPlayer++;
+				} else if (settings[i].equals("hard")) {
+					players[i] = new SmartAI(currentColor); // SmartAI
 					System.out.println("Set a medium computer");
 					currentColor = currentColor.getNext();
 					maxPlayer++;
