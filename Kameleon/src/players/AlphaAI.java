@@ -49,18 +49,62 @@ public class AlphaAI extends Player implements AI {
 				} else if (i == new Vector2i(0, 2)) {
 					if (!type.equals("corner")) {
 						bestMove = i;
+						type = "close";
 					}
 				} else if (i == new Vector2i(0, 5)) {
 					if (!type.equals("corner")) {
 						bestMove = i;
+						type = "close";
 					}
 				} else if (i == new Vector2i(7, 2)) {
 					if (!type.equals("corner")) {
 						bestMove = i;
+						type = "close";
 					}
 				} else if (i == new Vector2i(7, 5)) {
 					if (!type.equals("corner")) {
 						bestMove = i;
+						type = "close";
+					}
+				} else if (i == new Vector2i(3, 7)) {
+					if (!type.equals("corner") && !type.equals("close")) {
+						bestMove = i;
+						type = "semiclose";
+					}
+				} else if (i == new Vector2i(4, 7)) {
+					if (!type.equals("corner") && !type.equals("close")) {
+						bestMove = i;
+						type = "semiclose";
+					}
+				} else if (i == new Vector2i(4, 0)) {
+					if (!type.equals("corner") && !type.equals("close")) {
+						bestMove = i;
+						type = "semiclose";
+					}
+				} else if (i == new Vector2i(3, 0)) {
+					if (!type.equals("corner") && !type.equals("close")) {
+						bestMove = i;
+						type = "semiclose";
+					}
+				} else if (i == new Vector2i(0, 3)) {
+					if (!type.equals("corner") && !type.equals("close")) {
+						bestMove = i;
+						type = "semiclose";
+					}
+				} else if (i == new Vector2i(0, 4)) {
+					if (!type.equals("corner") && !type.equals("close")) {
+						bestMove = i;
+						type = "semiclose";
+					}
+				} else if (i == new Vector2i(3, 7)) {
+					if (!type.equals("corner") && !type.equals("close")) {
+						bestMove = i;
+						type = "semiclose";
+					}
+				} else if (i == new Vector2i(4, 7)) {
+					if (!type.equals("corner") && !type.equals("close")) {
+						bestMove = i;
+						type = "semiclose";
 					}
 				}
 			}

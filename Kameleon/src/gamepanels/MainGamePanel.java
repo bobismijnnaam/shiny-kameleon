@@ -151,11 +151,16 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 					currentColor = currentColor.getNext();
 					maxPlayer++;
 				}  else if (settings[i].equals("easy")) {
-					players[i] = new AlphaAI(currentColor, "alpha"); // NaiveAI
+					players[i] = new NaiveAI(currentColor); // NaiveAI
 					System.out.println("Set a easy computer");
 					currentColor = currentColor.getNext();
 					maxPlayer++;
 				} else if (settings[i].equals("medium")) {
+					players[i] = new AlphaAI(currentColor, "alpha"); // NaiveAI
+					System.out.println("Set a medium computer");
+					currentColor = currentColor.getNext();
+					maxPlayer++;
+				} else if (settings[i].equals("hard")) {
 					players[i] = new SmartAI(currentColor); // NaiveAI
 					System.out.println("Set a medium computer");
 					currentColor = currentColor.getNext();

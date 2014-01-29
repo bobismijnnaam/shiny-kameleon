@@ -33,7 +33,7 @@ public class Lobby extends JPanel implements ActionListener {
 	MessageType newMsgType = MessageType.X_NONE;
 	private JTextArea chat, playerModus;
 	private JTextArea playerName;
-	private JButton c, d, h, i, j, send, human, easy, medium;
+	private JButton c, d, h, i, j, send, human, easy, medium, hard;
 	private Game game;
 	public Lobby(Game inputGame, String[] inputSettings) {
 		settings = inputSettings;
@@ -157,10 +157,14 @@ public class Lobby extends JPanel implements ActionListener {
 		medium = new JButton("Play online as a medium computer");
 		medium.setName("medium");
 		medium.addActionListener(this);
+		hard = new JButton("Play online as a hard computer");
+		hard.setName("hard");
+		hard.addActionListener(this);
 		add(playerModus);
 		add(human);
 		add(easy);
 		add(medium);
+		add(hard);
 		add(d);
 		add(h);
 		add(i);
