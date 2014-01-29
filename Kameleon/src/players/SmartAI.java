@@ -35,13 +35,13 @@ public class SmartAI extends Player implements AI {
 	public static Vector2i getMove(BoardModel board, Player player) {
 		LinkedList<Vector2i> suggestions = board.getMoveSuggestions(player);
 		Vector2i bestMove = new Vector2i(0, 0);
-		Vector2i bestGrade = new Vector2i(0, 0);
+		Vector2i bestGrade = new Vector2i(999, 999);
 		
 		for (Vector2i pos : suggestions) {
 			BoardModel nextBoard = board.deepCopy();
 			Player nextPlayer = board.getNextPlayer(player);
 			nextBoard.applyMove(new Move(pos, nextPlayer));
-			Vector2i grade = evalMove(board, nextPlayer);
+			Vector2i grade = evalMove(nextBoard, nextPlayer);
 			if (grade.x < bestGrade.x) {
 				bestGrade = grade;
 				bestMove = pos;
@@ -57,7 +57,7 @@ public class SmartAI extends Player implements AI {
 	}
 	
 	public static Vector2i evalMove(BoardModel board, Player player) {
-		Vector2i grading = new Vector2i(1, 1);
+		Vector2i grading = new Vector2i(0, 0);
 		LinkedList<Vector2i> suggestions = board.getMoveSuggestions(player);
 		for (Vector2i p : suggestions) {
 			int grade = lt[p.x][p.y];
