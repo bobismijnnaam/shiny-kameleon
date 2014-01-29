@@ -31,9 +31,9 @@ public class Lobby extends JPanel implements ActionListener {
 	private JTextArea message;
 	private ClientRolitSocket crs;
 	MessageType newMsgType = MessageType.X_NONE;
-	private JTextArea chat;
+	private JTextArea chat, playerModus;
 	private JTextArea playerName;
-	private JButton c, d, h, i, j, send;
+	private JButton c, d, h, i, j, send, human, easy;
 	private Game game;
 	public Lobby(Game inputGame, String[] inputSettings) {
 		settings = inputSettings;
@@ -147,6 +147,16 @@ public class Lobby extends JPanel implements ActionListener {
 		j = new JButton("Play against 3 players");
 		j.addActionListener(this);
 		j.setName("NGAMEJ");
+		playerModus = new JTextArea("human");
+		human = new JButton("Play online as a human player");
+		human.setName("human");
+		human.addActionListener(this);
+		easy = new JButton("Play online as a easy computer");
+		easy.setName("easy");
+		easy.addActionListener(this);
+		add(playerModus);
+		add(human);
+		add(easy);
 		add(d);
 		add(h);
 		add(i);
@@ -207,11 +217,20 @@ public class Lobby extends JPanel implements ActionListener {
 		} else if (e.getSource().equals(j)) {
 			System.out.println("Requesting 4 players");
 			crs.askNGAME(ClientRolitSocket.NGAMEFlags.FourPlayerGame);
+		} else if (e.getSource().equals(human)) {
+			playerModus.setText(human.getName());
+		} else if (e.getSource().equals(easy)) {
+			playerModus.setText(easy.getName());
 		}
 	}
 	
 	public String[] getSettings() {
 		return settings;
+	}
+	
+	public String getPlayerModus() {
+		System.out.println(playerModus.getText());
+		return playerModus.getText();
 	}
 	
 }

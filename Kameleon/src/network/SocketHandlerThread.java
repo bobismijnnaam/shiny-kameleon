@@ -59,9 +59,13 @@ public class SocketHandlerThread extends Thread {
 				System.out.println("WOOOW EEN SPEL GAAT STARTEN!, wat spannend!");
 				String[] players = new String[4];
 				String[] settings = lobby.getSettings();
+				String playerModus = lobby.getPlayerModus();
+				if (playerModus.equals("human")) {
+					playerModus = "networkyou";
+				}
 				for (int m = 0; m < inputNewMessage.length; m++) {
 					if (settings[0].equals(inputNewMessage[m])) {
-						players[m] = "networkyou";
+						players[m] = playerModus;
 					} else {
 						players[m] = "network";
 					}
