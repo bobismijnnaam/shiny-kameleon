@@ -40,7 +40,7 @@ public class SmartAI extends Player implements AI {
 			BoardModel nextBoard = board.deepCopy();
 			Move move = new Move(suggestions.get(i), player);
 			nextBoard.applyMove(move);
-			int grade = eval(nextBoard, board.getNextPlayer(player), 0);
+			int grade = eval(nextBoard, board.getNextPlayer(player), 1);
 			if (grade < bestGrade) {
 				bestGrade = grade;
 				bestMove = suggestions.get(i);
