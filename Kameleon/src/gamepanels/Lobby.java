@@ -212,4 +212,8 @@ public class Lobby extends JPanel implements ActionListener {
 		}
 	}
 	
+	public String[] getSettings() {
+		return settings;
+	}
+	
 }

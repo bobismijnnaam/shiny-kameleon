@@ -20,7 +20,9 @@ import players.NetworkPlayer;
 import players.Player;
 import players.Player.Colour;
 import utility.BackgroundPanel;
+import utility.Move;
 import utility.RatioPanel;
+import utility.Vector2i;
 import board.BoardController;
 import board.BoardModel;
 import board.BoardView;
@@ -36,7 +38,8 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 	private GridBagConstraints c;
 	private Game game;
 	private JLayeredPane layeredPane;
-	
+	private boolean boardReady = false;
+	private ClientRolitSocket crs = null;
 	int currentPlayer = -1;
 	int maxPlayer = 0;
 	
@@ -87,8 +90,6 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 	public MainGamePanel(String[] inputSettings, Game inputGame, 
 			ClientRolitSocket inputCrs) throws IOException {
 		System.out.println("CONSTRUCTING ONLINE GAME");
-		SocketHandlerThread onlineHandler = new SocketHandlerThread(inputCrs, game, this);
-		onlineHandler.start();
 		// attempt to put everything in a layered pane
 		layeredPane = new JLayeredPane();
 		layeredPane.setLayout(new GridBagLayout());
@@ -126,6 +127,9 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 		layeredPane.add(mainView.getRootPane(), c);
 		add(layeredPane, c);
 		setOpaque(false);
+		crs = inputCrs;
+		SocketHandlerThread onlineHandler = new SocketHandlerThread(inputCrs, game, this);
+		onlineHandler.start();
 	}
  
 	/**
@@ -154,6 +158,11 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 					currentColor = currentColor.getNext();
 					System.out.println("Set a network player");
 					maxPlayer++;
+				} else if (settings[i].equals("networkyou")) {
+					players[i] = new NetworkPlayer(currentColor, "network", true);
+					currentColor = currentColor.getNext();
+					System.out.println("Set a network player");
+					maxPlayer++;
 				}
 			}
 		}
@@ -165,15 +174,30 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 		} else if (maxPlayer == 4) {
 			board.setStartPosition(players[0], players[1], players[2], players[3]);
 		}
+		
+		System.out.println("Done setting players");
+		boardReady = true;
+		System.out.println("Board ready for first player turn");
+	
+	}
+	
+	public boolean getBoardReady() {
+		return boardReady;
 	}
 	
 	/**
 	 * Adds listeners to the board controller.
 	 */
 	public void addListeners() {
-		boardController = new BoardController(board, mainView.getFieldButtons(),
-				mainView.getFields(), players, this);
-		mainView.addListeners(boardController);
+		if (crs == null) {
+			boardController = new BoardController(board, mainView.getFieldButtons(),
+					mainView.getFields(), players, this);
+			mainView.addListeners(boardController);
+		} else {
+			boardController = new BoardController(board, mainView.getFieldButtons(),
+					mainView.getFields(), players, this, crs);
+			mainView.addListeners(boardController);
+		}
 	}
 	
 	/**
@@ -185,6 +209,13 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 			currentPlayer = 0;
 		}
 		boardController.startPlayerTurn(players[currentPlayer]);
+	}
+	
+	public void setNetworkPlayerTurn(int playerID) {
+		System.out.println(playerID);
+	
+		boardController.startPlayerTurn(players[playerID]);
+		System.out.println("Started player turn");
 	}
 	
 	public JPanel drawLeftHand() {
@@ -248,6 +279,18 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void setOnlineMove(String x, String y) {
+		System.out.println("Setting the clients move");
+		Vector2i position = new Vector2i(Integer.parseInt(x), Integer.parseInt(y));
+		Move theMove = new Move(position, board.getCurrentPlayer());
+		if (board.isMoveAllowed(theMove)) {
+			board.applyMove(theMove);
+			System.out.println(board.toString());
+			boardController.disableButtons();
+			setPlayerTurn();
+		} 
 	}
 	
 	
