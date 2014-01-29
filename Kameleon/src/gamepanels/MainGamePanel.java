@@ -19,6 +19,7 @@ import players.NaiveAI;
 import players.NetworkPlayer;
 import players.Player;
 import players.Player.Colour;
+import players.SmartAI;
 import utility.BackgroundPanel;
 import utility.Move;
 import utility.RatioPanel;
@@ -149,7 +150,7 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 					currentColor = currentColor.getNext();
 					maxPlayer++;
 				}  else if (settings[i].equals("easy")) {
-					players[i] = new NaiveAI(currentColor);
+					players[i] = new SmartAI(currentColor); // NaiveAI
 					System.out.println("Set a easy computer");
 					currentColor = currentColor.getNext();
 					maxPlayer++;
