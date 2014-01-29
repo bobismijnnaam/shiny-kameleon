@@ -16,6 +16,7 @@ public class SocketHandlerThread extends Thread {
 	private Lobby lobby;
 	private MainGamePanel online;
 	private boolean isLobby =  true;
+	private boolean kill = false;
 	
 	public SocketHandlerThread(ClientRolitSocket inputCrs, Game inputGame, Lobby inputLobby) {
 		crs = inputCrs;
@@ -57,11 +58,17 @@ public class SocketHandlerThread extends Thread {
 			case LO_START:
 				System.out.println("WOOOW EEN SPEL GAAT STARTEN!, wat spannend!");
 				String[] players = new String[4];
+				String[] settings = lobby.getSettings();
 				for (int m = 0; m < inputNewMessage.length; m++) {
-					players[m] = "network";
+					if (settings[0].equals(inputNewMessage[m])) {
+						players[m] = "networkyou";
+					} else {
+						players[m] = "network";
+					}
 				}
 				try {
 					game.setNextState(game.STATE_ONLINE, players, crs);
+					kill = true;
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -81,6 +88,7 @@ public class SocketHandlerThread extends Thread {
 				break;
 			case IG_GMOVE:
 				System.out.println("Received move from player");
+				online.setOnlineMove(inputNewMessage[1] , inputNewMessage[2]);
 				break;
 			case IG_GTURN:
 				System.out.println("It's our turn now");
@@ -93,8 +101,9 @@ public class SocketHandlerThread extends Thread {
 	@Override
 	public void run() {
 		String[] newMessage;
-		while (crs.isRunning()) {
-//			System.out.println("Handling" + isLobby);
+		
+		while (crs.isRunning() && !kill) {
+			//System.out.println("Handling" + isLobby);
 			if (crs.isNewMsgQueued()) {
 				try {
 					serverMessageType = crs.getQueuedMsgType();

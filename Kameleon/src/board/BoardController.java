@@ -8,6 +8,7 @@ import java.util.LinkedList;
 
 import javax.swing.JButton;
 
+import network.ClientRolitSocket;
 import players.AI;
 import players.NetworkPlayer;
 import players.Player;
@@ -23,11 +24,24 @@ public class BoardController implements ActionListener {
 	//private Player[] players;
 	private Player currentPlayer;
 	private MainGamePanel mainGamePanel;
+	private ClientRolitSocket crs = null;
 	
 	public BoardController(BoardModel inputBoard, JButton[][] inputFieldButtons, 
 			BackgroundPanel[][] inputFields, Player[] inputPlayers,
 			MainGamePanel inputMainGamePanel) {
 		
+		board = inputBoard;
+		fieldButtons = inputFieldButtons;
+		//fields = inputFields;
+		//players = inputPlayers;
+		mainGamePanel = inputMainGamePanel;
+		disableButtons();
+	}
+	
+	public BoardController(BoardModel inputBoard, JButton[][] inputFieldButtons, 
+			BackgroundPanel[][] inputFields, Player[] inputPlayers,
+			MainGamePanel inputMainGamePanel, ClientRolitSocket inputCrs) {
+		crs = inputCrs;
 		board = inputBoard;
 		fieldButtons = inputFieldButtons;
 		//fields = inputFields;
@@ -68,7 +82,13 @@ public class BoardController implements ActionListener {
 			System.out.println("PUSS THAT BUTTON!!!");*/
 		} else {
 			if (player instanceof NetworkPlayer) {
-				System.out.println("HOly sjit it's a network player!");
+				if (((NetworkPlayer) player).checkYou()) {
+					System.out.println("Holy sjit it's you a network player");
+					enableButtons(currentPlayer);
+				} else {
+					System.out.println("HOly sjit it's a network player!");
+					System.out.println("Waiting for dude to do a move...");
+				}
 			} else {
 				enableButtons(currentPlayer);
 			}
@@ -106,13 +126,17 @@ public class BoardController implements ActionListener {
 		Vector2i position = new Vector2i(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
 		Move theMove = new Move(position, board.getCurrentPlayer());
 		System.out.println("Got the player!!!!");
+		if (board.getCurrentPlayer() instanceof NetworkPlayer) {
+			System.out.println("Signaling move to other clients");
+			crs.tellGMOVE(position.x, position.y);
+		}
+		
 		if (board.isMoveAllowed(theMove)) {
 			board.applyMove(theMove);
 			System.out.println(board.toString());
 			disableButtons();
-			// Signal to outer game class that the turn has been done?
-		} 
-		mainGamePanel.setPlayerTurn();
-	}
+			mainGamePanel.setPlayerTurn();
+		}
 
+	}
 }
