@@ -15,6 +15,12 @@ public class AlphaAI extends Player implements AI {
 	@Override
 	public Vector2i getMove(BoardModel board) {
 		System.out.println("Alpha thinking");
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return AlphaAI.getMove(board, this);
 	}
 
@@ -105,6 +111,12 @@ public class AlphaAI extends Player implements AI {
 					if (!type.equals("corner") && !type.equals("close")) {
 						bestMove = i;
 						type = "semiclose";
+					}
+				} else if (i != new Vector2i(0, 1) || i != new Vector2i(1 , 0)
+					|| i != new Vector2i(0, 6) || i != new Vector2i(6, 0) ||
+						i != new Vector2i(7, 6) || i != new Vector2i(6, 7)) {
+					if (!type.equals("corner") && !type.equals("close")) {
+						bestMove = i;
 					}
 				}
 			}
