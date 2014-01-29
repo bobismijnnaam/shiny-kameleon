@@ -25,6 +25,7 @@ public class BoardController implements ActionListener {
 	private Player currentPlayer;
 	private MainGamePanel mainGamePanel;
 	private ClientRolitSocket crs = null;
+	private boolean online = false;
 	
 	public BoardController(BoardModel inputBoard, JButton[][] inputFieldButtons, 
 			BackgroundPanel[][] inputFields, Player[] inputPlayers,
@@ -39,6 +40,7 @@ public class BoardController implements ActionListener {
 		
 		// For AI functionality
 		inputBoard.setPlayers(inputPlayers);
+		online = false;
 	}
 	
 	public BoardController(BoardModel inputBoard, JButton[][] inputFieldButtons, 
@@ -51,6 +53,7 @@ public class BoardController implements ActionListener {
 		//players = inputPlayers;
 		mainGamePanel = inputMainGamePanel;
 		disableButtons();
+		online = true;
 	}
 	
 	public void enableButtons(Player player) {
@@ -66,6 +69,10 @@ public class BoardController implements ActionListener {
 				fieldButtons[x][y].setEnabled(false); // YOUR MISCHIEVOUS SCHEME ENDS HERE, SIR
 			} // and ur turn also l0l
 		}
+	}
+	
+	public boolean isOnline() {
+		return online;
 	}
 	
 	public void startPlayerTurn(Player player) {
@@ -131,11 +138,13 @@ public class BoardController implements ActionListener {
 		Move theMove = new Move(position, board.getCurrentPlayer());
 		System.out.println("Got the player!!!!");
 		if (board.isMoveAllowed(theMove)) {
-			if (board.getCurrentPlayer() instanceof NetworkPlayer 
-					|| board.getCurrentPlayer() instanceof AI) {
+			//if (board.getCurrentPlayer() instanceof NetworkPlayer 
+					//|| board.getCurrentPlayer() instanceof AI) {
+			if (isOnline()) {
 				System.out.println("Signaling move to other clients");
 				crs.tellGMOVE(position.x, position.y);
 			}
+			//}
 			
 			board.applyMove(theMove);
 			System.out.println(board.toString());
