@@ -17,6 +17,9 @@ public class BoardModel extends Observable {
 	
 	private LinkedList<AffectedPosition> affectedByMove;
 	private boolean newPositionsAffected = false;
+
+	private Player[] players;
+	
 	public class AffectedPosition {
 		public Vector2i position;
 		public Player startPlayer;
@@ -496,6 +499,14 @@ public class BoardModel extends Observable {
 		return true;
 	}
 	
+	public void setPlayers(Player[] inputPlayers) {
+		players = inputPlayers;
+	}
+	
+	public Player[] getPlayers() {
+		return players;
+	}
+	
 	/**
 	 * Returns a string representatoin of the current board.
 	 */
@@ -516,6 +527,22 @@ public class BoardModel extends Observable {
 		}
 		
 		return res;
+	}
+	
+	public void setPosition(Player p, Vector2i pos) {
+		fields[pos.x][pos.y] = p;
+	}
+	
+	public BoardModel deepCopy() {
+		BoardModel bm = new BoardModel();
+		
+		for (int x = 0; x < BOARD_W; x++) {
+			for (int y = 0; y < BOARD_H; y++) {
+				bm.setPosition(fields[x][y], new Vector2i(x, y));
+			}
+		}
+		
+		return bm;
 	}
 	
 	/**
