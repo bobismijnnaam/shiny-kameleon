@@ -49,6 +49,10 @@ public class ServerGame extends Thread{
 		
 	}
 	
+	public void gameSays(String msg) {
+		System.out.println("\t[Game] " + msg);
+	}
+	
 	public boolean isPlayerInGame(String player) {
 		for (String s : playerNames) {
 			if (s.equals(player)) {
@@ -119,6 +123,8 @@ public class ServerGame extends Thread{
 							board.applyMove(move);
 							distributeMove(i, move);
 							
+							gameSays(players[i].getName() + " made a move: " + pos.toString());
+							
 							if (board.hasWinner()) {
 								distributeGameEnd();
 								running = false;
@@ -143,6 +149,7 @@ public class ServerGame extends Thread{
 					break;
 				case AL_STATE:
 					p.net().tellSTATE(PlayerState.PLAYING);
+					break;
 				default:
 					p.net().tellERROR(RolitSocket.Error.UnexpectedOperationException,
 							msgType.toString());
