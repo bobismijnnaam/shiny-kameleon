@@ -126,12 +126,12 @@ public class BoardController implements ActionListener {
 		Vector2i position = new Vector2i(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
 		Move theMove = new Move(position, board.getCurrentPlayer());
 		System.out.println("Got the player!!!!");
-		if (board.getCurrentPlayer() instanceof NetworkPlayer) {
-			System.out.println("Signaling move to other clients");
-			crs.tellGMOVE(position.x, position.y);
-		}
-		
 		if (board.isMoveAllowed(theMove)) {
+			if (board.getCurrentPlayer() instanceof NetworkPlayer) {
+				System.out.println("Signaling move to other clients");
+				crs.tellGMOVE(position.x, position.y);
+			}
+			
 			board.applyMove(theMove);
 			System.out.println(board.toString());
 			disableButtons();
