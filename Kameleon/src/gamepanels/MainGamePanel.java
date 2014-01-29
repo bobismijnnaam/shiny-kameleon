@@ -61,9 +61,6 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 		board = new BoardModel();
 		System.out.println("Created a new board view");
 		mainView = new BoardView(board);
-		//RatioPanel boardWrapper = new RatioPanel();
-		//boardWrapper.add(mainView.getRootPane());
-		//boardWrapper.setBackground(Color.BLACK);
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 0.1;
 		c.weighty = 0.1;
@@ -74,11 +71,6 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 		c.gridx = 0;
 		BackgroundPanel menuBar = new BackgroundPanel("media/bg.png");
 		menuBar.setLayout(new BorderLayout());
-		//JButton filling = new JButton();
-		//filling.setEnabled(false);
-		//filling.setOpaque(false);
-		//filling.setContentAreaFilled(false);
-		//filling.setBorderPainted(false);
 		JPanel leftHand = drawLeftHand();
 		menuBar.add(leftHand, BorderLayout.CENTER);
 		layeredPane.add(menuBar, c);
@@ -103,9 +95,6 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 		board = new BoardModel();
 		System.out.println("Created a new board view");
 		mainView = new BoardView(board);
-		//RatioPanel boardWrapper = new RatioPanel();
-		//boardWrapper.add(mainView.getRootPane());
-		//boardWrapper.setBackground(Color.BLACK);
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 0.1;
 		c.weighty = 0.1;
@@ -116,11 +105,6 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 		c.gridx = 0;
 		BackgroundPanel menuBar = new BackgroundPanel("media/bg.png");
 		menuBar.setLayout(new BorderLayout());
-		//JButton filling = new JButton();
-		//filling.setEnabled(false);
-		//filling.setOpaque(false);
-		//filling.setContentAreaFilled(false);
-		//filling.setBorderPainted(false);
 		JPanel leftHand = drawLeftHand();
 		menuBar.add(leftHand, BorderLayout.CENTER);
 		layeredPane.add(menuBar, c);
@@ -143,39 +127,30 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 		
 		maxPlayer = 0;
 		for (int i = 0; i < 4; i++) {
-			System.out.println("Settings is:" + settings[i] + "|");
 			if (settings[i] != null) {
 				if (settings[i].equals("human")) {
 					players[i] = new Player(currentColor, "Human");
-					System.out.println("Set a human player");
 					currentColor = currentColor.getNext();
 					maxPlayer++;
 				}  else if (settings[i].equals("easy")) {
 					players[i] = new NaiveAI(currentColor); // NaiveAI
-					System.out.println("Set a easy computer");
 					currentColor = currentColor.getNext();
 					maxPlayer++;
 				} else if (settings[i].equals("medium")) {
-					players[i] = new AlphaAI(currentColor, "alpha"); // NaiveAI
-					System.out.println("Set a medium computer");
+					players[i] = new AlphaAI(currentColor, "alpha"); // AlphaAI
 					currentColor = currentColor.getNext();
 					maxPlayer++;
 				} else if (settings[i].equals("hard")) {
-					players[i] = new SmartAI(currentColor); // NaiveAI
-					players[i] = new AlphaAI(currentColor, "alpha");  // AlphaAI
-					System.out.println("Set a medium computer");
+					players[i] = new SmartAI(currentColor); // SmartAI
 					currentColor = currentColor.getNext();
 					maxPlayer++;
-				} 
-				else if (settings[i].equals("network")) {
+				} else if (settings[i].equals("network")) {
 					players[i] = new NetworkPlayer(currentColor, "network", false);
 					currentColor = currentColor.getNext();
-					System.out.println("Set a network player");
 					maxPlayer++;
 				} else if (settings[i].equals("networkyou")) {
 					players[i] = new NetworkPlayer(currentColor, "network", true);
 					currentColor = currentColor.getNext();
-					System.out.println("Set a network player");
 					maxPlayer++;
 				}
 			}
@@ -188,10 +163,7 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 		} else if (maxPlayer == 4) {
 			board.setStartPosition(players[0], players[1], players[2], players[3]);
 		}
-		
-		System.out.println("Done setting players");
 		boardReady = true;
-		System.out.println("Board ready for first player turn");
 	
 	}
 	
@@ -226,10 +198,7 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 	}
 	
 	public void setNetworkPlayerTurn(int playerID) {
-		System.out.println(playerID);
-	
 		boardController.startPlayerTurn(players[playerID]);
-		System.out.println("Started player turn");
 	}
 	
 	public JPanel drawLeftHand() {
@@ -288,9 +257,8 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 	public void goToMainMenu() {
 		String[] inputSettings = new String[4];
 		try {
-			game.setNextState(game.STATE_MAIN, inputSettings, null);
+			game.setNextState(Game.STATE_MAIN, inputSettings, null);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

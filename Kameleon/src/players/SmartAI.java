@@ -20,7 +20,7 @@ public class SmartAI extends Player implements AI {
 		{7, 2, 5, 4, 4, 5, 2, 7},
 	};
 	
-	public static final int MAX_LVL = 5;
+	public static final int MAX_LVL = 4;
 
 	public SmartAI(Colour inputColour) {
 		super(inputColour, "Smart");
@@ -32,7 +32,7 @@ public class SmartAI extends Player implements AI {
 	}
 	
 	public static Vector2i getMove(BoardModel board, Player player) {
-		ArrayList<Vector2i> suggestions = new ArrayList(board.getMoveSuggestions(player));
+		ArrayList<Vector2i> suggestions = new ArrayList<Vector2i>(board.getMoveSuggestions(player));
 		int bestGrade = 9999999;
 		Vector2i bestMove = suggestions.get(0);
 		
@@ -62,10 +62,10 @@ public class SmartAI extends Player implements AI {
 			int bestGrade = 999999999;
 			for (int i = 0; i < suggestions.size(); i++) {
 				BoardModel nextBoard = board.deepCopy();
-//				Player nextPlayer = board.getNextPlayer(player);
+				//Player nextPlayer = board.getNextPlayer(player);
 				Move move = new Move(suggestions.get(i), player);
 				nextBoard.applyMove(move);
-//				grades[i] = eval(nextBoard, nextPlayer, lvl + 1);
+				//grades[i] = eval(nextBoard, nextPlayer, lvl + 1);
 				int grade = eval(nextBoard, board.getNextPlayer(player), lvl + 1);
 				if (grade < bestGrade) {
 					bestGrade = grade;

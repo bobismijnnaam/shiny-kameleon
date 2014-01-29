@@ -195,9 +195,7 @@ public class MainMenu extends JPanel {
 						enableRow(i);
 						check.setEnabled(false);
 					}
-				} else if (id.equals("disable-1") || id.equals("disable-0")) { 
-					// nothing 
-				} else {
+				} else if (!id.equals("disable-1") && !id.equals("disable-0")) { 
 					String[] parts = id.split("-");
 					i = Integer.parseInt(parts[1]);
 					
@@ -211,8 +209,8 @@ public class MainMenu extends JPanel {
 					settings[i] = parts[0];
 					
 					enableRow(i);
-					check.setEnabled(false);
-				}
+					check.setEnabled(false); 
+				} 
 			}
 		}
 

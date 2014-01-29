@@ -23,7 +23,7 @@ public class AlphaAI extends Player implements AI {
 	@Override
 	public Vector2i getMove(BoardModel board) {
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			System.out.println("AlphaAI was interrupted");
 		}
@@ -47,11 +47,11 @@ public class AlphaAI extends Player implements AI {
 			BoardModel nextBoard = board.deepCopy();
 			Player nextPlayer = board.getNextPlayer(player);
 			// check if the move is done if the enemy can take a corner
-			LinkedList<Vector2i> enemy = board.getMoveSuggestions(nextPlayer);
+			LinkedList<Vector2i> enemy = nextBoard.getMoveSuggestions(nextPlayer);
 			boolean badmove = false;
 			for (Vector2i j : enemy) {
-				if (i == new Vector2i(0 , 0) || i == new Vector2i(0 , 7) 
-					|| i == new Vector2i(7 , 7) || i == new Vector2i(7 , 0)) {
+				if (j == new Vector2i(0 , 0) || j == new Vector2i(0 , 7) 
+					|| j == new Vector2i(7 , 7) || j == new Vector2i(7 , 0)) {
 					badmove = true;
 				}
 			}

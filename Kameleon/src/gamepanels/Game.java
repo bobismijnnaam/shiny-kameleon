@@ -1,20 +1,20 @@
 package gamepanels;
 
 import java.io.IOException;
+
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import network.ClientRolitSocket;
 
 public class Game extends JFrame {
 	
+	// all the states
 	private static final long serialVersionUID = 1L;
 	public final static int STATE_MAIN = 0;
 	public final static int STATE_OFFLINE = 1;
 	public final static int STATE_LOBBY = 2;
 	public final static int STATE_ONLINE = 3;
 	
-	private JPanel currentState;
 	private String[] settings;
 	private MainMenu mainMenu;
 	private Lobby lobby;
@@ -39,38 +39,36 @@ public class Game extends JFrame {
 	 * @throws IOException
 	 */
 	public void setNextState(int nextState, String[] inputSettings,
-			ClientRolitSocket inputCrs) throws IOException {
+		ClientRolitSocket inputCrs) throws IOException {
+		
+		// check which state.
 		switch (nextState) {
 			case STATE_MAIN:
+				// if the lastState was an online or offline game.
 				if (lastState == STATE_OFFLINE) {
-					System.out.println("state was offline");
 					remove(offlineView.getRootPane());
 				} else if (lastState == STATE_ONLINE) {
 					remove(onlineView.getRootPane());
-					System.out.println("state was online");
 				}
+				
+				// create a new mainMenu view and add it to the frame.
 				mainMenu = new MainMenu(this);
 				add(mainMenu);
+				// resize to force repaint.
 				setSize(650, 620);
 				break;
 			case STATE_OFFLINE:
 				// attempt to create a layered panel
 				lastState = STATE_OFFLINE;
-				System.out.println("Attempt to start an offline game");
 				remove(mainMenu);
 				setSize(0, 0);
-				System.out.println("Removed the old gamePanel");
 				settings = inputSettings;
-				System.out.println("Got the settings!");
-				
-				for (int x = 0; x < 4; x++) {
-					System.out.println(settings[x]);
-				}
-				System.out.println("Have drawn the new gamePanel");
+
 				offlineView = new MainGamePanel(settings, this);
-				System.out.println("Initilized the board");
 				add(offlineView.getRootPane());
 				setSize(812, 590);
+				
+				// forced repaint and start position, add listeners and start turn.
 				offlineView.setStartPosition();
 				offlineView.addListeners();
 				offlineView.setPlayerTurn();
@@ -87,14 +85,10 @@ public class Game extends JFrame {
 				remove(lobby);
 				lastState = STATE_ONLINE;
 				settings = inputSettings;
-				for (int i = 0; i < settings.length; i++) {
-					System.out.println(settings[i]);
-				}
+
 				setSize(0, 0);
-				System.out.println("online game is ready");
-				System.out.println("Have drawn the new gamePanel");
+				// drawn a new gamePanel add it to the frame
 				onlineView = new MainGamePanel(settings, this, inputCrs);
-				System.out.println("Initilized the board");
 				add(onlineView.getRootPane());
 				setSize(812, 590);
 				onlineView.setStartPosition();
@@ -119,10 +113,3 @@ public class Game extends JFrame {
 	}
 	
 }
-
-//Scanner scr = new Scanner("HI LO\n");
-//System.out.println(scr.next());
-//System.out.println(scr.next());
-//System.out.println(scr.hasNextLine());
-//System.out.println(scr.nextLine());
-//System.out.println(scr.hasNextLine());

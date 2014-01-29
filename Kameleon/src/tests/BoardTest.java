@@ -1,21 +1,13 @@
 package tests;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.io.IOException;
-
-import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 
-import players.Player;
-import utility.RatioPanel;
-import board.BoardController;
-import board.BoardModel;
-import board.BoardView;
-
 public class BoardTest extends JFrame {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/*
 	public static void main(String[] args) throws IOException {
 		BoardModel board = new BoardModel();

@@ -25,6 +25,14 @@ public class BoardController implements ActionListener {
 	private ClientRolitSocket crs = null;
 	private boolean online = false;
 	
+	/**
+	 * BoardController used in a offlineGame.
+	 * @param inputBoard - the board.
+	 * @param inputFieldButtons - the buttons on the board.
+	 * @param inputFields - texture of a field.
+	 * @param inputPlayers - the players linked to the board.
+	 * @param inputMainGamePanel - the class that draws the panel.
+	 */
 	public BoardController(BoardModel inputBoard, JButton[][] inputFieldButtons, 
 			BackgroundPanel[][] inputFields, Player[] inputPlayers,
 			MainGamePanel inputMainGamePanel) {
@@ -32,19 +40,28 @@ public class BoardController implements ActionListener {
 		board = inputBoard;
 		fieldButtons = inputFieldButtons;
 		mainGamePanel = inputMainGamePanel;
+		
+		// for AI functionality
 		inputBoard.setPlayers(inputPlayers);
 		disableButtons();
 		online = false;
 	}
 	
+	/**
+	 * BoardController for onlineGame.
+	 * @param inputBoard - the board.
+	 * @param inputFieldButtons - the buttons on the board.
+	 * @param inputFields - texture of a field.
+	 * @param inputPlayers - the players linked to the board.
+	 * @param inputMainGamePanel - the class that draws the panel.
+	 * @param inputCrs - ClientRolitSocket the current socket
+	 */
 	public BoardController(BoardModel inputBoard, JButton[][] inputFieldButtons, 
 			BackgroundPanel[][] inputFields, Player[] inputPlayers,
 			MainGamePanel inputMainGamePanel, ClientRolitSocket inputCrs) {
 		crs = inputCrs;
 		board = inputBoard;
 		fieldButtons = inputFieldButtons;
-		//fields = inputFields;
-		//players = inputPlayers;
 		mainGamePanel = inputMainGamePanel;
 		disableButtons();
 		
@@ -53,41 +70,52 @@ public class BoardController implements ActionListener {
 		online = true;
 	}
 	
+	/**
+	 * Enables the buttons that the player is allowed to click on.
+	 * @param player the current player.
+	 */
 	public void enableButtons(Player player) {
 		LinkedList<Vector2i> validMoves = board.getMoveSuggestions(player);
 		for (Vector2i move : validMoves) {
-			fieldButtons[move.x][move.y].setEnabled(true); // MAGIC HAPPENS HERE
+			fieldButtons[move.x][move.y].setEnabled(true); 
 		}
 	}
 	
+	/**
+	 * Disables all the buttons on the field.
+	 */
 	public void disableButtons() {
 		for (int x = 0; x < BoardModel.BOARD_W; x++) {
 			for (int y = 0; y < BoardModel.BOARD_H; y++) {
-				fieldButtons[x][y].setEnabled(false); // YOUR MISCHIEVOUS SCHEME ENDS HERE, SIR
-			} // and ur turn also l0l
+				fieldButtons[x][y].setEnabled(false); 
+			} 
 		}
 	}
 	
+	/**
+	 * Check if the state of the controller is online or offline.
+	 * @return false if offline true if onine.
+	 */
 	public boolean isOnline() {
 		return online;
 	}
 	
+	/**
+	 * Starts the player turn by setting the current player and waiting for click event.
+	 * @param player the player to set the turn for.
+	 */
 	public void startPlayerTurn(Player player) {
-		currentPlayer = player; // Humanplayer/networkplayer/computerplayer
+		// can be a human network or AI.
+		currentPlayer = player; 
 		board.setCurrentPlayer(currentPlayer);
-		System.out.println("Started player turn");
-		System.out.println("Set the player!!");
-		//Vector2i position = new Vector2i(0, 0);
-		//Move theMove;
+		
+		// if the player is an AI
 		if (player instanceof AI) {
+			// starts a new thread to wait for the AI (allows the panel to redraw properly)
 			AIThread ai = new AIThread(player);
 			ai.start();
-			/*System.out.println("HOLY SJIT IT's a COMPUTERS TURN!");
-			enableButtons(currentPlayer);
-			position = ((AI) player).getMove(board);
-			fieldButtons[position.x][position.y].doClick();
-			System.out.println("PUSS THAT BUTTON!!!");*/
 		} else {
+			// if the player is an network player
 			if (player instanceof NetworkPlayer) {
 				if (((NetworkPlayer) player).checkYou()) {
 					System.out.println("Holy sjit it's you a network player");
@@ -102,7 +130,7 @@ public class BoardController implements ActionListener {
 		}
 	}
 	
-	// AI thread
+	// the thread class for the AI
 	public class AIThread extends Thread {
 		
 		private Player player;
@@ -122,18 +150,19 @@ public class BoardController implements ActionListener {
 		}
 	}
 
+	/**
+	 * If an button is clicked (or simulated by an AI or network player).
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
-		System.out.println("Board changed");
-		// If this gets triggered buttons are enabled and thus it is a human players' turn!
+		// get the x and y 
 		JButton change = (JButton) e.getSource();
 		String name = change.getName();
 		String[] split = name.split("-");
 		
 		Vector2i position = new Vector2i(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
 		Move theMove = new Move(position, board.getCurrentPlayer());
-		System.out.println("Got the player!!!!");
 		if (board.isMoveAllowed(theMove)) {
 			if (isOnline()) {
 				if (board.getCurrentPlayer() instanceof NetworkPlayer 
@@ -143,7 +172,6 @@ public class BoardController implements ActionListener {
 				}
 			}
 			board.applyMove(theMove);
-			System.out.println(board.toString());
 			disableButtons();
 			mainGamePanel.setPlayerTurn();
 		}
