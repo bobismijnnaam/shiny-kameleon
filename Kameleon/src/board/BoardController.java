@@ -91,13 +91,15 @@ public class BoardController implements ActionListener {
 			fieldButtons[position.x][position.y].doClick();
 			System.out.println("PUSS THAT BUTTON!!!");*/
 		} else {
-			if (player instanceof NetworkPlayer) {
-				if (((NetworkPlayer) player).checkYou()) {
-					System.out.println("Holy sjit it's you a network player");
-					enableButtons(currentPlayer);
-				} else {
-					System.out.println("HOly sjit it's a network player!");
-					System.out.println("Waiting for dude to do a move...");
+			if (isOnline()) {
+				if (player instanceof NetworkPlayer) {
+					if (((NetworkPlayer) player).checkYou()) {
+						System.out.println("Holy sjit it's you a network player");
+						enableButtons(currentPlayer);
+					} else {
+						System.out.println("HOly sjit it's a network player!");
+						System.out.println("Waiting for dude to do a move...");
+					}
 				}
 			} else {
 				enableButtons(currentPlayer);
