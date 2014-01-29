@@ -507,6 +507,17 @@ public class BoardModel extends Observable {
 		return players;
 	}
 	
+	public Player getNextPlayer(Player p) {
+		for (int i = 0; i < players.length; i++) {
+			if (p == players[i]) {
+				int pos = (i + 1) % players.length;
+				return players[pos];
+			}
+		}
+		
+		return p;
+	}
+	
 	/**
 	 * Returns a string representatoin of the current board.
 	 */

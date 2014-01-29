@@ -1,9 +1,8 @@
 package players;
 
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 
+import utility.Move;
 import utility.Vector2i;
 import board.BoardModel;
 
@@ -19,6 +18,10 @@ public class SmartAI extends Player implements AI {
 		{2, 1, 3, 3, 3, 3, 1, 2},
 		{7, 2, 5, 4, 4, 5, 2, 7},
 	};
+	
+	public class GradedMoveList {
+		
+	}
 
 	public SmartAI(Colour inputColour) {
 		super(inputColour, "Smart");
@@ -31,17 +34,42 @@ public class SmartAI extends Player implements AI {
 	
 	public static Vector2i getMove(BoardModel board, Player player) {
 		LinkedList<Vector2i> suggestions = board.getMoveSuggestions(player);
-		Vector2i bestMove = suggestions.getFirst();
-		int bestGrade = 0;
+		Vector2i bestMove = new Vector2i(0, 0);
+		Vector2i bestGrade = new Vector2i(0, 0);
 		
 		for (Vector2i pos : suggestions) {
-			int grade = lt[pos.x][pos.y];
-			if (grade > bestGrade) {
-				bestMove = new Vector2i(pos);
+			BoardModel nextBoard = board.deepCopy();
+			Player nextPlayer = board.getNextPlayer(player);
+			nextBoard.applyMove(new Move(pos, nextPlayer));
+			Vector2i grade = evalMove(board, nextPlayer);
+			if (grade.x < bestGrade.x) {
+				bestGrade = grade;
+				bestMove = pos;
+			} else if (grade.x == bestGrade.x) {
+				if (grade.y < bestGrade.y) {
+					bestGrade = grade;
+					bestMove = pos;
+				}
 			}
 		}
-		System.out.println(bestMove == null);
+		
 		return bestMove;
+	}
+	
+	public static Vector2i evalMove(BoardModel board, Player player) {
+		Vector2i grading = new Vector2i(1, 1);
+		LinkedList<Vector2i> suggestions = board.getMoveSuggestions(player);
+		for (Vector2i p : suggestions) {
+			int grade = lt[p.x][p.y];
+			if (grade > grading.x) {
+				grading.x = grade;
+				grading.y = 1;
+			} else if (grade == grading.x) {
+				grading.y++;
+			}
+		}
+		
+		return grading;
 	}
 
 }
