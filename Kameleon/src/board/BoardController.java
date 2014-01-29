@@ -21,7 +21,7 @@ public class BoardController implements ActionListener {
 	private BoardModel board;
 	private JButton[][] fieldButtons;
 	//private BackgroundPanel[][] fields;
-	//private Player[] players;
+//	private Player[] players;
 	private Player currentPlayer;
 	private MainGamePanel mainGamePanel;
 	private ClientRolitSocket crs = null;
@@ -33,9 +33,12 @@ public class BoardController implements ActionListener {
 		board = inputBoard;
 		fieldButtons = inputFieldButtons;
 		//fields = inputFields;
-		//players = inputPlayers;
+//		players = inputPlayers;
 		mainGamePanel = inputMainGamePanel;
 		disableButtons();
+		
+		// For AI functionality
+		inputBoard.setPlayers(inputPlayers);
 	}
 	
 	public BoardController(BoardModel inputBoard, JButton[][] inputFieldButtons, 
