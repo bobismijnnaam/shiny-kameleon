@@ -152,10 +152,10 @@ public class Lobby extends JPanel implements ActionListener {
 		human.setName("human");
 		human.addActionListener(this);
 		easy = new JButton("Play online as a easy computer");
-		easy.setName("easy");
+		easy.setName("medium");
 		easy.addActionListener(this);
 		medium = new JButton("Play online as a medium computer");
-		medium.setName("medium");
+		medium.setName("hard");
 		medium.addActionListener(this);
 		add(playerModus);
 		add(human);
