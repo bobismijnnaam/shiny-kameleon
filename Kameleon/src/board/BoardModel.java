@@ -553,7 +553,40 @@ public class BoardModel extends Observable {
 			}
 		}
 		
+		bm.setPlayers(getPlayers());
+		
 		return bm;
+	}
+	
+	public int getGrade(Player player) {
+		int[][] lt = new int[][]{
+			{7, 2, 5, 4, 4, 5, 2, 7},
+			{2, 1, 3, 3, 3, 3, 1, 2},
+			{5, 3, 6, 5, 5, 6, 3, 5},
+			{4, 3, 5, 6, 6, 5, 3, 4},
+			{4, 3, 5, 6, 6, 5, 3, 4},
+			{5, 3, 6, 5, 5, 6, 3, 5},
+			{2, 1, 3, 3, 3, 3, 1, 2},
+			{7, 2, 5, 4, 4, 5, 2, 7},
+		};
+		
+		if (hasWinner()) {
+			if (isWinner(player)) {
+				return 9999;
+			} else {
+				return -9999;
+			}
+		}
+		
+		int grade = 0;
+		for (int x = 0; x < BOARD_W; x++) {
+			for (int y = 0; y < BOARD_H; y++) {
+				grade += lt[x][y];
+			}
+		}
+		
+		return grade;
+		
 	}
 	
 	/**

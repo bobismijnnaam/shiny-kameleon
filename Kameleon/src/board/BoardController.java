@@ -53,6 +53,7 @@ public class BoardController implements ActionListener {
 		//players = inputPlayers;
 		mainGamePanel = inputMainGamePanel;
 		disableButtons();
+		inputBoard.setPlayers(inputPlayers);
 		online = true;
 	}
 	
