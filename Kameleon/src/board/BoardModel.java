@@ -500,6 +500,7 @@ public class BoardModel extends Observable {
 	 * Returns a string representatoin of the current board.
 	 */
 	public String toString() {
+		System.out.println("[Board] Printing board");
 		String res = new String();
 		for (int y = 0; y < BOARD_H; y++) {
 			res += "|";

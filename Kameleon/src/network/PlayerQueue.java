@@ -66,9 +66,9 @@ public class PlayerQueue {
 	public ServerPlayer[] getTrio() {
 		ServerPlayer[] res = new ServerPlayer[3];
 		if (hasTrio()) {
-			res[0] = duoQ.remove(0);
-			res[1] = duoQ.remove(0);
-			res[2] = duoQ.remove(0);
+			res[0] = trioQ.remove(0);
+			res[1] = trioQ.remove(0);
+			res[2] = trioQ.remove(0);
 			return res;
 		} else {
 			return null;
@@ -78,10 +78,10 @@ public class PlayerQueue {
 	public ServerPlayer[] getQuatro() {
 		ServerPlayer[] res = new ServerPlayer[4];
 		if (hasQuatro()) {
-			res[0] = duoQ.remove(0);
-			res[1] = duoQ.remove(0);
-			res[2] = duoQ.remove(0);
-			res[3] = duoQ.remove(0);
+			res[0] = quatroQ.remove(0);
+			res[1] = quatroQ.remove(0);
+			res[2] = quatroQ.remove(0);
+			res[3] = quatroQ.remove(0);
 			return res;
 		} else {
 			return null;
