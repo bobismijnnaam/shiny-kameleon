@@ -20,8 +20,6 @@ public class BoardController implements ActionListener {
 	
 	private BoardModel board;
 	private JButton[][] fieldButtons;
-	//private BackgroundPanel[][] fields;
-//	private Player[] players;
 	private Player currentPlayer;
 	private MainGamePanel mainGamePanel;
 	private ClientRolitSocket crs = null;

@@ -63,7 +63,6 @@ public class Lobby extends JPanel implements ActionListener {
 			SocketHandlerThread socketHandler = new SocketHandlerThread(crs, game, this);
 			socketHandler.start();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			
 		}
@@ -98,11 +97,9 @@ public class Lobby extends JPanel implements ActionListener {
 			Thread.sleep(100);
 		}
 		
-		System.out.println("Received string to sign!");
+		// sign the string
 		String toSign = crs.getQueuedMsg();
 		crs.tellVSIGN(toSign, pki.getPrivateKey());
-		
-		System.out.println(toSign);
 	}
 	
 	/**
@@ -145,6 +142,9 @@ public class Lobby extends JPanel implements ActionListener {
 		}
 	}
 	
+	/**
+	 * Adds default buttons to the screen.
+	 */
 	public void drawDefault() {
 		JLabel title = new JLabel("Welcome to the default online game " + settings[0]);
 		add(title);
@@ -184,11 +184,17 @@ public class Lobby extends JPanel implements ActionListener {
 		add(j);
 	}
 	
+	/**
+	 * Draws information to the screen about what features the lobby has.
+	 */
 	public void drawLobby() {
 		JLabel title = new JLabel("Welcome to the lobby " + settings[0]);
 		add(title);
 	}
 	
+	/**
+	 * Draws a chatbox and adds listeners.
+	 */
 	public void drawChat() {
 		JPanel chatBox = new JPanel();
 		chatBox.setLayout(new GridBagLayout());
@@ -216,10 +222,18 @@ public class Lobby extends JPanel implements ActionListener {
 		add(chatBox);
 	}
 	
+	/** 
+	 * Adds a message to the chatBox.
+	 * @param inputUsername - The user that sends the message.
+	 * @param inputMessage - The message.
+	 */
 	public void addChatMessage(String inputUsername, String inputMessage) {
 		chat.append("\n" + inputUsername + ": " + inputMessage);
 	}
 
+	/** 
+	 * listener that waits for an action.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(send)) {
@@ -249,10 +263,16 @@ public class Lobby extends JPanel implements ActionListener {
 		}
 	}
 	
+	/** 
+	 * @return An String array containing the lobby settings (username, password etc).
+	 */
 	public String[] getSettings() {
 		return settings;
 	}
 	
+	/**
+	 * @return Returns if an AI of human is playing.
+	 */
 	public String getPlayerModus() {
 		System.out.println(playerModus.getText());
 		return playerModus.getText();
