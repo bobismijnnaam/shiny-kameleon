@@ -36,10 +36,8 @@ public class BoardController implements ActionListener {
 		//fields = inputFields;
 //		players = inputPlayers;
 		mainGamePanel = inputMainGamePanel;
-		disableButtons();
-		
-		// For AI functionality
 		inputBoard.setPlayers(inputPlayers);
+		disableButtons();
 		online = false;
 	}
 	
@@ -53,6 +51,9 @@ public class BoardController implements ActionListener {
 		//players = inputPlayers;
 		mainGamePanel = inputMainGamePanel;
 		disableButtons();
+		
+		// For AI functionality
+		inputBoard.setPlayers(inputPlayers);
 		online = true;
 	}
 	
@@ -138,12 +139,13 @@ public class BoardController implements ActionListener {
 		Move theMove = new Move(position, board.getCurrentPlayer());
 		System.out.println("Got the player!!!!");
 		if (board.isMoveAllowed(theMove)) {
-			if (board.getCurrentPlayer() instanceof NetworkPlayer 
-					|| board.getCurrentPlayer() instanceof AI) {
-				System.out.println("Signaling move to other clients");
-				crs.tellGMOVE(position.x, position.y);
+			if (isOnline()) {
+				if (board.getCurrentPlayer() instanceof NetworkPlayer 
+						|| board.getCurrentPlayer() instanceof AI) {
+					System.out.println("Signaling move to other clients");
+					crs.tellGMOVE(position.x, position.y);
+				}
 			}
-			
 			board.applyMove(theMove);
 			System.out.println(board.toString());
 			disableButtons();
