@@ -27,20 +27,33 @@ import network.SocketHandlerThread;
 
 public class Lobby extends JPanel implements ActionListener {
 	
+	// generated unique serialVersionUID
+	private static final long serialVersionUID = -3097353574853799434L;
 	private String[] settings;
 	private JTextArea message;
 	private ClientRolitSocket crs;
-	MessageType newMsgType = MessageType.X_NONE;
+	private MessageType newMsgType = MessageType.X_NONE;
 	private JTextArea chat, playerModus;
 	private JTextArea playerName;
 	private JButton c, d, h, i, j, send, human, easy, medium, hard;
 	private Game game;
+	
+	/**
+	 * Construct a new lobby.
+	 * @param inputGame - the Game controller.
+	 * @param inputSettings - the settings to build the lobby with, 
+	 * settings contain server and user information.
+	 */
 	public Lobby(Game inputGame, String[] inputSettings) {
 		settings = inputSettings;
 		game = inputGame;
 		createLobby();
 	}
 	
+	/**
+	 * Sets a welcome message, tries to set the lobby 
+	 * Sockethandler and tries to init and authenticate.
+	 */
 	public void createLobby() {
 		JLabel test = new JLabel("Welcome to the lobby!");
 		add(test);
@@ -56,39 +69,33 @@ public class Lobby extends JPanel implements ActionListener {
 		}
 	}
 	
+	/**
+	 * Tries to start a pki and authenticate.
+	 * @throws InterruptedException if thread is interrupted.
+	 */
 	public void authenticate() throws InterruptedException {
 		PKISocket pki = new PKISocket(settings[0], settings[1]);
 		pki.start();
 		
+		// wait for key to get ready
 		while (!pki.isPrivateKeyReady()) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				System.out.println("fok joe");
-			}
+			Thread.sleep(100);
 		}
 		
+		// start the lobby socket
 		crs = new ClientRolitSocket(settings[2], Integer.parseInt(settings[3]));
 		crs.start();
 		
 		while (!crs.isRunning()) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				System.out.println("fok joe");
-			}
+			Thread.sleep(100);
 		}
 	
-		System.out.println("Asking for login...");
+		// ask for login
 		crs.askLOGIN(settings[0]);
 		
 		while (newMsgType != MessageType.AC_VSIGN) {
-			try {
-				newMsgType = crs.getQueuedMsgType();
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				System.out.println("Frustatie");
-			}
+			newMsgType = crs.getQueuedMsgType();
+			Thread.sleep(100);
 		}
 		
 		System.out.println("Received string to sign!");
@@ -98,14 +105,20 @@ public class Lobby extends JPanel implements ActionListener {
 		System.out.println(toSign);
 	}
 	
+	/**
+	 * Function to be called after authenticating. 
+	 * Waits for hello message and draws the lobby elements according to the flags,
+	 * then returns hello back.
+	 */
 	public void init() {
 		System.out.println("Waiting for bob to implement hello..");
 		while (newMsgType != MessageType.AC_HELLO) {
+			newMsgType = crs.getQueuedMsgType();
 			try {
-				newMsgType = crs.getQueuedMsgType();
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
-				System.out.println("Frustatie");
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		
@@ -231,6 +244,8 @@ public class Lobby extends JPanel implements ActionListener {
 			playerModus.setText(easy.getName());
 		} else if (e.getSource().equals(medium)) {
 			playerModus.setText(medium.getName());
+		} else if (e.getSource().equals(hard)) {
+			playerModus.setText(hard.getName());
 		}
 	}
 	

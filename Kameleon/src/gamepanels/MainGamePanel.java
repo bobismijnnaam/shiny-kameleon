@@ -42,8 +42,8 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 	private JLayeredPane layeredPane;
 	private boolean boardReady = false;
 	private ClientRolitSocket crs = null;
-	int currentPlayer = -1;
-	int maxPlayer = 0;
+	private int currentPlayer = -1;
+	private int maxPlayer = 0;
 	
 	/**
 	 * @param inputSettings - a String containing the players (human , disabled, ai)
