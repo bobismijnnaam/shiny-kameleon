@@ -185,7 +185,6 @@ public class MainMenu extends JPanel {
 				}
 			} else {
 				id = check.getName();
-				System.out.println(id);
 				if (id.equals("disable-2")) {
 					if (!buttons[3].isEnabled()) {
 						String[] parts = id.split("-");

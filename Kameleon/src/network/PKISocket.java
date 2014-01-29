@@ -200,7 +200,6 @@ public class PKISocket extends Thread {
 		Socket sock;
 		
 		System.out.println("[PKI] Opening socket...");
-//		System.out.println("[PKI] (This is for private key)");
 		
 		try {
 			sock = new Socket(PKI_SERVER_ADDR, PKI_SERVER_PORT);
@@ -209,8 +208,6 @@ public class PKISocket extends Thread {
 			return;
 		}
 		
-//		System.out.println("Socket opened. Opening streams...");
-		
 		try {
 			in = new Scanner(new InputStreamReader(sock.getInputStream()));
 			out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
@@ -218,8 +215,6 @@ public class PKISocket extends Thread {
 			System.out.println("[PKI] Network error: could not open socket streams");
 			return;
 		}
-		
-//		System.out.println("Streams opened. Sending request...");
 		
 		try {
 			out.write("IDPLAYER player_" + user + " " + pass + System.lineSeparator());
@@ -242,12 +237,8 @@ public class PKISocket extends Thread {
 			System.out.print("|");
 		}
 		
-//		System.out.println("Received repsonse!");
-		
 		in.next();
 		privateKey = in.next();
-		
-//		System.out.println("Closing PKI socket...");
 		
 		try {
 			sock.close();
@@ -293,8 +284,6 @@ public class PKISocket extends Thread {
 	}
 	
 	public static String signMessage(String plain, String privatekey) {
-		// Loosely copied from week 8 manual
-		// Construct key
 		byte[] rawKey = Base64.decodeBase64(privatekey);
 		PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(rawKey);		
 		
@@ -361,15 +350,12 @@ public class PKISocket extends Thread {
 		}
 		
 		return false;
-		
-//		String expectedSignature = PKISocket.getSignature(plain, key);
-//		return expectedSignature.equals(signature64);
+
 	}
 	
 	public static void main(String[] args) {
 		PKISocket pkiServer = new PKISocket();
-//		PKISocket pkiClient = new PKISocket("player_test1", "test1");
-		
+
 		try {
 			pkiServer.start();
 			pkiServer.requestPublicKey("test1");
@@ -409,26 +395,7 @@ public class PKISocket extends Thread {
 			
 			pkiServer.close();
 			pkiServer.join();
-//			System.out.println("server closed");
-//			
-//			System.out.println("\n");
-//			
-//			pkiClient.start();
-//			pkiClient.join();
-//			System.out.println("client closed");
-//			
-//			System.out.println("\n");
-//			
-//			String signature = PKISocket.signMessage("hi", pkiClient.getPrivateKey());
-//			
-//			Boolean verified = PKISocket.verifySignature("hi", pkiServer.getPublicKey(),
-//					signature);
-//			
-//			if (verified) {
-//				System.out.println("VERIFIED");
-//			} else {
-//				System.out.println("NOT VERIFIED");
-//			}
+
 		} catch (InterruptedException e) {
 			System.out.println("Thread got interruped!");
 		}

@@ -118,12 +118,8 @@ public class BoardController implements ActionListener {
 			// if the player is an network player
 			if (player instanceof NetworkPlayer) {
 				if (((NetworkPlayer) player).checkYou()) {
-					System.out.println("Holy sjit it's you a network player");
 					enableButtons(currentPlayer);
-				} else {
-					System.out.println("HOly sjit it's a network player!");
-					System.out.println("Waiting for dude to do a move...");
-				}
+				} 
 			} else {
 				enableButtons(currentPlayer);
 			}
@@ -141,12 +137,10 @@ public class BoardController implements ActionListener {
 		
 		@Override
 		public void run() {
-			System.out.println("HOLY SJIT IT's a COMPUTERS TURN!");
 			enableButtons(currentPlayer);
 			Vector2i position = ((AI) player).getMove(board);
 			System.out.println(position == null);
 			fieldButtons[position.x][position.y].doClick();
-			System.out.println("PUSS THAT BUTTON!!!");
 		}
 	}
 
@@ -167,7 +161,6 @@ public class BoardController implements ActionListener {
 			if (isOnline()) {
 				if (board.getCurrentPlayer() instanceof NetworkPlayer 
 						|| board.getCurrentPlayer() instanceof AI) {
-					System.out.println("Signaling move to other clients");
 					crs.tellGMOVE(position.x, position.y);
 				}
 			}

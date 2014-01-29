@@ -6,7 +6,7 @@ import utility.Vector2i;
 import network.RolitSocket.MessageType;
 import board.BoardModel;
 
-public class ServerGame extends Thread{
+public class ServerGame extends Thread {
 	
 	ServerPlayer[] players;
 	String[] playerNames;

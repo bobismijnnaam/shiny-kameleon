@@ -1,6 +1,5 @@
 package network;
 
-import java.io.IOException;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.List;
@@ -98,8 +97,8 @@ public class ServerRolitSocket extends RolitSocket {
 	}
 	
 	public void tellINVIT() {
-//		if (status == INVITStatus.Denied || status == INVITStatus)
-//		sendMsg("INVIT " + status.toString());
+		//	if (status == INVITStatus.Denied || status == INVITStatus)
+		//	sendMsg("INVIT " + status.toString());
 		sendMsg("INVIT " + INVITStatus.Denied.toString());
 		
 		// The reasoning behind this:
@@ -226,4 +225,3 @@ public class ServerRolitSocket extends RolitSocket {
 		System.out.println("Done. Bye!");
 	}
 }
-;

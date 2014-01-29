@@ -57,9 +57,7 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 		settings = inputSettings;
 		setLayout(new GridBagLayout());
 		c = new GridBagConstraints();
-		System.out.println("Created a new board");
 		board = new BoardModel();
-		System.out.println("Created a new board view");
 		mainView = new BoardView(board);
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 0.1;
@@ -91,9 +89,7 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 		settings = inputSettings;
 		setLayout(new GridBagLayout());
 		c = new GridBagConstraints();
-		System.out.println("Created a new board");
 		board = new BoardModel();
-		System.out.println("Created a new board view");
 		mainView = new BoardView(board);
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 0.1;
@@ -269,7 +265,6 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 		Move theMove = new Move(position, board.getCurrentPlayer());
 		if (board.isMoveAllowed(theMove)) {
 			board.applyMove(theMove);
-			System.out.println(board.toString());
 			boardController.disableButtons();
 			setPlayerTurn();
 		} 
@@ -280,7 +275,6 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		JButton check = (JButton) e.getSource();
 		if (check.getName() == "main") {
-			System.out.println("Main button pressed");
 			goToMainMenu();
 		}
 		

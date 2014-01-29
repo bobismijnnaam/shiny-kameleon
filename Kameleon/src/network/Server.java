@@ -35,7 +35,7 @@ public class Server extends Thread {
 		// Let's do this!
 		frontline = new ArrayList<ServerPlayer>();
 		lobby = new ArrayList<ServerPlayer>();
-//		invites = new LinkedList<ServerPlayer>();
+		// invites = new LinkedList<ServerPlayer>();
 		games = new ArrayList<ServerGame>();
 		
 		playerQ = new PlayerQueue();
@@ -49,7 +49,7 @@ public class Server extends Thread {
 		// Let's do this!
 		frontline = new ArrayList<ServerPlayer>();
 		lobby = new ArrayList<ServerPlayer>();
-//		invites = new LinkedList<ServerPlayer>();
+		// invites = new LinkedList<ServerPlayer>();
 		games = new ArrayList<ServerGame>();
 		
 		playerQ = new PlayerQueue();
@@ -103,12 +103,6 @@ public class Server extends Thread {
 			serverSays("A new client connected");
 		}
 	}
-
-//	private void garbageCollectPlayer(List<ServerPlayer> l, ServerPlayer p) {
-//		if (p.net().isCloseCalled()) {
-//			l.remove(p);
-//		}
-//	}
 	
 	private void broadcastPlayerJoin(ServerPlayer player) {
 		for (ServerPlayer lobbyist : lobby) {
@@ -401,8 +395,9 @@ public class Server extends Thread {
 				}
 			}
 			
+			// TODO
 			if (aliveTimer.getElapsedTimeS() >= 5) {
-				
+				aliveTimer.restartMS();
 			}
 
 			try {

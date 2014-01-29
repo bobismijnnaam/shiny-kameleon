@@ -3,7 +3,6 @@ package network;
 import java.net.Socket;
 
 import players.Player;
-import players.Player.Colour;
 
 public class ServerPlayer {
 	public enum PlayerAuthState {
