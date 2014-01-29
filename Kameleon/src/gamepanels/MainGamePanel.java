@@ -42,8 +42,8 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 	private JLayeredPane layeredPane;
 	private boolean boardReady = false;
 	private ClientRolitSocket crs = null;
-	int currentPlayer = -1;
-	int maxPlayer = 0;
+	private int currentPlayer = -1;
+	private int maxPlayer = 0;
 	
 	/**
 	 * @param inputSettings - a String containing the players (human , disabled, ai)
@@ -156,16 +156,17 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 					currentColor = currentColor.getNext();
 					maxPlayer++;
 				} else if (settings[i].equals("medium")) {
-					players[i] = new AlphaAI(currentColor, "alpha");  // AlphaAI
+					players[i] = new AlphaAI(currentColor, "alpha"); // NaiveAI
 					System.out.println("Set a medium computer");
 					currentColor = currentColor.getNext();
 					maxPlayer++;
 				} else if (settings[i].equals("hard")) {
-					players[i] = new SmartAI(currentColor); // SmartAI
+					players[i] = new SmartAI(currentColor); // NaiveAI
+					players[i] = new AlphaAI(currentColor, "alpha");  // AlphaAI
 					System.out.println("Set a medium computer");
 					currentColor = currentColor.getNext();
 					maxPlayer++;
-				}
+				} 
 				else if (settings[i].equals("network")) {
 					players[i] = new NetworkPlayer(currentColor, "network", false);
 					currentColor = currentColor.getNext();
