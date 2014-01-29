@@ -148,6 +148,7 @@ public class Lobby extends JPanel implements ActionListener {
 	public void drawDefault() {
 		JLabel title = new JLabel("Welcome to the default online game " + settings[0]);
 		add(title);
+		// the buttons which can be used to ask NGAME
 		d = new JButton("Play 1 vs 1, default");
 		d.addActionListener(this);
 		d.setName("NGAMED");
@@ -160,6 +161,7 @@ public class Lobby extends JPanel implements ActionListener {
 		j = new JButton("Play against 3 players");
 		j.addActionListener(this);
 		j.setName("NGAMEJ");
+		// player modus buttons
 		playerModus = new JTextArea("human");
 		human = new JButton("Play online as a human player");
 		human.setName("human");

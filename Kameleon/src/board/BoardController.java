@@ -31,8 +31,6 @@ public class BoardController implements ActionListener {
 		
 		board = inputBoard;
 		fieldButtons = inputFieldButtons;
-		//fields = inputFields;
-//		players = inputPlayers;
 		mainGamePanel = inputMainGamePanel;
 		inputBoard.setPlayers(inputPlayers);
 		disableButtons();
