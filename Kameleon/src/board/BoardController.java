@@ -91,15 +91,13 @@ public class BoardController implements ActionListener {
 			fieldButtons[position.x][position.y].doClick();
 			System.out.println("PUSS THAT BUTTON!!!");*/
 		} else {
-			if (isOnline()) {
-				if (player instanceof NetworkPlayer) {
-					if (((NetworkPlayer) player).checkYou()) {
-						System.out.println("Holy sjit it's you a network player");
-						enableButtons(currentPlayer);
-					} else {
-						System.out.println("HOly sjit it's a network player!");
-						System.out.println("Waiting for dude to do a move...");
-					}
+			if (player instanceof NetworkPlayer) {
+				if (((NetworkPlayer) player).checkYou()) {
+					System.out.println("Holy sjit it's you a network player");
+					enableButtons(currentPlayer);
+				} else {
+					System.out.println("HOly sjit it's a network player!");
+					System.out.println("Waiting for dude to do a move...");
 				}
 			} else {
 				enableButtons(currentPlayer);
@@ -140,13 +138,11 @@ public class BoardController implements ActionListener {
 		Move theMove = new Move(position, board.getCurrentPlayer());
 		System.out.println("Got the player!!!!");
 		if (board.isMoveAllowed(theMove)) {
-			//if (board.getCurrentPlayer() instanceof NetworkPlayer 
-					//|| board.getCurrentPlayer() instanceof AI) {
-			if (isOnline()) {
+			if (board.getCurrentPlayer() instanceof NetworkPlayer 
+					|| board.getCurrentPlayer() instanceof AI) {
 				System.out.println("Signaling move to other clients");
 				crs.tellGMOVE(position.x, position.y);
 			}
-			//}
 			
 			board.applyMove(theMove);
 			System.out.println(board.toString());
