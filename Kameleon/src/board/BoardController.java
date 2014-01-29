@@ -127,7 +127,8 @@ public class BoardController implements ActionListener {
 		Move theMove = new Move(position, board.getCurrentPlayer());
 		System.out.println("Got the player!!!!");
 		if (board.isMoveAllowed(theMove)) {
-			if (board.getCurrentPlayer() instanceof NetworkPlayer) {
+			if (board.getCurrentPlayer() instanceof NetworkPlayer 
+					|| board.getCurrentPlayer() instanceof AI) {
 				System.out.println("Signaling move to other clients");
 				crs.tellGMOVE(position.x, position.y);
 			}
