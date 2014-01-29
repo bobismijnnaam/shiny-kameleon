@@ -156,7 +156,10 @@ public class RolitSocket extends Thread {
 	private List<String[]> queuedMsgs;
 	private List<MessageType> queuedMsgsType;
 	
-	// For the server
+	/**
+	 * Constructs a RolitSocket for the purposes of a server.
+	 * @param inputSock - The socket to read and write from
+	 */
 	public RolitSocket(Socket inputSock) {
 		id = ID_SERVER;
 		
@@ -172,7 +175,11 @@ public class RolitSocket extends Thread {
 //		}
 	}
 	
-	// For the client
+	/**
+	 * Constructs a RolitSocket for the purposes of a client.
+	 * @param addr - The adress to connect to
+	 * @param port - The port to connect on
+	 */
 	public RolitSocket(String addr, int port) {
 		id = ID_CLIENT;
 		
@@ -180,6 +187,9 @@ public class RolitSocket extends Thread {
 		serverPort = port;
 	}
 	
+	/**
+	 * Returns the type of the RolitSocket as a String.
+	 */
 	public String toString() {
 		if (id == ID_SERVER) {
 			return "Server";
@@ -188,10 +198,19 @@ public class RolitSocket extends Thread {
 		}
 	}
 	
+	/**
+	 * Returns the type of the RolitSocket as a boolean.
+	 * The returned boolean can be checked with static values ID_SERVER and ID_CLIENT
+	 * @return - The type of the RolitSocket as boolean
+	 */
 	public boolean getType() {
 		return id;
 	}
 	
+	/**
+	 * The antagonist of this RolitSocket returned as String
+	 * @return - The other type
+	 */
 	public String getOtherType() {
 		if (getType() == ID_SERVER) {
 			return "Client";
@@ -200,14 +219,14 @@ public class RolitSocket extends Thread {
 		}
 	}
 	
+	/**
+	 * This sets up the socket and opens the streams so the socket
+	 * can read and write from and to the other side of the cable.
+	 */
 	public void setupSocket() {
 		if (id == ID_SERVER) {
 			// Connect with a player
 			try {
-				// System.out.println("Looking for a player...");
-				// sock = serversock.accept();
-				// System.out.println("Found a player!");
-				
 				in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 				out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
 			} catch (IOException e) {
@@ -231,7 +250,15 @@ public class RolitSocket extends Thread {
 		}
 	}
 	
-	public void processCommand(String token, String[] tail) throws IOException {
+	/**
+	 * Processes a command given a certain token. It is expected that
+	 * the token is the first word of the string and thus indicates
+	 * the type of the command. Checks for protocol syntax errors,
+	 * queues messages in the messagequeues and sends back errrors accordingly.
+	 * @param token - The command prefix
+	 * @param tail - The parameters of the command
+	 */
+	public void processCommand(String token, String[] tail) {
 		// Parse msg prefix and the rest of the message
 		// Commands that can be invoked at any given point in time
 		if (token.equals("PROTO")) { // For protocol type info
@@ -284,14 +311,12 @@ public class RolitSocket extends Thread {
 				queueMsg(MessageType.FB_SINFO, tail);
 			}
 		} else if (token.equals("ERROR")) { // For an error of the other side
-			// TODO: Maybe write details to error.log?
 			if (tail == null) {
 				tellERROR(Error.TooFewArgumentsException, "ERROR (lol)");
 			} else {
 				queueMsg(MessageType.FB_ERROR, tail);
 			}
 		} else if (token.equals("WARNI")) { // For a warning from the other side
-			// TODO: Maybe write details to warning.log?
 			if (tail == null) {
 				tellERROR(Error.TooFewArgumentsException, "WARNI (lel)");
 			} else {
@@ -300,11 +325,7 @@ public class RolitSocket extends Thread {
 						+ warning + "\"");
 			}
 		} else if (token.equals("SCORE")) { // A score request
-//			if (tail == null || tail.length == 1) { // What if there are no highscores?
-//				tellERROR(Error.TooFewArgumentsException);
-//			} else {
 			queueMsg(MessageType.AL_SCORE, tail);
-//			}
 		} else if (token.equals("LEAVE")) { // When a client disconnects or leaves the lobby
 			if (id == ID_SERVER) { // Disconnect happened
 				if (tail == null) {
@@ -482,6 +503,10 @@ public class RolitSocket extends Thread {
 		}
 	}
 	
+	/**
+	 * The main program that is the RolitSocket.
+	 * Runs until it is terminated or until an IOException is thrown.
+	 */
 	public void run() {
 		// Initialize lock
 		listLock = new ReentrantLock();
@@ -554,23 +579,48 @@ public class RolitSocket extends Thread {
 		out = null;
 	}
 	
+	/**
+	 * Terminates the main loop. After this the main loop closes,
+	 * and the streams are closed A.S.A.P.
+	 */
 	public void close() {
 		running = false;
 		closeCalled = true;
 	}
 	
+	/**
+	 * Returns whether the main thread loop is active.
+	 * @return True or false whether it is active or not
+	 */
 	public boolean isRunning() {
 		return running;
 	}
 	
+	/**
+	 * Returns whether or not close() was called on this instance.
+	 * @return True or false whether if that is true or not
+	 */
 	public boolean isCloseCalled() {
 		return closeCalled;
 	}
 	
+	/**
+	 * Returns whether the socket is connected. Directly after the
+	 * streams are opened this variable is set to true, and as soon
+	 * as the streams and sockets are closed this variable is
+	 * set to false
+	 * @return True or false depending on the socket/streams
+	 */
 	public boolean isConnected() {
 		return connected;
 	}
 	
+	/**
+	 * Returns whether or not there is a new mesasge queued. If the
+	 * queues are not yet initialized it will return false. This
+	 * function is threadsafe.
+	 * @return True or false depending on above mentioned factors
+	 */
 	public boolean isNewMsgQueued() {
 		if (queuedMsgs == null) {
 //			throw new IOException("Socket Exception: socket has not yet connected");
@@ -583,6 +633,12 @@ public class RolitSocket extends Thread {
 		return size > 0;
 	}
 	
+	/**
+	 * Returns the messagetype of the next message in the queue.
+	 * If there is no message queued or the queues are not yet
+	 * initialized, it will return X_NONE of type MessageType
+	 * @return - The type of the queued message
+	 */
 	public MessageType getQueuedMsgType() {
 		if (queuedMsgs == null) {
 //			throw new IOException("Socket Exception: socket has not yet connected");
@@ -600,6 +656,11 @@ public class RolitSocket extends Thread {
 		}
 	}
 	
+	/**
+	 * Returns the parameters of the queued message as a String[].
+	 * Returns null if there is no message. This function is threadsafe.
+	 * @return - The String[] containing the parameters of the queued message
+	 */
 	public String[] getQueuedMsgArray() {
 		listLock.lock();
 		
@@ -615,6 +676,11 @@ public class RolitSocket extends Thread {
 		}
 	}
 	
+	/**
+	 * Returns the parameters of the queued message as a string. This is
+	 * useful for when a CHATM is queued. This function is threadsafe.
+	 * @return - The parameters of the message as a continious String
+	 */
 	public String getQueuedMsg() {
 		String[] msg = getQueuedMsgArray();
 		if (msg == null) {
@@ -624,10 +690,19 @@ public class RolitSocket extends Thread {
 		}
 	}
 	
+	/**
+	 * Sends a message without parameters.
+	 * @param type - The type of the message
+	 */
 	private void queueMsg(MessageType type) {
 		queueMsg(type, new String[0]);
 	}
 	
+	/**
+	 * Sends a message with parameters.
+	 * @param type - The type of the command
+	 * @param msg - The String[] containing the parameters
+	 */
 	private void queueMsg(MessageType type, String[] msg) {
 		listLock.lock();
 		queuedMsgsType.add(type);
@@ -635,15 +710,12 @@ public class RolitSocket extends Thread {
 		listLock.unlock();
 	}
 	
-	// TODO 
 	/**
-	 * Send an arbitrary string to the other side. Adds a newline for you if needed.
+	 * Send an arbitrary string to the other side. Adds a newline if needed.
 	 * @param msg - The message to be sent.
-	 * @throws StreamNotOpenException 
 	 */
 	protected void sendMsg(String msg) {
 		if (out == null) {
-//			throw new StreamNotOpenException("Socket Exception: Socket stream not yet opened");
 			return; // Function is not supposed to be used before the streams are ready!
 		}
 		
@@ -669,44 +741,80 @@ public class RolitSocket extends Thread {
 	/////////////////////////////////////
 	/////////////////////////////////////
 	
+	/**
+	 * Tells the version of the protocol this socket is
+	 * using to the other side.
+	 */
 	public void tellPROTO() {
 		String msg = "PROTO INFB 1.4.0";
 		sendMsg(msg);
 	}
 	
+	/**
+	 * Asks the other side to send it's prototype.
+	 */
 	public void askPROTO() {
 		String msg = "PROTO";
 		sendMsg(msg);
 	}
 	
+	/**
+	 * Tells the otherside the sockets version info.
+	 */
 	public void tellSINFO() {
 		if (id == ID_SERVER) {
-			sendMsg("SINFO HONEYBADGER 0.0.1");
+			sendMsg("SINFO HONEYBADGER 1.0.1");
 		} else {
-			sendMsg("SINFO CARRION 0.0.1");
+			sendMsg("SINFO CARRION 1.0.1");
 		}
 	}
 	
+	/**
+	 * Asks the other side to send it's version info.
+	 */
 	public void askSINFO() {
 		sendMsg("SINFO");
 	}
 	
+	/**
+	 * Sends an error without details to the other side.
+	 * @param e - The error type
+	 */
 	public void tellERROR(Error e) {
 		sendMsg("ERROR " + e.toString());
 	}
 	
+	/**
+	 * Sends an error with details to the other side.
+	 * @param e - The error type
+	 * @param details - Details on the error in a string
+	 */
 	public void tellERROR(Error e, String details) {
 		sendMsg("ERROR " + e.toString() + " " + details);
 	}
 	
+	/**
+	 * Sends a warning to the other side with info.
+	 * @param info - The info on the warning
+	 */
 	public void tellWARNI(String info) {
 		sendMsg("WARNI " + info);
 	}
 	
+	/**
+	 * Says hello to the other side and tells this.
+	 * clients/servers capabilities
+	 */
 	public void tellHELLO() {
 		sendMsg("HELLO CL");
 	}
 	
+	/**
+	 * Sends an ALIVE message to the other side. This is
+	 * used as a heartbeat. If the socket errors here,
+	 * the socket is closed since the connection is probably lost.
+	 * @return
+	 */
 	public boolean askALIVE() {
 		try {
 			out.write("ALIVE");

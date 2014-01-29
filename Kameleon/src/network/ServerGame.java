@@ -74,7 +74,8 @@ public class ServerGame extends Thread{
 	public void distributeTurn(int t) {
 		for (int i = 0; i < players.length; i++) {
 			if (players[i] != null) {
-				players[i].net().tellGTURN(t);
+				players[i].net().tellGTURN(t + 1);
+				System.out.println(t + 1);
 			}
 		}
 	}
@@ -85,9 +86,7 @@ public class ServerGame extends Thread{
 	
 	public void distributeMove(int p, int x, int y) {
 		for (int i = 0; i < players.length; i++) {
-			if (i != p && players[i] != null) {
-				players[i].net().tellGMOVE(p, x, y);
-			}
+			players[i].net().tellGMOVE(p + 1, x, y);
 		}
 	}
 	
@@ -106,6 +105,7 @@ public class ServerGame extends Thread{
 		}
 		
 		distributeTurn(turn);
+		System.out.println("\t[ServerGame] Turn: " + (turn + 1));
 	}
 	
 	public void handlePlayerComms(int i, ServerPlayer p) {
@@ -114,7 +114,7 @@ public class ServerGame extends Thread{
 			String[] msg = p.net().getQueuedMsgArray();
 			switch (msgType) {
 				case IG_GMOVE:
-					if (turn == i) { // TODO: setCurrentPlayer niet vergeten!
+					if (turn == i) {
 						Vector2i pos = new Vector2i(Integer.parseInt(msg[0]),
 								Integer.parseInt(msg[1]));
 						Move move = new Move(pos, playerObjs[i]);
@@ -161,7 +161,7 @@ public class ServerGame extends Thread{
 	public void run() {
 		for (ServerPlayer p : players) {
 			p.net().tellSTART(playerNames);
-			p.net().tellGTURN(turn);
+			p.net().tellGTURN(turn + 1);
 		}
 		
 		running = true;
