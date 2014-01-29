@@ -94,7 +94,7 @@ public class SocketHandlerThread extends Thread {
 	public void run() {
 		String[] newMessage;
 		while (crs.isRunning()) {
-			System.out.println("Handling" + isLobby);
+//			System.out.println("Handling" + isLobby);
 			if (crs.isNewMsgQueued()) {
 				try {
 					serverMessageType = crs.getQueuedMsgType();

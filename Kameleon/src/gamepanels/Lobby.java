@@ -52,6 +52,7 @@ public class Lobby extends JPanel implements ActionListener {
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			
 		}
 	}
 	
@@ -95,9 +96,6 @@ public class Lobby extends JPanel implements ActionListener {
 		crs.tellVSIGN(toSign, pki.getPrivateKey());
 		
 		System.out.println(toSign);
-		
-		// end of authentication
-		
 	}
 	
 	public void init() {

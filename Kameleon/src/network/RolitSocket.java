@@ -439,6 +439,7 @@ public class RolitSocket extends Thread {
 				}
 			}
 		} else if (token.equals("ALIVE")) {
+			System.out.println("[OTHER SIDE HEARTBEAT]");
 			return;
 		} else if (token.equals("PLIST")) {
 			if (id == ID_SERVER) {

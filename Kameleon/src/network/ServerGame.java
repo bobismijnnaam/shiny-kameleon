@@ -16,6 +16,7 @@ public class ServerGame extends Thread{
 	
 	int turn = 0;
 	private boolean running = false; 
+	private boolean finished = false;
 	
 	public ServerGame(ServerPlayer...inputPlayers) {
 		if (inputPlayers.length <= 1) {
@@ -54,6 +55,20 @@ public class ServerGame extends Thread{
 				break;
 		}
 		
+	}
+	
+	public boolean isPlayerInGame(String player) {
+		for (String s : playerNames) {
+			if (s.equals(player)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public boolean isFinished() {
+		return finished;
 	}
 	
 	public ServerPlayer[] getPlayers() {
@@ -134,6 +149,8 @@ public class ServerGame extends Thread{
 					p.net().close();
 					players[i] = null;
 					break;
+				case AL_STATE:
+					p.net().tellSTATE(PlayerState.PLAYING);
 				default:
 					p.net().tellERROR(RolitSocket.Error.UnexpectedOperationException,
 							msgType.toString());
@@ -164,5 +181,7 @@ public class ServerGame extends Thread{
 				break;
 			}
 		}
+		
+		finished = true;
 	}
 }

@@ -1,15 +1,17 @@
 package network;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import utility.Stopwatch;
 import utility.Utils;
 import network.RolitSocket.MessageType;
 import network.ServerPlayer.PlayerAuthState;
 
-// TODO: Make sure you can only login once, otherwise error!
-// TODO: Queue mechanics
 // TODO: Alive pings :D
+// TODO: Client should handle exceptions/errors like loginfault
+// TODO: Client should close sockets on x'ing out
 public class Server extends Thread {
 	public static final int SERVER_PORT = 2014;
 	
@@ -21,6 +23,8 @@ public class Server extends Thread {
 	private List<ServerGame> games;
 	
 	private PlayerQueue playerQ;
+	
+	private Stopwatch aliveTimer;
 
 	private boolean running = false;
 
@@ -60,6 +64,33 @@ public class Server extends Thread {
 	private void serverSays(String msg) {
 		out("[Server] " + msg);
 	}
+	
+	private boolean isPlayerInServer(String player) {
+		System.out.println("flcheck");
+		for (ServerPlayer p : frontline) {
+			if (p.getName() != null) {
+				if (p.getName().equals(player)) {
+					return true;
+				}
+			}
+		}
+		
+		System.out.println("locheck");
+		for (ServerPlayer p : lobby) {
+			if (p.getName().equals(player)) {
+				return true;
+			}
+		}
+		
+		System.out.println("sgcheck");
+		for (ServerGame sg : games) {
+			if (sg.isPlayerInGame(player)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
 	private void playerSays(ServerPlayer player, String msg) {
 		out("[" + player.getName() + "] " + msg);
@@ -76,11 +107,11 @@ public class Server extends Thread {
 		}
 	}
 
-	private void garbageCollectPlayer(List<ServerPlayer> l, ServerPlayer p) {
-		if (p.net().isCloseCalled()) {
-			l.remove(p);
-		}
-	}
+//	private void garbageCollectPlayer(List<ServerPlayer> l, ServerPlayer p) {
+//		if (p.net().isCloseCalled()) {
+//			l.remove(p);
+//		}
+//	}
 	
 	private void broadcastPlayerJoin(ServerPlayer player) {
 		for (ServerPlayer lobbyist : lobby) {
@@ -118,13 +149,22 @@ public class Server extends Thread {
 				case AC_LOGIN:
 					if (p.getAuthState() == PlayerAuthState.Unauthenticated) {
 						String username = msg[0];
-						String authKey = PKISocket.getRandomString(50);
-						p.setAuthKeySent(username, authKey);
-						pki.requestPublicKey(username);
-
-						serverSays("Player " + username
-								+ " wants to shake hands. "
-								+ "Extended hand to " + username);
+						
+						if (isPlayerInServer(username)) {
+							p.net().tellERROR(RolitSocket.Error.LogInFailedException,
+									"User already connected or still in a game.");
+							p.net().close();
+							frontline.remove(p);
+							serverSays("Player " + p.getName() + " tried to duplicate connect");
+						} else {
+							String authKey = PKISocket.getRandomString(50);
+							p.setAuthKeySent(username, authKey);
+							pki.requestPublicKey(username);
+	
+							serverSays("Player " + username
+									+ " wants to shake hands. "
+									+ "Extended hand to " + username);
+						}
 					} else {
 						p.net().tellERROR(
 								RolitSocket.Error.UnexpectedOperationException,
@@ -200,8 +240,6 @@ public class Server extends Thread {
 				}
 			}
 		}
-
-//		garbageCollectPlayer(frontline, p);
 	}
 
 	private void handleLobby(ServerPlayer p) {
@@ -227,7 +265,8 @@ public class Server extends Thread {
 					p.net().close();
 					lobby.remove(p);
 					broadcastPlayerLeave(p);
-					// TODO: Clean up pending invites/queues
+					playerQ.removePlayer(p);
+					// TODO: Clean up pending invites
 					break;
 				case AL_STATE:
 					if (playerQ.isQueued(p)) {
@@ -236,18 +275,18 @@ public class Server extends Thread {
 						p.net().tellSTATE(PlayerState.LOBBY);
 					}
 					break;
-				case LO_NGAME: // TODO: Send error when already in queue
-					if (!playerQ.isQueued(p)) { // TODO: Check if player has no invites
-						if (msg[0].equals("D") || msg[0].equals("H")) {
-							playerQ.addDuoer(p);
-						} else if (msg[0].equals("I")) {
-							playerQ.addTrioer(p);
-						} else if (msg[0].equals("J")) {
-							playerQ.addQuatroer(p);
-						} else {
-							p.net().tellERROR(RolitSocket.Error.IllegalArgumentException,
-									"NGAME only supports D, H, I, J");
-						}
+				case LO_NGAME:
+					// TODO: Check if player has no invites
+					playerQ.removePlayer(p);
+					if (msg[0].equals("D") || msg[0].equals("H")) {
+						playerQ.addDuoer(p);
+					} else if (msg[0].equals("I")) {
+						playerQ.addTrioer(p);
+					} else if (msg[0].equals("J")) {
+						playerQ.addQuatroer(p);
+					} else {
+						p.net().tellERROR(RolitSocket.Error.IllegalArgumentException,
+								"NGAME only supports D, H, I, J");
 					}
 					break;
 				case LO_PLIST:
@@ -266,12 +305,10 @@ public class Server extends Thread {
 					break;
 			}
 		}
-
-		garbageCollectPlayer(lobby, p);
 	}
 	
 	private void handleQueues() {
-		while (playerQ.hasDuo()) { // TODO: add leave when they leave lobby!
+		while (playerQ.hasDuo()) {
 			ServerPlayer[] players = playerQ.getDuo();
 			lobby.remove(players[0]);
 			lobby.remove(players[1]);
@@ -318,6 +355,8 @@ public class Server extends Thread {
 		pki.start();
 		serverSays("Started PKI handler");
 		
+		aliveTimer = new Stopwatch();
+		
 		while (!pki.isRunning() && !sb.isRunning()) {
 			try {
 				Thread.sleep(17);
@@ -335,8 +374,6 @@ public class Server extends Thread {
 			// If so, add it to the frontlines! CHARGE
 			handleNewConnections();
 
-			ServerPlayer p;
-
 			// Check front line for clients wanting to get in
 			for (int i = 0; i < frontline.size(); i++) {
 				handleFrontline(frontline.get(i));
@@ -347,6 +384,29 @@ public class Server extends Thread {
 				handleLobby(lobby.get(i));
 			}
 			handleQueues();
+			
+			// Check if any games are finished and if so, return players to the lobby
+			Iterator<ServerGame> i = games.iterator();
+			while (i.hasNext()) {
+				ServerGame sg = i.next();
+				if (sg.isFinished()) {
+					ServerPlayer[] players = sg.getPlayers();
+					for (ServerPlayer p : players) {
+						if (p != null) {
+							lobby.add(p);
+							broadcastPlayerJoin(p);
+							serverSays("Player " + p.getName()
+									+ " entered the lobby");
+						}
+					}
+					
+					i.remove();
+				}
+			}
+			
+			if (aliveTimer.getElapsedTimeS() >= 5) {
+				
+			}
 
 			try {
 				Thread.sleep(17);
@@ -368,68 +428,6 @@ public class Server extends Thread {
 		}
 
 		System.out.println("-------- All done! --------");
-		System.out
-				.println("-------- HoneyBadger HRTP Server wishes you a good day! --------");
+		System.out.println("-------- HoneyBadger HRTP Server wishes you a good day! --------");
 	}
 }
-
-// RolitSocket server = new RolitSocket(SERVER_PORT);
-// RolitSocket client = new RolitSocket("localhost", SERVER_PORT);
-//
-// server.start();
-// client.start();
-//
-// System.out.println("Initialized variables. Waiting for them to connect...");
-//
-// while (!server.isRunning() || !client.isRunning()) {
-// // Let the thread sleep so the other processes can get some cpu time
-// try {
-// Thread.sleep(100);
-// } catch (InterruptedException e) {
-// // TODO Auto-generated catch block
-// e.printStackTrace();
-// }
-// }
-//
-// System.out.println("They seem to both have connected and started properly!");
-//
-// server.askPROTO();
-//
-// while (server.getQueuedMsgType() != RolitSocket.MessageType.FB_PROTO) {
-// try {
-// Thread.sleep(100);
-// } catch (InterruptedException e) {
-// // TODO Auto-generated catch block
-// e.printStackTrace();
-// }
-// }
-//
-// System.out.println("A message seems to have arrived!");
-//
-// System.out.println("Message: \"" + server.getQueuedMsg() + "\"");
-//
-// System.out.println("\n");
-//
-// System.out.print("Closing client, server. ");
-// client.close();
-//
-// try {
-// Thread.sleep(200);
-// } catch (InterruptedException e) {
-// // TODO Auto-generated catch block
-// e.printStackTrace();
-// }
-//
-// server.close();
-//
-// try {
-// client.join();
-// server.join();
-// } catch (InterruptedException e) {
-// // TODO Auto-generated catch block
-// e.printStackTrace();
-// }
-//
-// System.out.println("Server still alive: " + server.isAlive());
-// System.out.println("Client still alive: " + client.isAlive());
-// System.out.println("Profit?");

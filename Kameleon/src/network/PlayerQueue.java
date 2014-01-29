@@ -36,6 +36,10 @@ public class PlayerQueue {
 		}
 	}
 	
+	public boolean removePlayer(ServerPlayer p) {
+		return duoQ.remove(p) || trioQ.remove(p) || quatroQ.remove(p);
+	}
+	
 	public boolean hasDuo() {
 		return duoQ.size() >= 2;
 	}
