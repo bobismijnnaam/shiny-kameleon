@@ -26,22 +26,14 @@ public class ServerGame extends Thread{
 		players = inputPlayers;
 		
 		playerNames = new String[players.length];
+		playerObjs = new Player[players.length];
 		for (int i = 0; i < players.length; i++) {
 			playerNames[i] = players[i].getName();
-			players[i].resetPlayerObject(i);
+			players[i].resetPlayerObject(i + 1);
+			playerObjs[i] = players[i].getPlayerObject();
 		}
 		
 		board = new BoardModel();
-		
-		playerObjs = new Player[players.length];
-		playerObjs[0] = players[0].getPlayerObject();
-		playerObjs[1] = players[1].getPlayerObject();
-		if (players.length > 2) {
-			playerObjs[2] = players[2].getPlayerObject();
-		}
-		if (players.length > 3) {
-			playerObjs[3] = players[3].getPlayerObject();
-		}
 		
 		switch (players.length) {
 			case 2:
@@ -118,7 +110,7 @@ public class ServerGame extends Thread{
 			String[] msg = p.net().getQueuedMsgArray();
 			switch (msgType) {
 				case IG_GMOVE:
-					if (turn == i) {
+					if (turn == i) { // TODO: setCurrentPlayer niet vergeten!
 						Vector2i pos = new Vector2i(Integer.parseInt(msg[0]),
 								Integer.parseInt(msg[1]));
 						Move move = new Move(pos, playerObjs[i]);

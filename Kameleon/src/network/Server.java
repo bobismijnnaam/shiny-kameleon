@@ -66,7 +66,6 @@ public class Server extends Thread {
 	}
 	
 	private boolean isPlayerInServer(String player) {
-		System.out.println("flcheck");
 		for (ServerPlayer p : frontline) {
 			if (p.getName() != null) {
 				if (p.getName().equals(player)) {
@@ -75,14 +74,12 @@ public class Server extends Thread {
 			}
 		}
 		
-		System.out.println("locheck");
 		for (ServerPlayer p : lobby) {
 			if (p.getName().equals(player)) {
 				return true;
 			}
 		}
 		
-		System.out.println("sgcheck");
 		for (ServerGame sg : games) {
 			if (sg.isPlayerInGame(player)) {
 				return true;
@@ -333,8 +330,8 @@ public class Server extends Thread {
 			ServerPlayer[] players = playerQ.getQuatro();
 			lobby.remove(players[0]);
 			lobby.remove(players[1]);
+			lobby.remove(players[2]);
 			lobby.remove(players[3]);
-			lobby.remove(players[4]);
 			broadcastPlayerLeave(players);
 			
 			ServerGame game = new ServerGame(players);
