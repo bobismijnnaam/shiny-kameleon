@@ -315,7 +315,7 @@ public class Lobby extends JPanel implements ActionListener {
 	
 	public void answerInvite(String playerName) {
 		int choice = JOptionPane.showConfirmDialog(this 
-                , "You are challenged by" + playerName
+                , "You are challenged by " + playerName
                 , "Game challange" , JOptionPane.WARNING_MESSAGE
                 , JOptionPane.OK_CANCEL_OPTION);
 		System.out.println(choice);
