@@ -11,8 +11,10 @@ import java.net.Socket;
 import utility.Utils;
 import network.ClientRolitSocket;
 import network.ClientRolitSocket.NGAMEFlags;
+import network.INVITStatus;
 import network.PlayerState;
 import network.RolitSocket;
+import network.ScoreTime;
 import network.ServerRolitSocket;
 
 public class RolitSocketTest {
@@ -21,6 +23,9 @@ public class RolitSocketTest {
 
 	ClientRolitSocket crs;
 	ServerRolitSocket srs;
+	
+	String[] players = {"Ruben", "Bob"};
+	int[] board = new int[64];
 	
 	PrintStream os;
 	
@@ -34,6 +39,10 @@ public class RolitSocketTest {
 
 			}
 		}));
+		
+		for (int i = 0; i < 64; i++) {
+			board[i] = i % 2;
+		}
 	}
 	
 	public void pause(int s) {
@@ -241,11 +250,6 @@ public class RolitSocketTest {
 		
 		String result1 = srs.getQueuedMsg();
 		
-		int[] board = new int[64];
-		for (int i = 0; i < 64; i++) {
-			board[i] = i % 2;
-		}
-		
 		srs.tellBOARD(board);
 		
 		waitFor(IG_BOARD, crs);
@@ -270,7 +274,6 @@ public class RolitSocketTest {
 		
 		String result1 = srs.getQueuedMsg();
 		
-		String[] players = {"Bob", "Ruben"};
 		srs.tellGPLST(players);
 		
 		waitFor(IG_GPLST, crs);
@@ -278,7 +281,112 @@ public class RolitSocketTest {
 		String result2 = crs.getQueuedMsg();
 		
 		eval("GPLIST1", result1, "");
-		eval("GPLIST2", result2, "Bob Ruben");
+		eval("GPLIST2", result2, "Ruben Bob");
+		
+		close();
+	}
+	
+	public void testScore() throws IOException {
+		setup();
+		
+		crs.askSCORE("Bob", 42);
+		
+		waitFor(AL_SCORE, srs);
+		
+		String result1 = srs.getQueuedMsg();
+		
+		crs.askSCORE(42);
+		
+		waitFor(AL_SCORE, srs);
+		
+		String result2 = srs.getQueuedMsg();
+		
+		crs.askSCORE(42, ScoreTime.MONTH);
+		
+		waitFor(AL_SCORE, srs);
+		
+		String result3 = srs.getQueuedMsg();
+		
+		eval("SCORE1", result1, "PLAYER Bob 42");
+		eval("SCORE2", result2, "HIGH 42");
+		eval("SCORE3", result3, "TIME 42 MONTH");
+		
+		close();
+	}
+	
+	public void testPlist() throws IOException {
+		setup();
+		
+		crs.askPLIST();
+		
+		waitFor(LO_PLIST, srs);
+		
+		String result1 = srs.getQueuedMsg();
+		
+		srs.tellPLIST(players);
+		
+		waitFor(LO_PLIST, crs);
+		
+		String result2 = crs.getQueuedMsg();
+		
+		eval("PLIST1", result1, "");
+		eval("PLIST2", result2, "Ruben Bob");
+		
+		close();
+	}
+	
+	public void testInvit() throws IOException {
+		setup();
+		
+		crs.askINVIT(players);
+		
+		waitFor(LO_INVIT, srs);
+		
+		String result1 = srs.getQueuedMsg();
+		
+		srs.askINVIT(players);
+		
+		waitFor(LO_INVIT, crs);
+		
+		String result2 = crs.getQueuedMsg();
+		
+		crs.tellINVIT(INVITStatus.Accept);
+		
+		waitFor(LO_INVIT, srs);
+		
+		String result3 = srs.getQueuedMsg();
+		
+		srs.tellINVIT();
+		
+		waitFor(LO_INVIT, crs);
+		
+		String result4 = crs.getQueuedMsg();
+		
+		eval("INVIT1", result1, "R Ruben Bob");
+		eval("INVIT2", result2, "R Ruben Bob");
+		eval("INVIT3", result3, "A");
+		eval("INVIT4", result4, "D");
+		
+		close();
+	}
+	
+	public void testChatm() throws IOException {
+		setup();
+		
+		crs.tellCHATM("test msg");
+		
+		waitFor(AL_CHATM, srs);
+		
+		String result1 = srs.getQueuedMsg();
+		
+		srs.tellCHATM("Ruben", "test msg");
+		
+		waitFor(AL_CHATM, crs);
+		
+		String result2 = crs.getQueuedMsg();
+		
+		eval("CHATM1", result1, "test msg");
+		eval("CHATM2", result2, "Ruben test msg");
 		
 		close();
 	}
@@ -312,6 +420,14 @@ public class RolitSocketTest {
 		rst.testBoard();
 		
 		rst.testGplist();
+		
+		rst.testScore();
+		
+		rst.testPlist();
+		
+		rst.testInvit();
+		
+		rst.testChatm();
 	}
 	
 }

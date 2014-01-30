@@ -10,7 +10,7 @@ public class ClientRolitSocket extends RolitSocket {
 	public enum NGAMEFlags {
 //		Challenge,
 		Default,
-		TwoPlayerGame,
+		TwoPlayerGame, 
 		ThreePlayerGame,
 		FourPlayerGame;
 		

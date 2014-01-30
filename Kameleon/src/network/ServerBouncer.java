@@ -3,6 +3,7 @@ package network;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class ServerBouncer implements Runnable {
@@ -114,8 +115,11 @@ public class ServerBouncer implements Runnable {
 			ssock.close();
 			running = false;
 			synchronized (socks) {
-				for (int i = 0; i < socks.size(); i++) {
-					socks.get(i).close();
+				Iterator<Socket> i = socks.iterator();
+				while (i.hasNext()) {
+					Socket s = i.next();
+					s.close();
+					i.remove();
 				}
 			}
 		} catch (IOException e) {

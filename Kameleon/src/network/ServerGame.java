@@ -172,8 +172,13 @@ public class ServerGame extends Thread {
 		if (players[turn] == null) { // Skips players which have leaved
 			turn = (turn + 1) % players.length;
 		}
-		
-		distributeTurn(turn);
+	}
+	
+	/**
+	 * Returns the id of the person who currently has the turn.
+	 */
+	public int getTurn() {
+		return turn;
 	}
 	
 	/**
@@ -206,6 +211,7 @@ public class ServerGame extends Thread {
 								running = false;
 							} else {
 								nextTurn();
+								distributeTurn(turn);
 							}
 						} else {
 							// Move is not allowed! Send error

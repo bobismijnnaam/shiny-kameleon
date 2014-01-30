@@ -70,11 +70,16 @@ public class ServerPlayer {
 	}
 	
 	public void setAuthKeySent(String inputName, String inputAuth) {
-		name = inputName;
+		setName(inputName);
+		
 		textToSign = inputAuth;
 		authState = authState.next();	
 		
 		net().askVSIGN(textToSign);
+	}
+	
+	public void setName(String inputName) {
+		name = inputName;
 	}
 	
 	public void setAuthKeyReceived(String inputSignature) {
