@@ -18,6 +18,12 @@ public class ServerGame extends Thread {
 	private boolean running = false; 
 	private boolean finished = false;
 	
+	/**
+	 * Constructs a ServerGame object which controls the gameflow
+	 * and sends appropriate messages to the clients
+	 * @param inputPlayers - The ServerPlayers who will be
+	 * participating in the game.
+	 */
 	public ServerGame(ServerPlayer...inputPlayers) {
 		if (inputPlayers.length <= 1) {
 			throw new NullPointerException("Can't start a game with 1 or less players");
@@ -49,10 +55,20 @@ public class ServerGame extends Thread {
 		
 	}
 	
+	/**
+	 * Prints an arbitary message to the console
+	 * with a prefix [Game].
+	 * @param msg - The message
+	 */
 	public void gameSays(String msg) {
 		System.out.println("\t[Game] " + msg);
 	}
 	
+	/**
+	 * Checks whether or not the player is in the game.
+	 * @param player - The name of the player to look for
+	 * @return
+	 */
 	public boolean isPlayerInGame(String player) {
 		for (String s : playerNames) {
 			if (s.equals(player)) {
@@ -63,14 +79,28 @@ public class ServerGame extends Thread {
 		return false;
 	}
 	
+	/**
+	 * To check if the game is finished.
+	 * @return True if the game is finished, otherwise false
+	 */
 	public boolean isFinished() {
 		return finished;
 	}
 	
+	/**
+	 * Returns a ServerPlayer[] of players in this game.
+	 * @return The ServerPlayer[]
+	 */
 	public ServerPlayer[] getPlayers() {
 		return players;
 	}
 	
+	/**
+	 * Tells whose turn it is to all participating players.
+	 * The function makes the turn compliant with the protocol
+	 * (Protocol dictates [1-4], server uses [0-3]
+	 * @param t The turn [0-3].
+	 */
 	public void distributeTurn(int t) {
 		for (int i = 0; i < players.length; i++) {
 			if (players[i] != null) {
@@ -80,16 +110,30 @@ public class ServerGame extends Thread {
 		}
 	}
 	
+	/**
+	 * Tells the move by a certain player to all participating players.
+	 * @param p - The player who does the move
+	 * @param move - The move itself
+	 */
 	public void distributeMove(int p, Move move) {
 		distributeMove(p, move.getPosition().x, move.getPosition().y);
 	}
 	
+	/**
+	 * Tells the move by a certain player to all participating players.
+	 * @param p - The player who does the move
+	 * @param x - The X coordinate
+	 * @param y - The Y coordinate
+	 */
 	public void distributeMove(int p, int x, int y) {
 		for (int i = 0; i < players.length; i++) {
 			players[i].net().tellGMOVE(p + 1, x, y);
 		}
 	}
 	
+	/**
+	 * Notifies all the players that the game has ended.
+	 */
 	public void distributeGameEnd() {
 		for (int i = 0; i < players.length; i++) {
 			if (players[i] != null) {
@@ -98,6 +142,9 @@ public class ServerGame extends Thread {
 		}
 	}
 	
+	/**
+	 * Calculates who is next, and tells all the clients about it.
+	 */
 	public void nextTurn() {
 		turn = (turn + 1) % players.length;
 		if (players[turn] == null) { // Skips players which have leaved
@@ -105,9 +152,13 @@ public class ServerGame extends Thread {
 		}
 		
 		distributeTurn(turn);
-		System.out.println("\t[ServerGame] Turn: " + (turn + 1));
 	}
 	
+	/**
+	 * Handles the player mechanics.
+	 * @param i - The place of this player in the order of players
+	 * @param p - The ServerPlayer instance
+	 */
 	public void handlePlayerComms(int i, ServerPlayer p) {
 		while (p.net().isNewMsgQueued()) {
 			MessageType msgType = p.net().getQueuedMsgType();
@@ -158,6 +209,9 @@ public class ServerGame extends Thread {
 		}
 	}
 	
+	/**
+	 * The ServerGame main loop.
+	 */
 	public void run() {
 		for (ServerPlayer p : players) {
 			p.net().tellSTART(playerNames);
