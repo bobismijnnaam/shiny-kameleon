@@ -1,21 +1,18 @@
 package gamepanels;
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultCaret;
 
-import players.Player;
 import net.miginfocom.swing.MigLayout;
 import network.ClientRolitSocket;
 import network.PKISocket;
@@ -192,6 +189,7 @@ public class Lobby extends JPanel implements ActionListener {
 			JButton newPlayer = new JButton(inputPlayer);
 			newPlayer.setName(inputPlayer);
 			list.add(newPlayer, "span, width 100%");
+			newPlayer.addActionListener(this);
 			game.setSize(721, 620);
 			game.setSize(720, 620);
 		}
@@ -276,6 +274,11 @@ public class Lobby extends JPanel implements ActionListener {
 			playerModus.setText(medium.getName());
 		} else if (e.getSource().equals(hard)) {
 			playerModus.setText(hard.getName());
+		} else {
+			// it's an invite
+			String toInvite = ((Component) e.getSource()).getName();
+			System.out.println("inviting:" + toInvite);
+			invite();
 		}
 	}
 	
@@ -284,6 +287,16 @@ public class Lobby extends JPanel implements ActionListener {
 	 */
 	public String[] getSettings() {
 		return settings;
+	}
+	
+	public void invite() {
+		final JDialog dialog = new JDialog();  
+		dialog.setModal(true);
+	    dialog.setSize(300, 200);
+	    dialog.setLocationRelativeTo(this);
+	    JLabel inviteMessage = new JLabel("Invited");
+	    dialog.add(inviteMessage);
+	    dialog.setVisible(true);
 	}
 	
 	/**
