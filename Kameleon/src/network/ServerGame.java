@@ -6,24 +6,31 @@ import utility.Vector2i;
 import network.RolitSocket.MessageType;
 import board.BoardModel;
 
+// TODO: Handle leaves better! See isPlayerInGame (string should be modified)
 public class ServerGame extends Thread {
 	
 	ServerPlayer[] players;
 	String[] playerNames;
 	Player[] playerObjs;
 	
-	BoardModel board;
+	BoardModel board = new BoardModel();
 	
 	int turn = 0;
 	private boolean running = false; 
 	private boolean finished = false;
 	
+	//@ private invariant turn < players.length;
+	//@ private invariant board != null;
+	//@ private invariant playerObjs.length == playerNames.length == players.length;
+	
 	/**
 	 * Constructs a ServerGame object which controls the gameflow
-	 * and sends appropriate messages to the clients
+	 * and sends appropriate messages to the clients.
 	 * @param inputPlayers - The ServerPlayers who will be
 	 * participating in the game.
 	 */
+	//@ requires inputPlayers.length > 1;
+	//@ ensures playerObjs.length == playerNames.length == players.length;
 	public ServerGame(ServerPlayer...inputPlayers) {
 		if (inputPlayers.length <= 1) {
 			throw new NullPointerException("Can't start a game with 1 or less players");
@@ -38,8 +45,6 @@ public class ServerGame extends Thread {
 			players[i].resetPlayerObject(i + 1);
 			playerObjs[i] = players[i].getPlayerObject();
 		}
-		
-		board = new BoardModel();
 		
 		switch (players.length) {
 			case 2:
@@ -60,6 +65,7 @@ public class ServerGame extends Thread {
 	 * with a prefix [Game].
 	 * @param msg - The message
 	 */
+	//@ pure;
 	public void gameSays(String msg) {
 		System.out.println("\t[Game] " + msg);
 	}
@@ -68,6 +74,11 @@ public class ServerGame extends Thread {
 	 * Checks whether or not the player is in the game.
 	 * @param player - The name of the player to look for
 	 * @return
+	 */
+	//@ requires player != null;
+	/*@ ensures \result == (\exists int i; 0 <= i && i < getPlayers().length;
+	  @ getPlayers()[i].getName().equals(player));
+	  @ pure;
 	 */
 	public boolean isPlayerInGame(String player) {
 		for (String s : playerNames) {
@@ -101,11 +112,12 @@ public class ServerGame extends Thread {
 	 * (Protocol dictates [1-4], server uses [0-3]
 	 * @param t The turn [0-3].
 	 */
+	//@ requires 0 <= t && t < 4;
+	//@ requires t < players.length;
 	public void distributeTurn(int t) {
 		for (int i = 0; i < players.length; i++) {
 			if (players[i] != null) {
 				players[i].net().tellGTURN(t + 1);
-				System.out.println(t + 1);
 			}
 		}
 	}
@@ -115,6 +127,11 @@ public class ServerGame extends Thread {
 	 * @param p - The player who does the move
 	 * @param move - The move itself
 	 */
+	//@ requires 0 <= p && p < 4;
+	//@ requires p < players.length;
+	//@ requires move != null;
+	//@ requires 0 <= move.x && move.x < 8;
+	//@ requires 0 <= move.y && move.y < 8;
 	public void distributeMove(int p, Move move) {
 		distributeMove(p, move.getPosition().x, move.getPosition().y);
 	}
@@ -125,6 +142,10 @@ public class ServerGame extends Thread {
 	 * @param x - The X coordinate
 	 * @param y - The Y coordinate
 	 */
+	//@ requires 0 <= p && p < 4;
+	//@ requires p < players.length;
+	//@ requires 0 <= x && x < 8;
+	//@ requires 0 <= y && y < 8;
 	public void distributeMove(int p, int x, int y) {
 		for (int i = 0; i < players.length; i++) {
 			players[i].net().tellGMOVE(p + 1, x, y);
@@ -159,6 +180,9 @@ public class ServerGame extends Thread {
 	 * @param i - The place of this player in the order of players
 	 * @param p - The ServerPlayer instance
 	 */
+	//@ requires 0 <= i && i < 4;
+	//@ requires p != null;
+	//@ ensures !p.net().isNewMsgQueued();
 	public void handlePlayerComms(int i, ServerPlayer p) {
 		while (p.net().isNewMsgQueued()) {
 			MessageType msgType = p.net().getQueuedMsgType();

@@ -9,6 +9,7 @@ import utility.Utils;
 
 // TODO: More JML-like specifications (like checking if player != null, etc.)
 // TODO: Check lobby limitations and shit
+// TODO: Make the main work again with ClientRolitSocket
 
 public class ServerRolitSocket extends RolitSocket {
 	public ServerRolitSocket(Socket inputSock) {

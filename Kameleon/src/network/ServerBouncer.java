@@ -9,22 +9,33 @@ public class ServerBouncer implements Runnable {
 	private ServerSocket ssock;
 	private boolean running;
 	LinkedList<Socket> socks;
+	private int port;
 	
-	public ServerBouncer(int port) {
+	/**
+	 * Constructs the Server Port Listener on given port.
+	 * @param port - The port to listen on
+	 */
+	//@ requires inputPort != 0;
+	public ServerBouncer(int inputPort) {
 		running = false;
+		port = inputPort;
 	}
 		
+	/**
+	 * The main loop of the listener. Pushes new connections on the stack
+	 * and terminates as soon as close() is called.
+	 */
 	public void run() {
 		try {
-			ssock = new ServerSocket(Server.SERVER_PORT);
+			ssock = new ServerSocket(port);
 		} catch (IOException e) {
 			System.out.println("Network error: couldn't open server socket on port "
-					+ Integer.toString(Server.SERVER_PORT));
+					+ Integer.toString(port));
 		}
 		
-		running = true;
 		Socket tSock;
 		socks = new LinkedList<Socket>();
+		running = true;
 		
 		while (running) {
 			try {
@@ -39,6 +50,12 @@ public class ServerBouncer implements Runnable {
 		}
 	}
 	
+	/**
+	 * To check if there is a new connection waiting to be handled.
+	 * @return - True if there is more than one connection
+	 */
+	//@ ensures !isRunning() ==> \result == false;
+	//@ pure;
 	public boolean isNewConnection() {
 		if (socks == null) {
 			return false;
@@ -49,6 +66,12 @@ public class ServerBouncer implements Runnable {
 		}
 	}
 	
+	/**
+	 * Returns a socket that is waiting to be handled.
+	 * @return - A socket
+	 */
+	//@ ensures !isRunning() ==> \result == null;
+	//@ ensures isNewConnection() && isRunning() ==> \result != null;
 	public Socket getNewConnection() {
 		if (socks == null) {
 			return null;
@@ -62,14 +85,30 @@ public class ServerBouncer implements Runnable {
 		}
 	}
 	
+	/**
+	 * To check if the main loop of this thread is still running.
+	 * @return True if the thread is running. Otherwhise false
+	 */
+	//@ pure;
 	public boolean isRunning() {
 		return running;
 	}
 	
+	/**
+	 * Terminates the thread and closes the server socket.
+	 * Also closes any waiting connections.
+	 */
+	//@ requires isRunning();
+	//@ ensures !isRunning();
 	public void close() {
 		try {
 			ssock.close();
 			running = false;
+			synchronized (socks) {
+				for (int i = 0; i < socks.size(); i++) {
+					socks.get(i).close();
+				}
+			}
 		} catch (IOException e) {
 			System.out.println("Server Socket exception: exception while closing the socket");
 		}

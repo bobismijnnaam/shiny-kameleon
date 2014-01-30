@@ -29,8 +29,6 @@ import org.apache.commons.codec.binary.Base64;
 
 import utility.Utils;
 
-// Should actually be quite easy 0- it was, kinda
-
 public class PKISocket extends Thread {
 	public static final String PKI_SERVER_ADDR = "ss-security.student.utwente.nl";
 	public static final int PKI_SERVER_PORT = 2013;
