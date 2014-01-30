@@ -1,7 +1,9 @@
 package network;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import utility.Stopwatch;
@@ -21,7 +23,7 @@ public class Server extends Thread {
 
 	private List<ServerPlayer> frontline;
 	private List<ServerPlayer> lobby;
-	// private List<Invite> invites;
+	private ServerInviteManager invites;
 	private List<ServerGame> games;
 	
 	private PlayerQueue playerQ;
@@ -37,7 +39,7 @@ public class Server extends Thread {
 		// Let's do this!
 		frontline = new ArrayList<ServerPlayer>();
 		lobby = new ArrayList<ServerPlayer>();
-		// invites = new LinkedList<ServerPlayer>();
+		invites = new ServerInviteManager(lobby);
 		games = new ArrayList<ServerGame>();
 		
 		playerQ = new PlayerQueue();
@@ -51,10 +53,12 @@ public class Server extends Thread {
 		// Let's do this!
 		frontline = new ArrayList<ServerPlayer>();
 		lobby = new ArrayList<ServerPlayer>();
-		// invites = new LinkedList<ServerPlayer>();
+		invites = new ServerInviteManager(lobby);
 		games = new ArrayList<ServerGame>();
 		
 		playerQ = new PlayerQueue();
+		
+		running = false;
 		
 		usePort = port;
 	}
@@ -294,8 +298,16 @@ public class Server extends Thread {
 					}
 					p.net().tellPLIST(playersAvailable.toArray(new String[0]));
 					break;
-				case LO_INVIT: // TODO: Check if in playerqueue. If so, remove
-					serverSays("Gamemode not yet supported");
+				case LO_INVIT:
+					if (msg[0].equals("R")) {
+						if (!invites.hasInvite(p)) {
+							String[] invitees = Arrays.copyOfRange(msg, 1, msg.length);
+							invites.startInvite(p, invitees);
+							playerQ.removePlayer(p);
+						}
+					} else {
+						invites.processResponse(p, msg[0]);
+					}
 					break;
 				default:
 					p.net().tellERROR(RolitSocket.Error.UnexpectedOperationException,
@@ -338,6 +350,23 @@ public class Server extends Thread {
 			ServerGame game = new ServerGame(players);
 			game.start();
 			games.add(game);
+		}
+	}
+	
+	private void handleInvites() {
+		ServerGame newGame = invites.processInvites();
+		if (newGame != null) {
+			newGame.start();
+			ServerPlayer[] participants = newGame.getPlayers();
+			for (ServerPlayer p : participants) {
+				lobby.remove(p);
+			}
+			for (ServerPlayer p : participants) {
+				broadcastPlayerLeave(p);
+			}
+			games.add(newGame);
+			
+			newGame = invites.processInvites();
 		}
 	}
 
