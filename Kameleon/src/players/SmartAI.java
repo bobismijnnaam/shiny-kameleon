@@ -20,7 +20,7 @@ public class SmartAI extends Player implements AI {
 		{7, 2, 5, 4, 4, 5, 2, 7},
 	};
 	
-	public static final int MAX_LVL = 4;
+	public static final int MAX_LVL = 3;
 
 	public SmartAI(Colour inputColour) {
 		super(inputColour, "Smart");
