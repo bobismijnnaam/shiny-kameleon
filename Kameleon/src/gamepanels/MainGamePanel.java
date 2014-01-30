@@ -1,6 +1,7 @@
 package gamepanels;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -8,13 +9,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.text.BadLocationException;
 
+import net.miginfocom.swing.MigLayout;
 import network.ClientRolitSocket;
 import network.SocketHandlerThread;
 import players.AlphaAI;
@@ -46,6 +51,10 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 	private ClientRolitSocket crs = null;
 	private int currentPlayer = -1;
 	private int maxPlayer = 0;
+	private JTextArea chat;
+	private JTextArea message;
+	private JButton send;
+	public int lMaxMessage = 0;
 	
 	/**
 	 * @param inputSettings - a String containing the players (human , disabled, ai)
@@ -85,6 +94,7 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 			ClientRolitSocket inputCrs) throws IOException {
 		System.out.println("CONSTRUCTING ONLINE GAME");
 		// attempt to put everything in a layered pane
+		crs = inputCrs;
 		layeredPane = new JLayeredPane();
 		layeredPane.setLayout(new GridBagLayout());
 		game = inputGame;
@@ -111,7 +121,6 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 		layeredPane.add(mainView.getRootPane(), c);
 		add(layeredPane, c);
 		setOpaque(false);
-		crs = inputCrs;
 		SocketHandlerThread onlineHandler = new SocketHandlerThread(inputCrs, game, this);
 		onlineHandler.start();
 	}
@@ -265,20 +274,59 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 		container.add(logoWrapper, d);
 		d.gridy = 1;
 		d.weighty = 0.4;
-		JButton test = new JButton("");
-		test.setOpaque(false);
-		test.setContentAreaFilled(false);
-		test.setBorderPainted(false);
-		container.add(test, d);
+		JPanel chatWrap = new JPanel();
+		chatWrap.setOpaque(false);
+		if (crs != null) {
+			System.out.println("test");
+			chatWrap = drawChat();
+		}
+		container.add(chatWrap, d);
 		return container;
 	}
-
 	
-	public void drawPopup() {
-		JButton test = new JButton("test");
-		layeredPane.setLayer(test, 10);
-		layeredPane.add(test);
-		layeredPane.repaint();
+	/**
+	 * Draws a chatbox and adds listeners.
+	 * @return 
+	 */
+	public JPanel drawChat() {
+		JPanel chatBox = new JPanel();
+		chatBox.setLayout(new MigLayout());
+		chatBox.setOpaque(false);
+		chatBox.setBackground(new Color(0, 0, 0, 0));
+		chat = new JTextArea("Welcome to the in game chatBox");
+		chat.setForeground(Color.WHITE); 
+		chat.setEditable(false);  
+		chat.setOpaque(false);
+		chat.setBackground(new Color(0, 0, 0, 0));
+		chatBox.add(chat, "span, width 100%, height 90%");
+		message = new JTextArea("Message:");
+		message.setBorder(BorderFactory.createLineBorder(Color.black));
+		send = new JButton("Send");
+		send.setName("send");
+		chatBox.add(message, "span, split 2, width 60%, height 10%");
+		chatBox.add(send, "width 40%, height 10%");
+		send.addActionListener(this);
+		return chatBox;
+	}
+	
+	/** 
+	 * Adds a message to the chatBox.
+	 * @param inputUsername - The user that sends the message.
+	 * @param inputMessage - The message.
+	 */
+	public void addChatMessage(String inputUsername, String inputMessage) {
+		chat.append("\n" + inputUsername + ": " + inputMessage);
+		lMaxMessage++;
+		if (lMaxMessage > 10) {
+			System.out.println("Chat full removing upper line");
+			int end = 0;
+			try {
+				end = chat.getLineEndOffset(0);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			} 
+			chat.replaceRange("", 0, end);
+		}
 	}
 	
 	public void goToMainMenu() {
@@ -311,6 +359,9 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 				System.out.println("Were online close the socket!");
 				crs.close();
 			}
+		} else if (check.getName() == "send") {
+			System.out.println("test");
+			crs.tellCHATM(message.getText());
 		}
 		
 	}

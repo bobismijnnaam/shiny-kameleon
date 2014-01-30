@@ -46,6 +46,12 @@ public class SocketHandlerThread extends Thread {
 				lobby.addChatMessage(inputNewMessage[0], chatMessage);
 				break;
 			case LO_INVIT:
+				System.out.println("Received an invite");
+				if (inputNewMessage[0].equals("R")) {
+					lobby.answerInvite(inputNewMessage[1]);
+				} else {
+					lobby.invitDenied();
+				}
 				break;
 			case LO_START:
 				String[] players = new String[4];
@@ -80,6 +86,14 @@ public class SocketHandlerThread extends Thread {
 	public void handleOnline(MessageType inputServerMessageType, String[] inputNewMessage) {
 		switch (inputServerMessageType) {
 			case X_NONE:
+				break;
+			case AL_CHATM:
+				String chatMessage;
+				String[] realMessage = new String[inputNewMessage.length - 1];
+				System.arraycopy(inputNewMessage, 1, realMessage, 0, 
+						inputNewMessage.length - 1);
+				chatMessage = Utils.join(realMessage);
+				online.addChatMessage(inputNewMessage[0], chatMessage);
 				break;
 			case IG_GMOVE:
 				online.setOnlineMove(inputNewMessage[1] , inputNewMessage[2]);
