@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
@@ -289,18 +288,17 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 	 * @return 
 	 */
 	public JPanel drawChat() {
-		JPanel chatBox = new JPanel();
+		RatioPanel chatBox = new RatioPanel();
 		chatBox.setLayout(new MigLayout());
 		chatBox.setOpaque(false);
 		chatBox.setBackground(new Color(0, 0, 0, 0));
-		chat = new JTextArea("Welcome to the in game chatBox");
+		chat = new JTextArea(1, 10);
 		chat.setForeground(Color.WHITE); 
 		chat.setEditable(false);  
 		chat.setOpaque(false);
 		chat.setBackground(new Color(0, 0, 0, 0));
 		chatBox.add(chat, "span, width 100%, height 90%");
-		message = new JTextArea("Message:");
-		message.setBorder(BorderFactory.createLineBorder(Color.black));
+		message = new JTextArea(1, 20);
 		send = new JButton("Send");
 		send.setName("send");
 		chatBox.add(message, "span, split 2, width 60%, height 10%");

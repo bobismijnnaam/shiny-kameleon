@@ -78,6 +78,9 @@ public class SocketHandlerThread extends Thread {
 				System.out.println("Received new join");
 				lobby.addPlayer(inputNewMessage[0]);
 				break;
+			case AL_LEAVE:
+				lobby.removePlayer(inputNewMessage[0]);
+				break;
 			default:
 				break;
 		}
@@ -108,7 +111,6 @@ public class SocketHandlerThread extends Thread {
 	@Override
 	public void run() {
 		String[] newMessage;
-		
 		while (crs.isRunning() && !kill) {
 			if (crs.isNewMsgQueued()) {
 				try {
@@ -119,10 +121,21 @@ public class SocketHandlerThread extends Thread {
 					} else {
 						handleOnline(serverMessageType, newMessage);
 					}
-					Thread.sleep(100);
+					Thread.sleep(10);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+			}
+			
+		}
+		
+		if (crs.isCloseCalled()) {
+			try {
+				System.out.println("Going to main menu");
+				game.setNextState(Game.STATE_MAIN, null, null);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}	
