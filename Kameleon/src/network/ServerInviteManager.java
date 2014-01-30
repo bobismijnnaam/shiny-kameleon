@@ -1,5 +1,6 @@
 package network;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -10,6 +11,7 @@ public class ServerInviteManager {
 	
 	public ServerInviteManager(List<ServerPlayer> inputLobby) {
 		lobby = inputLobby;
+		invites = new ArrayList<ServerInvite>();
 	}
 	
 	public boolean hasInvite(ServerPlayer p) {
