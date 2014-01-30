@@ -16,6 +16,7 @@ import javax.swing.text.BadLocationException;
 
 import net.miginfocom.swing.MigLayout;
 import network.ClientRolitSocket;
+import network.INVITStatus;
 import network.PKISocket;
 import network.RolitSocket.MessageType;
 import network.SocketHandlerThread;
@@ -296,7 +297,7 @@ public class Lobby extends JPanel implements ActionListener {
 	    dialog.setSize(300, 200);
 	    dialog.setLocationRelativeTo(this);
 	    JLabel inviteMessage = new JLabel("Invited " + inputName,  JLabel.CENTER);
-	    // crs.tellINVITR(inputName);
+	    crs.askINVIT(inputName);
 	    dialog.add(inviteMessage);
 	    dialog.setVisible(true);
 	}
@@ -319,9 +320,9 @@ public class Lobby extends JPanel implements ActionListener {
                 , JOptionPane.OK_CANCEL_OPTION);
 		System.out.println(choice);
 		if (choice == 0) {
-			// crs.tellINVITA()
+			crs.tellINVIT(INVITStatus.Accept);
 		} else {
-			// crs.tellINVITD()
+			crs.tellINVIT(INVITStatus.Denied);
 		}
 	}
 	
