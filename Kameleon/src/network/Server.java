@@ -10,8 +10,10 @@ import network.RolitSocket.MessageType;
 import network.ServerPlayer.PlayerAuthState;
 
 // TODO: Alive pings :D
+// TODO: Scoreboard
 // TODO: Client should handle exceptions/errors like loginfault
 // TODO: Client should close sockets on x'ing out
+// TODO: LJOIN spam
 public class Server extends Thread {
 	public static final int SERVER_PORT = 2014;
 	
@@ -179,6 +181,11 @@ public class Server extends Thread {
 					if (p.getAuthState() == PlayerAuthState.Authenticated) {
 						p.setClientType(msg[0]);
 						frontline.remove(p);
+						
+						for (ServerPlayer otherP : lobby) {
+							p.net().tellLJOIN(otherP.getName());
+						}
+						
 						lobby.add(p);
 						broadcastPlayerJoin(p);
 						serverSays("Player " + p.getName()
