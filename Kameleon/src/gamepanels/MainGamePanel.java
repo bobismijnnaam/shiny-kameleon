@@ -9,7 +9,9 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
@@ -186,14 +188,43 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 	 * Sets the player turn to the next player and starts the turn.
 	 */
 	public void setPlayerTurn() {
-		currentPlayer++;
-		if (currentPlayer == maxPlayer) {
-			currentPlayer = 0;
+		if (board.hasWinner()) {
+			System.out.println("We've got a winner");
+			showWinner(board.getWinners());
+		} else {
+		
+			currentPlayer++;
+			if (currentPlayer == maxPlayer) {
+				currentPlayer = 0;
+			}
+			mainView.setTurn(currentPlayer, players);
+			boardController.startPlayerTurn(players[currentPlayer]);
 		}
-		boardController.startPlayerTurn(players[currentPlayer]);
+	}
+	
+	public void showWinner(Player[] inputPlayers) {
+		final JDialog dialog = new JDialog();  
+		dialog.setModal(true);
+	    dialog.setSize(300, 200);
+	    dialog.setLocationRelativeTo(mainView);
+	    JLabel winner = null;
+	    if (inputPlayers.length == 1) {
+	    	winner = new JLabel(inputPlayers[0].getColour() + " is the winner with " + 
+    				board.getScore(inputPlayers[0]) + "points!", JLabel.CENTER);
+	    } else {
+	    	for (int i = 0; i < inputPlayers.length; i++) {
+	    		String winners = "";
+	    		winners = winners + inputPlayers[i].getColour() + " with a score of " + 
+	    				board.getScore(inputPlayers[i]) + " | ";
+	    		winner = new JLabel(winners);
+	    	}
+	    }
+	    dialog.add(winner);
+	    dialog.setVisible(true);
 	}
 	
 	public void setNetworkPlayerTurn(int playerID) {
+		mainView.setTurn(playerID, players);
 		boardController.startPlayerTurn(players[playerID]);
 	}
 	
@@ -276,6 +307,10 @@ public class MainGamePanel extends JInternalFrame implements ActionListener {
 		JButton check = (JButton) e.getSource();
 		if (check.getName() == "main") {
 			goToMainMenu();
+			if (crs != null) {
+				System.out.println("Were online close the socket!");
+				crs.close();
+			}
 		}
 		
 	}

@@ -68,6 +68,10 @@ public class SocketHandlerThread extends Thread {
 					e.printStackTrace();
 				}
 				break;
+			case LO_LJOIN:
+				System.out.println("Received new join");
+				lobby.addPlayer(inputNewMessage[0]);
+				break;
 			default:
 				break;
 		}

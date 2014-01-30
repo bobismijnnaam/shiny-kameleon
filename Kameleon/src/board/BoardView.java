@@ -1,7 +1,9 @@
 package board;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.LayoutManager;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Observable;
@@ -9,9 +11,15 @@ import java.util.Observer;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.OverlayLayout;
 
+import players.AI;
+import players.NetworkPlayer;
 import players.Player;
 import players.Player.Colour;
 import utility.BackgroundPanel;
@@ -26,6 +34,8 @@ public class BoardView extends JInternalFrame implements Observer {
 	private JButton[][] fieldButtons;
 	private JButton button;
 	private BoardModel board;
+	private BackgroundPanel[] turn;
+	private JLayeredPane layers;
 	
 	// array is used to store the correct buttons
 	private int arrayX, arrayY;
@@ -44,12 +54,13 @@ public class BoardView extends JInternalFrame implements Observer {
 	 * @param inputBoard The input Board.
 	 * @throws IOException
 	 */
-	public void makeGUI(BoardModel inputBoard) throws IOException {
+	public void makeGUI(BoardModel inputBoard) throws IOException {		
 		BackgroundPanel bg = new BackgroundPanel("media/bg.png");
 		bg.setLayout(new BorderLayout());
 		// initialize arrays
 		fields = new BackgroundPanel[8][8];
 		fieldButtons = new JButton[8][8];
+		turn = new BackgroundPanel[4];
 		board = inputBoard;
 		
 		// the board container a ratio Panel
@@ -82,6 +93,7 @@ public class BoardView extends JInternalFrame implements Observer {
 					// set standard gradient texture
 					BackgroundPanel leftEdge = new BackgroundPanel("media/leftMid.png");
 					
+					
 					// if it's the mid position set the color
 					if (y == 4) {
 						leftEdge = new BackgroundPanel("media/blueUp.png"); //set up panel
@@ -94,6 +106,9 @@ public class BoardView extends JInternalFrame implements Observer {
 					leftEdge.add(button, BorderLayout.CENTER);
 					xRow.setOpaque(false);
 					xRow.add(leftEdge);
+					if (y == 3) {
+						turn[3] = leftEdge;
+					}
 				}
 				
 				// make the button transparent
@@ -142,6 +157,10 @@ public class BoardView extends JInternalFrame implements Observer {
 						rightEdge = new BackgroundPanel("media/yellowDown.png"); //set up panel
 					}
 					
+					if (y == 6) {
+						turn[1] = rightEdge;
+					}
+					
 					// add it
 					rightEdge.setLayout(new BorderLayout());
 					rightEdge.add(button, BorderLayout.CENTER);
@@ -176,6 +195,9 @@ public class BoardView extends JInternalFrame implements Observer {
 					// add to row
 					topBorder.setLayout(new BorderLayout());
 					topBorder.add(button, BorderLayout.CENTER);
+					if (x == 6) {
+						turn[0] = topBorder;
+					}
 					xRow.setOpaque(false);
 					xRow.add(topBorder);
 				}
@@ -204,6 +226,10 @@ public class BoardView extends JInternalFrame implements Observer {
 						lowerBorder = new BackgroundPanel("media/greenright.png"); //set up panel
 					}
 					
+					if (x == 3) {
+						turn[2] = lowerBorder;
+					}
+					
 					// add everything
 					lowerBorder.setLayout(new BorderLayout());
 					lowerBorder.add(button, BorderLayout.CENTER);
@@ -221,9 +247,10 @@ public class BoardView extends JInternalFrame implements Observer {
 		container.setPreferredSize(new Dimension(8000, 8000));
 		// Add board observer
 		board.addObserver(this);
-		
 	}
 
+
+	
 	/**
 	 * Sets the startpositions in the View.
 	 */
@@ -243,6 +270,78 @@ public class BoardView extends JInternalFrame implements Observer {
 		LinkedList<Vector2i> moves = board.getMoveSuggestions(currentPlayer);
 		for (Vector2i m : moves) {
 			fields[m.x][m.y].changeTexture("media/enabled.png");
+		}
+	}
+	
+	public void setTurn(int i, Player[] inputPlayers) {
+		if (i == 0) {
+			if (inputPlayers[i] instanceof AI) {
+				turn[i].changeTexture("media/topTurn.png");
+			} else {
+				if (inputPlayers[i] instanceof NetworkPlayer) {
+					if (((NetworkPlayer) inputPlayers[i]).checkYou()) {
+						turn[i].changeTexture("media/redYou.png");
+					} else {
+						turn[i].changeTexture("media/topTurn.png");
+					}
+				} else {
+					turn[i].changeTexture("media/redYou.png");
+				}
+			}
+			turn[1].changeTexture("media/leftMid.png");
+			turn[2].changeTexture("media/lowerMid.png");
+			turn[3].changeTexture("media/leftMid.png");
+		} else if (i == 1) {
+			if (inputPlayers[i] instanceof AI) {
+				turn[i].changeTexture("media/leftTurn.png");
+			} else {
+				if (inputPlayers[i] instanceof NetworkPlayer) {
+					if (((NetworkPlayer) inputPlayers[i]).checkYou()) {
+						turn[i].changeTexture("media/yellowYou.png");
+					} else {
+						turn[i].changeTexture("media/leftTurn.png");
+					}
+				} else {
+					turn[i].changeTexture("media/yellowYou.png");
+				}
+			} 
+			turn[0].changeTexture("media/topMid.png");
+			turn[2].changeTexture("media/lowerMid.png");
+			turn[3].changeTexture("media/leftMid.png");
+		} else if (i == 2) {
+			if (inputPlayers[i] instanceof AI) {
+				turn[i].changeTexture("media/lowerTurn.png");
+			}else {
+				if (inputPlayers[i] instanceof NetworkPlayer) {
+					if (((NetworkPlayer) inputPlayers[i]).checkYou()) {
+						turn[i].changeTexture("media/greenYou.png");
+					} else {
+						turn[i].changeTexture("media/lowerTurn.png");
+					}
+				} else {
+					turn[i].changeTexture("media/greenYou.png");
+				}
+			}
+			turn[1].changeTexture("media/leftMid.png");
+			turn[0].changeTexture("media/topMid.png");
+			turn[3].changeTexture("media/leftMid.png");
+		} else if (i == 3) {
+			if (inputPlayers[i] instanceof AI) {
+				turn[i].changeTexture("media/leftTurn.png");
+			} else {
+				if (inputPlayers[i] instanceof NetworkPlayer) {
+					if (((NetworkPlayer) inputPlayers[i]).checkYou()) {
+						turn[i].changeTexture("media/blueYou.png");
+					} else {
+						turn[i].changeTexture("media/leftTurn.png");
+					}
+				} else {
+					turn[i].changeTexture("media/blueYou.png");
+				}
+			}
+			turn[1].changeTexture("media/leftMid.png");
+			turn[2].changeTexture("media/lowerMid.png");
+			turn[0].changeTexture("media/topMid.png");
 		}
 	}
 	
