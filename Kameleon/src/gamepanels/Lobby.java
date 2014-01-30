@@ -9,6 +9,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.text.BadLocationException;
@@ -278,7 +279,7 @@ public class Lobby extends JPanel implements ActionListener {
 			// it's an invite
 			String toInvite = ((Component) e.getSource()).getName();
 			System.out.println("inviting:" + toInvite);
-			invite();
+			invite(((Component) e.getSource()).getName());
 		}
 	}
 	
@@ -289,14 +290,39 @@ public class Lobby extends JPanel implements ActionListener {
 		return settings;
 	}
 	
-	public void invite() {
+	public void invite(String inputName) {
 		final JDialog dialog = new JDialog();  
 		dialog.setModal(true);
 	    dialog.setSize(300, 200);
 	    dialog.setLocationRelativeTo(this);
-	    JLabel inviteMessage = new JLabel("Invited");
+	    JLabel inviteMessage = new JLabel("Invited " + inputName,  JLabel.CENTER);
+	    // crs.tellINVITR(inputName);
 	    dialog.add(inviteMessage);
 	    dialog.setVisible(true);
+	}
+	
+	public void invitDenied() {
+		final JDialog dialog = new JDialog();  
+		dialog.setModal(true);
+	    dialog.setSize(300, 200);
+	    dialog.setLocationRelativeTo(this);
+	    JLabel inviteMessage = new JLabel("Invitation denied",  JLabel.CENTER);
+	    dialog.add(inviteMessage);
+	    dialog.setVisible(true);
+	}
+	
+	
+	public void answerInvite(String playerName) {
+		int choice = JOptionPane.showConfirmDialog(this 
+                , "You are challenged by" + playerName
+                , "Game challange" , JOptionPane.WARNING_MESSAGE
+                , JOptionPane.OK_CANCEL_OPTION);
+		System.out.println(choice);
+		if (choice == 0) {
+			// crs.tellINVITA()
+		} else {
+			// crs.tellINVITD()
+		}
 	}
 	
 	/**
