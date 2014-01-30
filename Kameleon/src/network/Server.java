@@ -496,7 +496,7 @@ public class Server extends JFrame implements Runnable {
 			String portString = JOptionPane.showInputDialog(
 					msg, String.valueOf(Server.SERVER_PORT));
 			
-			if (portString == null) {
+			if (portString == null || portString.length() == 0) {
 				return;
 			}
 			
