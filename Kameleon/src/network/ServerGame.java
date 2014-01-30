@@ -2,6 +2,7 @@ package network;
 
 import players.Player;
 import utility.Move;
+import utility.Utils;
 import utility.Vector2i;
 import network.RolitSocket.MessageType;
 import board.BoardModel;
@@ -224,6 +225,11 @@ public class ServerGame extends Thread {
 					break;
 				case AL_STATE:
 					p.net().tellSTATE(PlayerState.PLAYING);
+					break;
+				case AL_CHATM:
+					for (ServerPlayer otherP : players) {
+						otherP.net().tellCHATM(p.getName(), Utils.join(msg));
+					}
 					break;
 				default:
 					p.net().tellERROR(RolitSocket.Error.UnexpectedOperationException,
