@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -34,6 +35,7 @@ public class Lobby extends JPanel implements ActionListener {
 	private Game game;
 	private int lMaxMessage = 0;
 	private JPanel list, challenge;
+	private ArrayList<JButton> listPlayer = new ArrayList<JButton>();
 	
 	/**
 	 * Construct a new lobby.
@@ -194,11 +196,20 @@ public class Lobby extends JPanel implements ActionListener {
 			newPlayer.addActionListener(this);
 			game.setSize(721, 620);
 			game.setSize(720, 620);
+			listPlayer.add(newPlayer);
 		}
 	}
 	
 	public void removePlayer(String inputPlayer) {
 		System.out.println(inputPlayer + " Has left the game");
+		for (JButton leaver : listPlayer) {
+			if (leaver.getName().equals(inputPlayer)) {
+				System.out.println(leaver.getName());
+				list.remove(leaver);
+				game.setSize(721, 620);
+				game.setSize(720, 620);
+			}
+		}
 	}
 	
 	/**

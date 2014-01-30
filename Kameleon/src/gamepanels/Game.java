@@ -49,6 +49,8 @@ public class Game extends JFrame {
 					remove(offlineView.getRootPane());
 				} else if (lastState == STATE_ONLINE) {
 					remove(onlineView.getRootPane());
+				} else if (lastState == STATE_LOBBY) {
+					remove(lobby);
 				}
 				
 				// create a new mainMenu view and add it to the frame.
@@ -80,6 +82,7 @@ public class Game extends JFrame {
 				lobby = new Lobby(this, settings);
 				add(lobby);
 				setSize(720, 620);
+				lastState = STATE_LOBBY;
 				break;
 			case STATE_ONLINE:
 				remove(lobby);
