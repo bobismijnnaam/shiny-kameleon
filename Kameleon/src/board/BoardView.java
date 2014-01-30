@@ -1,9 +1,7 @@
 package board;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.LayoutManager;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Observable;
@@ -11,12 +9,8 @@ import java.util.Observer;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
-import javax.swing.OverlayLayout;
 
 import players.AI;
 import players.NetworkPlayer;
@@ -35,7 +29,6 @@ public class BoardView extends JInternalFrame implements Observer {
 	private JButton button;
 	private BoardModel board;
 	private BackgroundPanel[] turn;
-	private JLayeredPane layers;
 	
 	// array is used to store the correct buttons
 	private int arrayX, arrayY;
@@ -311,7 +304,7 @@ public class BoardView extends JInternalFrame implements Observer {
 		} else if (i == 2) {
 			if (inputPlayers[i] instanceof AI) {
 				turn[i].changeTexture("media/lowerTurn.png");
-			}else {
+			} else {
 				if (inputPlayers[i] instanceof NetworkPlayer) {
 					if (((NetworkPlayer) inputPlayers[i]).checkYou()) {
 						turn[i].changeTexture("media/greenYou.png");

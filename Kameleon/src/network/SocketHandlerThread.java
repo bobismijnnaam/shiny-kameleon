@@ -80,6 +80,9 @@ public class SocketHandlerThread extends Thread {
 				break;
 			default:
 				break;
+			case AL_LEAVE:
+				lobby.removePlayer(inputNewMessage[0]);
+				break;
 		}
 	}
 	

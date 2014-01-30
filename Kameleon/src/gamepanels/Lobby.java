@@ -33,7 +33,7 @@ public class Lobby extends JPanel implements ActionListener {
 	private JButton d, h, i, j, send, human, easy, medium, hard;
 	private Game game;
 	private int lMaxMessage = 0;
-	private JPanel list;
+	private JPanel list, challenge;
 	
 	/**
 	 * Construct a new lobby.
@@ -197,6 +197,10 @@ public class Lobby extends JPanel implements ActionListener {
 		}
 	}
 	
+	public void removePlayer(String inputPlayer) {
+		System.out.println(inputPlayer + " Has left the game");
+	}
+	
 	/**
 	 * Draws a chatbox and adds listeners.
 	 */
@@ -218,7 +222,7 @@ public class Lobby extends JPanel implements ActionListener {
 	}
 	
 	public void drawChallenge() {
-		JPanel challenge = new JPanel();
+		challenge = new JPanel();
 		challenge.setLayout(new MigLayout());
 		list = new JPanel(new MigLayout());
 		list.setBorder(BorderFactory.createLineBorder(Color.black));
