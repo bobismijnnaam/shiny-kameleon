@@ -1,22 +1,28 @@
 package network;
 
+import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
-import utility.Stopwatch;
-import utility.Utils;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
+
 import network.RolitSocket.MessageType;
 import network.ServerPlayer.PlayerAuthState;
+import utility.Stopwatch;
+import utility.Utils;
 
 // TODO: Alive pings :D
 // TODO: Scoreboard
 // TODO: Client should handle exceptions/errors like loginfault
 // TODO: Client should close sockets on x'ing out
 // TODO: LJOIN spam
-public class Server extends Thread {
+
+// public class Server extends Thread {
+public class Server extends JFrame implements Runnable {
 	public static final int SERVER_PORT = 2014;
 	
 	private int usePort = 0;
@@ -25,6 +31,8 @@ public class Server extends Thread {
 	private List<ServerPlayer> lobby;
 	private ServerInviteManager invites;
 	private List<ServerGame> games;
+	
+	private JTextArea servertext;
 	
 	private PlayerQueue playerQ;
 	
@@ -36,6 +44,7 @@ public class Server extends Thread {
 	PKISocket pki;
 
 	public Server() {
+		super("Honeybadger Console");
 		// Let's do this!
 		frontline = new ArrayList<ServerPlayer>();
 		lobby = new ArrayList<ServerPlayer>();
@@ -50,6 +59,7 @@ public class Server extends Thread {
 	}
 	
 	public Server(int port) {
+		super("Honeybadger Console");
 		// Let's do this!
 		frontline = new ArrayList<ServerPlayer>();
 		lobby = new ArrayList<ServerPlayer>();
@@ -68,7 +78,8 @@ public class Server extends Thread {
 	}
 
 	private void serverSays(String msg) {
-		out("[Server] " + msg);
+		// out("[Server] " + msg);
+		servertext.append("[Server] " + msg + "\n");
 	}
 	
 	private boolean isPlayerInServer(String player) {
@@ -372,6 +383,12 @@ public class Server extends Thread {
 	}
 
 	public void run() {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		servertext = new JTextArea();
+		getContentPane().add(servertext, BorderLayout.CENTER);
+		setSize(640, 480);
+		setVisible(true);
+		
 		serverSays("HONEYBADGER ON DUTY!");
 
 		sb = new ServerBouncer(usePort);
@@ -440,7 +457,7 @@ public class Server extends Thread {
 			}
 
 			try {
-				Thread.sleep(17);
+				Thread.sleep(17); // Magic constant, only the best primes work
 			} catch (InterruptedException e) {
 				System.out.println("Haha no way"); // ya way
 			}
@@ -448,11 +465,16 @@ public class Server extends Thread {
 	}
 
 	public static void main(String[] args) {
-		Server serv = new Server();
-		serv.start();
+		int port = Integer.parseInt(JOptionPane.showInputDialog(
+				"Enter port number", String.valueOf(Server.SERVER_PORT)));
+		
+		
+		Server serv = new Server(port);
+		Thread servThread = new Thread(serv);
+		servThread.start();
 
 		try {
-			serv.join();
+			servThread.join();
 		} catch (InterruptedException e) {
 			System.out.println("Interruped Exception?");
 			return;
