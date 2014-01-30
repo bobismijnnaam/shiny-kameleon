@@ -306,6 +306,7 @@ public class Server extends Thread {
 							playerQ.removePlayer(p);
 						}
 					} else {
+						serverSays("Got response from " + p.getName() + ": " + msg[0]);
 						invites.processResponse(p, msg[0]);
 					}
 					break;
@@ -411,6 +412,8 @@ public class Server extends Thread {
 				handleLobby(lobby.get(i));
 			}
 			handleQueues();
+			
+			handleInvites();
 			
 			// Check if any games are finished and if so, return players to the lobby
 			Iterator<ServerGame> i = games.iterator();

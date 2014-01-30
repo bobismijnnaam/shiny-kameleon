@@ -48,6 +48,7 @@ public class ServerInvite {
 	public void processResponse(ServerPlayer p, String response) {
 		if (isInvited(p)) {
 			if (response.equals(INVITStatus.Accept.toString())) {
+				System.out.println("[Invite] Player " + p.getName() + "accepted the invite.");
 				accepted++;
 			} else if (response.equals(INVITStatus.Denied.toString())) {
 				setInviteFailed();
