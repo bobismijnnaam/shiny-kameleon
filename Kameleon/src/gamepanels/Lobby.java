@@ -1,6 +1,7 @@
 package gamepanels;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -11,7 +12,11 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultCaret;
 
+import players.Player;
+import net.miginfocom.swing.MigLayout;
 import network.ClientRolitSocket;
 import network.PKISocket;
 import network.RolitSocket.MessageType;
@@ -28,6 +33,8 @@ public class Lobby extends JPanel implements ActionListener {
 	private JTextArea chat, playerModus;
 	private JButton d, h, i, j, send, human, easy, medium, hard;
 	private Game game;
+	private int lMaxMessage = 0;
+	private JPanel list;
 	
 	/**
 	 * Construct a new lobby.
@@ -46,8 +53,7 @@ public class Lobby extends JPanel implements ActionListener {
 	 * Sockethandler and tries to init and authenticate.
 	 */
 	public void createLobby() {
-		JLabel test = new JLabel("Welcome to the lobby!");
-		add(test);
+		setLayout(new MigLayout());
 		try {
 			authenticate();
 			init();
@@ -99,7 +105,6 @@ public class Lobby extends JPanel implements ActionListener {
 	 * then returns hello back.
 	 */
 	public void init() {
-		System.out.println("Waiting for bob to implement hello..");
 		while (newMsgType != MessageType.AC_HELLO) {
 			newMsgType = crs.getQueuedMsgType();
 			try {
@@ -109,14 +114,12 @@ public class Lobby extends JPanel implements ActionListener {
 			}
 		}
 		
-		System.out.println("Received Hello!");
 		String hello = crs.getQueuedMsg();
 		
 		// say hello back to server
 		crs.tellHELLO();
 		
 		hello = hello.trim();
-		System.out.println(hello);
 		if (hello.equals("D")) {
 			drawDefault();
 		} else if (hello.equals("DC")) {
@@ -125,6 +128,7 @@ public class Lobby extends JPanel implements ActionListener {
 		} else if (hello.equals("CL")) {
 			drawDefault();
 			drawChat();
+			drawChallenge();
 		}
 	}
 	
@@ -132,8 +136,9 @@ public class Lobby extends JPanel implements ActionListener {
 	 * Adds default buttons to the screen.
 	 */
 	public void drawDefault() {
-		JLabel title = new JLabel("Welcome to the default online game " + settings[0]);
-		add(title);
+		JLabel title = new JLabel("Welcome to the online game lobby " + settings[0] +
+				" You are playing as: ");
+		add(title, "span, split 2, width 60%, height 10%");
 		// the buttons which can be used to ask NGAME
 		d = new JButton("Play 1 vs 1, default");
 		d.addActionListener(this);
@@ -149,27 +154,28 @@ public class Lobby extends JPanel implements ActionListener {
 		j.setName("NGAMEJ");
 		// player modus buttons
 		playerModus = new JTextArea("human");
-		human = new JButton("Play online as a human player");
+		playerModus.setEditable(false);
+		human = new JButton("Human");
 		human.setName("human");
 		human.addActionListener(this);
-		easy = new JButton("Play online as a easy computer");
-		easy.setName("medium");
+		easy = new JButton("EasyAI");
+		easy.setName("easy");
 		easy.addActionListener(this);
-		medium = new JButton("Play online as a medium computer");
-		medium.setName("hard");
+		medium = new JButton("MediumAI");
+		medium.setName("medium");
 		medium.addActionListener(this);
-		hard = new JButton("Play online as a hard computer");
+		hard = new JButton("HardAI");
 		hard.setName("hard");
 		hard.addActionListener(this);
-		add(playerModus);
-		add(human);
-		add(easy);
-		add(medium);
-		add(hard);
-		add(d);
-		add(h);
-		add(i);
-		add(j);
+		add(playerModus, "width 40%");
+		add(human, "span, split 4, width 25%, height 10%");
+		add(easy, "width 25%, height 10%");
+		add(medium, "width 25%, height 10%");
+		add(hard, "width 25%, height 10%");
+		add(d, "span, split 4, width 25%, height 10%");
+		add(h, "width 25%, height 10%");
+		add(i, "width 25%, height 10%");
+		add(j, "width 25%, height 10%");
 	}
 	
 	/**
@@ -180,34 +186,45 @@ public class Lobby extends JPanel implements ActionListener {
 		add(title);
 	}
 	
+	public void addPlayer(String inputPlayer) {
+		if (!inputPlayer.equals(settings[0])) {
+			System.out.println(inputPlayer);
+			JButton newPlayer = new JButton(inputPlayer);
+			newPlayer.setName(inputPlayer);
+			list.add(newPlayer, "span, width 100%");
+			game.setSize(721, 620);
+			game.setSize(720, 620);
+		}
+	}
+	
 	/**
 	 * Draws a chatbox and adds listeners.
 	 */
 	public void drawChat() {
 		JPanel chatBox = new JPanel();
-		chatBox.setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		chatBox.setSize(400, 400);
-		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 0;
-		gbc.gridy = 0;
+		chatBox.setLayout(new MigLayout());
 		chat = new JTextArea("hii, i'm bob welcome to our fabulous chatbox!");
 		chat.setBorder(BorderFactory.createLineBorder(Color.black));
 		chat.setEditable(false);  
-		chatBox.add(chat, gbc);
+		chatBox.add(chat, "span, width 100%, height 90%");
 		message = new JTextArea("Message:");
 		message.setBorder(BorderFactory.createLineBorder(Color.black));
 		send = new JButton("Send");
 		send.setName("send");
-		gbc.gridy = 1;
-		chatBox.add(message, gbc);
-		gbc.gridy = 1;
-		gbc.gridx = 1;
-		chatBox.add(send, gbc);
+		chatBox.add(message, "span, split 2, width 60%, height 10%");
+		chatBox.add(send, "width 40%, height 10%");
 		send.addActionListener(this);
-		chatBox.setSize(400, 400);
-		add(chatBox);
+		add(chatBox, "span, split 2, width 60%, height 70%");
+	}
+	
+	public void drawChallenge() {
+		JPanel challenge = new JPanel();
+		challenge.setLayout(new MigLayout());
+		list = new JPanel(new MigLayout());
+		list.setBorder(BorderFactory.createLineBorder(Color.black));
+		list.add(new JLabel("Click on an online player below to challenge"), "span, width 100%");
+		challenge.add(list, "span, width 100%, height 100%");
+		add(challenge, "width 40%, height 70%");
 	}
 	
 	/** 
@@ -217,6 +234,17 @@ public class Lobby extends JPanel implements ActionListener {
 	 */
 	public void addChatMessage(String inputUsername, String inputMessage) {
 		chat.append("\n" + inputUsername + ": " + inputMessage);
+		lMaxMessage++;
+		if (lMaxMessage > 20) {
+			System.out.println("Chat full removing upper line");
+			int end = 0;
+			try {
+				end = chat.getLineEndOffset(0);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			} 
+			chat.replaceRange("", 0, end);
+		}
 	}
 
 	/** 

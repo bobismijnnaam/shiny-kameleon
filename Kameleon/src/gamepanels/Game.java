@@ -79,7 +79,7 @@ public class Game extends JFrame {
 				setSize(0, 0);
 				lobby = new Lobby(this, settings);
 				add(lobby);
-				setSize(620, 620);
+				setSize(720, 620);
 				break;
 			case STATE_ONLINE:
 				remove(lobby);
