@@ -11,6 +11,11 @@ public class ServerBouncer implements Runnable {
 	LinkedList<Socket> socks;
 	private int port;
 	
+	public static final int START_NOTYET = 0;
+	public static final int START_ERROR = 1;
+	public static final int START_SUCCESS = 2;
+	private int startedProperly = START_NOTYET;
+	
 	/**
 	 * Constructs the Server Port Listener on given port.
 	 * @param port - The port to listen on
@@ -31,7 +36,11 @@ public class ServerBouncer implements Runnable {
 		} catch (IOException e) {
 			System.out.println("Network error: couldn't open server socket on port "
 					+ Integer.toString(port));
+			startedProperly = START_ERROR;
+			return;
 		}
+		
+		startedProperly = START_SUCCESS;
 		
 		Socket tSock;
 		socks = new LinkedList<Socket>();
@@ -112,5 +121,13 @@ public class ServerBouncer implements Runnable {
 		} catch (IOException e) {
 			System.out.println("Server Socket exception: exception while closing the socket");
 		}
+	}
+	
+	/**
+	 * Returns false if the thread didn't start properly.
+	 * @return True if it did start properly. Otherwise false.
+	 */
+	public int isStartedProperly() {
+		return startedProperly;
 	}
 }

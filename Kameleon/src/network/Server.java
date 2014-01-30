@@ -39,6 +39,7 @@ public class Server extends JFrame implements Runnable {
 	private Stopwatch aliveTimer;
 
 	private boolean running = false;
+	private int startedProperly = ServerBouncer.START_NOTYET;
 
 	ServerBouncer sb; // Incoming connections handler
 	PKISocket pki;
@@ -139,6 +140,10 @@ public class Server extends JFrame implements Runnable {
 				p.net().tellLEAVE(player.getName());
 			}
 		}
+	}
+	
+	public int isStartedProperly() {
+		return startedProperly;
 	}
 
 	private void handleFrontline(ServerPlayer p) {
@@ -383,6 +388,25 @@ public class Server extends JFrame implements Runnable {
 	}
 
 	public void run() {
+		sb = new ServerBouncer(usePort);
+		Thread sbThread = new Thread(sb);
+		sbThread.start();
+		
+		while (sb.isStartedProperly() == ServerBouncer.START_NOTYET) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				System.out.println("We were interrupted!");
+			}
+		}
+		
+		if (sb.isStartedProperly() == ServerBouncer.START_ERROR) {
+			startedProperly = ServerBouncer.START_ERROR;
+			return;
+		} else {
+			startedProperly = ServerBouncer.START_SUCCESS;
+		}
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		servertext = new JTextArea();
 		getContentPane().add(servertext, BorderLayout.CENTER);
@@ -390,10 +414,7 @@ public class Server extends JFrame implements Runnable {
 		setVisible(true);
 		
 		serverSays("HONEYBADGER ON DUTY!");
-
-		sb = new ServerBouncer(usePort);
-		Thread sbThread = new Thread(sb);
-		sbThread.start();
+		
 		serverSays("Started server socket");
 		
 		pki = new PKISocket();
@@ -465,14 +486,39 @@ public class Server extends JFrame implements Runnable {
 	}
 
 	public static void main(String[] args) {
-		int port = Integer.parseInt(JOptionPane.showInputDialog(
-				"Enter port number", String.valueOf(Server.SERVER_PORT)));
+		boolean okayFlag = false;
+		String msg = "Enter port number";
 		
+		Thread servThread = null;
+		Server serv = null;
 		
-		Server serv = new Server(port);
-		Thread servThread = new Thread(serv);
-		servThread.start();
+		while (!okayFlag) {
+			String portString = JOptionPane.showInputDialog(
+					msg, String.valueOf(Server.SERVER_PORT));
+			
+			if (portString == null) {
+				return;
+			}
+			
+			int port = Integer.parseInt(portString);
 
+			serv = new Server(port);
+			servThread = new Thread(serv);
+			servThread.start();
+			
+			while (serv.isStartedProperly() == ServerBouncer.START_NOTYET) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					System.out.println("We were interrupted!");
+				}
+			}
+			
+			okayFlag = serv.isStartedProperly() == ServerBouncer.START_SUCCESS;
+			
+			msg = "Port already in use. Enter port number";
+		}
+		
 		try {
 			servThread.join();
 		} catch (InterruptedException e) {
