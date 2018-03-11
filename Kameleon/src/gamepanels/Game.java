@@ -3,6 +3,7 @@ package gamepanels;
 import java.io.IOException;
 
 import javax.swing.JFrame;
+import javax.swing.UIManager;
 
 import network.ClientRolitSocket;
 
@@ -26,6 +27,12 @@ public class Game extends JFrame {
 	 * Initializes a new game, sets the size and title of the screen and visible.
 	 */
 	public Game() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			// No problem
+		}
+		
 		setSize(600, 600);
 		setTitle("Controllit");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
